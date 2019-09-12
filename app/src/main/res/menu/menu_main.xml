@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".MainActivity">
+
+    <item
+        android:id="@+id/scan"
+        android:icon="@android:drawable/btn_star"
+        android:showAsAction="always"
+        android:title="@string/scan" />
+
+    <item
+        android:id="@+id/connect"
+        app:showAsAction="ifRoom"
+        android:title="@string/connect"
+        android:visible="true" />
+
+    <item
+        android:id="@+id/disconnect"
+        app:showAsAction="ifRoom"
+        android:title="@string/disconnect"
+        android:visible="true" />
+
+</menu>
