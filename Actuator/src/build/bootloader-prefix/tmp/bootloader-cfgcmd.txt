@@ -1,0 +1,1 @@
+cmd='C:/Users/Guo/.espressif/tools/cmake/3.13.4/bin/cmake.exe;-DSDKCONFIG=C:/Users/Guo/Documents/Repository/Pchair/Actuator/src/sdkconfig;-DIDF_PATH=C:/Users/Guo/Documents/work/esp;-DEXTRA_COMPONENT_DIRS=C:/Users/Guo/Documents/work/esp/components/bootloader;-GNinja;<SOURCE_DIR><SOURCE_SUBDIR>'
