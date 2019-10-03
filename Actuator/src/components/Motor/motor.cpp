@@ -5,8 +5,8 @@
 
 
 namespace Motor{
-	uint8_t forwardSpeedLimit = 50;
-	uint8_t rotationSpeedLimit = 30;
+	uint8_t forwardSpeedLimit = 100;
+	uint8_t rotationSpeedLimit = 50;
 	void caculateMotorSpeed(uint8_t joyX,uint8_t joyY,Actuator::system_modes mode)
 	{
 		float x =0;

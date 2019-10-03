@@ -343,6 +343,10 @@ namespace Actuator{
 								if (ReclineAngleInRange())
 								{
 									actRecline.moveToMemory();
+									if (logCounter%5 ==0)
+									{
+										printf("Move Recline back!\n");
+									}
 								}
 								else
 								{
@@ -846,7 +850,7 @@ namespace Actuator{
 	}
 	bool ReclineAngleInRange()
 	{
-		return (BackAngleToGround>175)&&(BackAngleToGround<85);
+		return ((BackAngleToGround<175)&&(BackAngleToGround>85));
 	}
 	bool LegRestInRange()
 	{
