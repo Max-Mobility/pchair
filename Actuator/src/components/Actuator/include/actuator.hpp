@@ -91,7 +91,7 @@ namespace Actuator {
 	bool LegRestTouchGround();
 	bool ReclineAngleInRange();
 	bool LegRestInRange();
-
+	void updateActPositionLimit();
 
 
 
@@ -120,6 +120,7 @@ namespace Actuator {
 			uint32_t pwm_up_limit;  //could be 100 or 90
 			uint32_t pwm_low_limit; // could be 0 or 10
 			uint32_t position_out_limit;
+			uint32_t position_in_limit;
 			uint32_t target;
 			bool targetUpdated;
 			ACT(gpio_num_t A, gpio_num_t B,gpio_num_t P,uint32_t up,uint32_t low,uint32_t out);
@@ -133,6 +134,7 @@ namespace Actuator {
 			void stop();
 			void setTarget(uint32_t T);
 			void moveToMemory();
+
 
 	};
 

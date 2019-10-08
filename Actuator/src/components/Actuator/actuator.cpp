@@ -118,6 +118,7 @@ namespace Actuator{
 						actuatorStop();
 						break;
 					case Actuator_recline:                     // only move recline actuator
+						updateActPositionLimit();
 						switch (actionInput)
 						{
 							case nonMoving:
@@ -180,6 +181,7 @@ namespace Actuator{
 						}
 						break;
 					case Actuator_tilt:        //change seat angle by moving tilt actuator or elevation actuator or both
+						updateActPositionLimit();
 						switch (actionInput)
 						{
 							case nonMoving:
@@ -637,6 +639,7 @@ namespace Actuator{
 		ACT::pwm_up_limit = up;
 		ACT::pwm_low_limit = low;
 		ACT::position_out_limit =out;    // 0-100% no limit
+		ACT::position_in_limit = 0;      //initial to 0
 		initPWM(ACT::pwmInput);
 		controlPinSetup(A);
 		controlPinSetup(B);
@@ -651,8 +654,16 @@ namespace Actuator{
 
 	void ACT::moveIn()
 	{
-		gpio_set_level(controlA,1);
-		gpio_set_level(controlB,1);
+		if (ACT::position>=ACT::position_in_limit)
+		{
+			gpio_set_level(controlB,1);
+			gpio_set_level(controlA,1);
+		}
+		else
+		{
+			gpio_set_level(controlB,0);
+		}
+
 	}
 
 	void ACT::moveOut()
@@ -861,6 +872,36 @@ namespace Actuator{
 	bool LegRestInRange()
 	{
 		return ((LegRestHeightToGround>40)&&(LegRestAngleToGround>90));
+	}
+	void updateActPositionLimit()
+	{
+		if (actTilt.position>11)
+		{
+			actRecline.position_out_limit=100;
+		}
+		else
+		{
+			if (actTilt.position>6)
+				actRecline.position_out_limit=75;
+			else
+				actRecline.position_out_limit=5;
+		}
+
+		if (actRecline.position<5)
+		{
+			actTilt.position_in_limit=0;
+		}
+		else
+		{
+			if(actRecline.position<75)
+			{
+				actTilt.position_in_limit=6;
+			}
+			else
+			{
+				actTilt.position_in_limit=11;
+			}
+		}
 	}
 
 
