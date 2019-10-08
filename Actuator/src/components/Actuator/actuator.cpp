@@ -234,13 +234,16 @@ namespace Actuator{
 								actuatorStop();
 								//actElevation.stop();
 //								maintainSeatAngle();
-								if (Actuator::actElevation.position>GoKartHeight)
+								if (Actuator::actElevation.position<GoKartHeight-3 )
 								{
 									elevationState = seat_state;
 								}
 								else
 								{
-									elevationState = GoKart_state;
+									if (Actuator::actElevation.position>GoKartHeight+3 )
+										elevationState = floor_state;
+									else
+										elevationState = GoKart_state;
 								}
 								break;
 							case movingUp:
@@ -251,28 +254,28 @@ namespace Actuator{
 								systemMode =system_modes::Actuator_stand;
 								draw_circle_inline(6);
 								break;
-							case movingLeft:
+							case movingLeft:       // lower the elevation == moveOut
 								switch(elevationState)
 								{
 									case seat_state:
-										actElevation.moveIn();    // SeatAngleToGround will increase
+										if (actElevation.position >GoKartHeight)
+											actElevation.stop();
+										else
+											actElevation.moveOut();
 										break;
 									case GoKart_state:
-										if (actElevation.position>GoKartHeight-3)
-										{
-											actElevation.moveIn();    // SeatAngleToGround will increase
-										}
-										else
-										{
-											actElevation.stop();
-										}
+										actElevation.moveOut();
 										break;
+									case floor_state:
+										actElevation.moveOut();
+										break;
+
 								}
 								maintainSeatAngle();
 								checkLegRestHeight();
 								checkReclineAngle();
 								break;
-							case movingRight:
+							case movingRight:     // increase elevation by moving in
 								if (LegRestTouchGround())
 								{
 									actElevation.stop();
@@ -282,17 +285,20 @@ namespace Actuator{
 									switch(elevationState)
 									{
 										case seat_state:
-											if (actElevation.position<GoKartHeight+3)
+											actElevation.moveIn();   // move to higher elevation
+											break;
+										case GoKart_state:
+											actElevation.moveIn();   // move to higher elevation
+											break;
+										case floor_state:	// move to higher elevation until reach GoKartHeight
+											if (actElevation.position>GoKartHeight)
 											{
-												actElevation.moveOut();   // move to floor
+												actElevation.moveIn();
 											}
 											else
 											{
 												actElevation.stop();
 											}
-											break;
-										case GoKart_state:
-											actElevation.moveOut();   // move to floor
 											break;
 									}
 

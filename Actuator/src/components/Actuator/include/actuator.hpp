@@ -57,6 +57,7 @@ namespace Actuator {
 	{
 		seat_state,
 		GoKart_state,
+		floor_state,
 	};
 
 
