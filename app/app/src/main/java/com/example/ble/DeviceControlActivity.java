@@ -1,7 +1,7 @@
 package com.example.ble;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.ExpandableListActivity;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.content.BroadcastReceiver;
@@ -11,18 +11,22 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
+import android.media.Image;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ExpandableListView;
+import android.widget.ImageView;
 import android.widget.SimpleExpandableListAdapter;
 import android.widget.TextView;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -43,8 +47,7 @@ public class DeviceControlActivity extends Activity {
     private boolean mConnected = false;
     private BluetoothGattCharacteristic mNotifyCharacteristic, mBluetoothGattCharacteristic;
 
-    private final String LIST_NAME = "NAME";
-    private final String LIST_UUID = "UUID";
+    public static String mBluetooth = "BUSY";
 
     private final ServiceConnection mServiceConnection = new ServiceConnection() {
         @Override
@@ -114,7 +117,8 @@ public class DeviceControlActivity extends Activity {
                 displayCharacteristic(mBluetoothLeService.getSupportedGattCharacteristic());
 
             } else if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
-                displayData(intent.getStringExtra(BluetoothLeService.EXTRA_DATA));
+                //displayData(intent.getStringExtra(BluetoothLeService.EXTRA_DATA));
+                displayData(intent.getIntExtra(BluetoothLeService.EXTRA_DATA, 0));
             }
         }
     };
@@ -127,7 +131,8 @@ public class DeviceControlActivity extends Activity {
         final Intent intent = getIntent();
         mDeviceName = intent.getStringExtra(EXTRAS_DEVICE_NAME);
         mDeviceAddress = intent.getStringExtra(EXTRAS_DEVICE_ADDRESS);
-        Log.e(TAG, "Device Address: " + mDeviceAddress);
+        //Log.e(TAG, "Device Address: " + mDeviceAddress);
+        Log.e(TAG, "Device Name: " + mDeviceName);
 
         //Setup UI.
         ((TextView) findViewById(R.id.device_address)).setText(mDeviceAddress);
@@ -141,6 +146,202 @@ public class DeviceControlActivity extends Activity {
         //getActionBar().setDisplayShowHomeEnabled(true);
         Intent gattServiceIntent = new Intent(this, BluetoothLeService.class);
         bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
+
+        addListenerOnImageView();
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    public void addListenerOnImageView() {
+        ImageView imageView_plus = findViewById(R.id.plusButton);
+        ImageView imageView_minus = findViewById(R.id.minusButton);
+        ImageView imageView_run = findViewById(R.id.run);
+        ImageView imageView_sleep = findViewById(R.id.sleep);
+
+        ImageView imageView_0 = findViewById(R.id.image_0);
+        ImageView imageView_1 = findViewById(R.id.image_1);
+        ImageView imageView_2 = findViewById(R.id.image_2);
+        ImageView imageView_3 = findViewById(R.id.image_3);
+        ImageView imageView_4 = findViewById(R.id.image_4);
+
+        // update function and BLE activity
+
+//        imageView_plus.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                Log.e(TAG, "plus: MOTION_UP. " + mBluetoothGattCharacteristic);
+//                sendChoiceToBluetooth("plus", mBluetoothGattCharacteristic);
+//            }
+//        });
+
+        imageView_plus.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent event) {
+                if(event.getAction() == MotionEvent.ACTION_DOWN){
+                    Log.e(TAG, "plus: MOTION_DOWN. " + mBluetoothGattCharacteristic);
+                    sendChoiceToBluetooth("plus down", mBluetoothGattCharacteristic);
+                }
+                if(event.getAction() == MotionEvent.ACTION_UP){
+                    Log.e(TAG, "plus: MOTION_UP. " + mBluetoothGattCharacteristic);
+                    sendChoiceToBluetooth("plus up", mBluetoothGattCharacteristic);
+                }
+                return false;
+            }
+        });
+
+//        imageView_minus.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                Log.e(TAG, "minus: -");
+//                sendChoiceToBluetooth("minus", mBluetoothGattCharacteristic);
+//            }
+//        });
+        imageView_minus.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent event) {
+                if(event.getAction() == MotionEvent.ACTION_DOWN){
+                    Log.e(TAG, "minus: MOTION_DOWN. " + mBluetoothGattCharacteristic);
+                    sendChoiceToBluetooth("minus down", mBluetoothGattCharacteristic);
+                }
+                if(event.getAction() == MotionEvent.ACTION_UP){
+                    Log.e(TAG, "minus: MOTION_UP. " + mBluetoothGattCharacteristic);
+                    sendChoiceToBluetooth("minus up", mBluetoothGattCharacteristic);
+                }
+                return false;
+            }
+        });
+
+        imageView_run.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.e(TAG, "run");
+                sendChoiceToBluetooth("run", mBluetoothGattCharacteristic);
+            }
+        });
+
+        imageView_sleep.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.e(TAG, "sleep");
+                sendChoiceToBluetooth("sleep", mBluetoothGattCharacteristic);
+
+            }
+        });
+
+        imageView_0.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.e(TAG, "Image_0");
+                setBackground(R.id.image_0);
+                setZoomImage(R.id.image_0);
+                sendChoiceToBluetooth("image_0", mBluetoothGattCharacteristic);
+            }
+        });
+
+        imageView_1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.e(TAG, "Image_1");
+                setBackground(R.id.image_1);
+                setZoomImage(R.id.image_1);
+                sendChoiceToBluetooth("image_1", mBluetoothGattCharacteristic);
+            }
+        });
+
+        imageView_2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.e(TAG, "Image_2");
+                setBackground(R.id.image_2);
+                setZoomImage(R.id.image_2);
+                sendChoiceToBluetooth("image_2", mBluetoothGattCharacteristic);
+            }
+        });
+
+        imageView_3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.e(TAG, "Image_3");
+                setBackground(R.id.image_3);
+                setZoomImage(R.id.image_3);
+                sendChoiceToBluetooth("image_3", mBluetoothGattCharacteristic);
+            }
+        });
+
+        imageView_4.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.e(TAG, "Image_4");
+                setBackground(R.id.image_4);
+                setZoomImage(R.id.image_4);
+                sendChoiceToBluetooth("image_4", mBluetoothGattCharacteristic);
+            }
+        });
+    }
+
+    private void setZoomImage(int image) {
+        ImageView imageView_zoom = findViewById(R.id.image_zoom);
+        switch (image) {
+            case R.id.image_0:
+                imageView_zoom.setImageResource(R.drawable.btn_star_big_off);
+                break;
+            case R.id.image_1:
+                imageView_zoom.setImageResource(R.drawable.btn_star_big_on);
+                break;
+            case R.id.image_2:
+                imageView_zoom.setImageResource(R.drawable.btn_star_big_on_disable);
+                break;
+            case R.id.image_3:
+                imageView_zoom.setImageResource(R.drawable.btn_star_big_on_disable_focused);
+                break;
+            case R.id.image_4:
+                imageView_zoom.setImageResource(R.drawable.btn_star_big_on_pressed);
+                break;
+            default:
+                imageView_zoom.setImageResource(R.drawable.sleep);
+        }
+    }
+
+    private void sendChoiceToBluetooth(String string, BluetoothGattCharacteristic characteristic) {
+        // Send click information to bluetooth
+        int button;
+        switch (string) {
+            case "image_0":
+                button = 0;
+                break;
+            case "image_1":
+                button = 1;
+                break;
+            case "image_2":
+                button = 2;
+                break;
+            case "image_3":
+                button = 3;
+                break;
+            case "image_4":
+                button = 4;
+                break;
+            case "plus down":
+                button = 5;
+                break;
+            case "plus up":
+                button = 6;
+                break;
+            case "minus down":
+                button = 7;
+                break;
+            case "minus up":
+                button = 8;
+                break;
+            case "run":
+                button = 9;
+                break;
+            case "sleep":
+                button = 10;
+                break;
+            default:
+                throw new IllegalStateException("Unexpected value: " + string);
+        }
+        mBluetoothLeService.writeCharacteristic(characteristic, button);
     }
 
     @Override
@@ -165,7 +366,7 @@ public class DeviceControlActivity extends Activity {
     }
 
     private void clearUI() {
-        mGattServicesList.setAdapter((SimpleExpandableListAdapter) null);
+        //mGattServicesList.setAdapter((SimpleExpandableListAdapter) null);
         mDataField.setText(R.string.no_data);
     }
 
@@ -173,23 +374,44 @@ public class DeviceControlActivity extends Activity {
 
         final int charaProp = characteristic.getProperties();
 
-        if ((charaProp & BluetoothGattCharacteristic.PROPERTY_READ) > 0) {
+        if ((charaProp & BluetoothGattCharacteristic.PROPERTY_READ) > 0 && (charaProp & BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0 && (charaProp & BluetoothGattCharacteristic.PROPERTY_WRITE) > 0 && mBluetooth == "IDLE") {
 
-            Log.e(TAG, "PROPERTY_READ." + characteristic.getUuid());
+            mBluetooth = "BUSY";
+
+            Log.e(TAG, "PROPERTY_READ & NOTIFY." + characteristic.getUuid());
 
             // Clear Notification so it does not update user interface.
             if (mNotifyCharacteristic != null) {
                 mBluetoothLeService.setCharacteristicNotification(mNotifyCharacteristic, false);
                 mNotifyCharacteristic = null;
             }
+
+
             mBluetoothLeService.readCharacteristic(characteristic);
+            mBluetoothGattCharacteristic = characteristic;
+
         }
 
-        if ((charaProp & BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0) {
-            Log.e(TAG, "PROPERTY_NOTIFY." + characteristic.getUuid());
-            mNotifyCharacteristic = characteristic;
-            mBluetoothLeService.setCharacteristicNotification(characteristic, true);
-        }
+//        if ((charaProp & BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0 && mBluetooth == "IDLE") {
+//            mBluetooth = "BUSY";
+//
+//            Log.e(TAG, "PROPERTY_NOTIFY." + characteristic.getUuid());
+//            mNotifyCharacteristic = characteristic;
+//            mBluetoothLeService.setCharacteristicNotification(characteristic, true);
+//        }
+
+//        if ((charaProp & BluetoothGattCharacteristic.PROPERTY_WRITE) > 0 && mBluetooth == "IDLE") {
+//            mBluetooth="BUSY";
+//
+//            Log.e(TAG, "PROPERTY_WRITE." + characteristic.getUuid());
+//            BluetoothGattCharacteristic wCharacteristic = characteristic;
+//            byte[] writev = new byte[1];
+//            Arrays.fill(writev, (byte) '0');
+//            wCharacteristic.setValue(writev);
+//            wCharacteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE);
+//            Log.e(TAG, "PROPERTY_WRITE." + writev);
+//            mBluetoothLeService.writeCharacteristic(wCharacteristic);
+//        }
     }
 
     private void displayGattServices(List<BluetoothGattService> gattServices) {
@@ -205,6 +427,8 @@ public class DeviceControlActivity extends Activity {
         mGattCharacteristics = new ArrayList<>();
 
         //Loops through available GATT Services.
+        String LIST_UUID = "UUID";
+        String LIST_NAME = "NAME";
         for (BluetoothGattService gattService : gattServices) {
 
             HashMap<String, String> currentServiceData = new HashMap<>();
@@ -249,12 +473,42 @@ public class DeviceControlActivity extends Activity {
         mGattServicesList.setAdapter(gattServiceAdapter);
     }
 
-    private void displayData(String data) {
-        if (data != null) {
-            mDataField.setText(data);
+    private void displayData(int data) {
+        //if (data != null) {
+        mDataField.setText(Integer.toString(data));
+        //Log.e(TAG,"data: "+data);
 
-            if(data.equals("0A")) findViewById(R.id.image_0).setBackgroundColor(Color.GREEN);
+        if (data % 5 == 0) {
+            setBackground(R.id.image_0);
+            setZoomImage(R.id.image_0);
         }
+        if (data % 5 == 1) {
+            setBackground(R.id.image_1);
+            setZoomImage(R.id.image_1);
+        }
+
+        if (data % 5 == 2) {
+            setBackground(R.id.image_2);
+            setZoomImage(R.id.image_2);
+        }
+        if (data % 5 == 3) {
+            setBackground(R.id.image_3);
+            setZoomImage(R.id.image_3);
+        }
+        if (data % 5 == 4) {
+            setBackground(R.id.image_4);
+            setZoomImage(R.id.image_4);
+        }
+
+    }
+
+    private void setBackground(int image) {
+        findViewById(R.id.image_0).setBackgroundColor(0x00000000);
+        findViewById(R.id.image_1).setBackgroundColor(0x00000000);
+        findViewById(R.id.image_2).setBackgroundColor(0x00000000);
+        findViewById(R.id.image_3).setBackgroundColor(0x00000000);
+        findViewById(R.id.image_4).setBackgroundColor(0x00000000);
+        findViewById(image).setBackgroundColor(Color.parseColor("#009688"));
     }
 
     private static IntentFilter makeGattUpdateIntentFilter() {

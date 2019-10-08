@@ -11,6 +11,7 @@ public class SampleGattAttributes {
     public static String POSITION_1 = "0000ff01-0000-1000-8000-00805f9b34fb";
     public static String POSITION_2 = "0000ff02-0000-1000-8000-00805f9b34fb";
     public static String POSITION_3 = "0000ff03-0000-1000-8000-00805f9b34fb";
+    public static String CLIENT_CHARACTERISTIC_CONFIG = "00002902-0000-1000-8000-00805f9b34fb";
 
     static {
 

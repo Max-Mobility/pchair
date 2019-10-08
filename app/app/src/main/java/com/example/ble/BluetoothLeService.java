@@ -6,7 +6,7 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattCharacteristic;
-import android.bluetooth.BluetoothGattService;
+import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
 import android.content.Context;
@@ -15,6 +15,7 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 
+import java.util.Arrays;
 import java.util.UUID;
 
 public class BluetoothLeService extends Service {
@@ -71,6 +72,7 @@ public class BluetoothLeService extends Service {
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 Log.e(TAG, "onServicesDiscovered");
+                DeviceControlActivity.mBluetooth = "IDLE";
                 broadcastUpdate(ACTION_GATT_SERVICES_DISCOVERED);
             } else {
                 Log.e(TAG, "onServiceDiscovered received: " + status);
@@ -82,8 +84,14 @@ public class BluetoothLeService extends Service {
         @Override
         public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
             //super.onCharacteristicRead(gatt, characteristic, status);
+            Log.e(TAG, "onCharacteristicRead:"+status+" "+BluetoothGatt.GATT_SUCCESS);
+
+
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic);
+                //DeviceControlActivity.mBluetooth = "IDLE";
+                Log.e(TAG, "call: setCharacteristicNotification");
+                setCharacteristicNotification(characteristic, true);
             }
         }
 
@@ -91,7 +99,25 @@ public class BluetoothLeService extends Service {
         @Override
         public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
             //super.onCharacteristicChanged(gatt, characteristic);
+            Log.e(TAG, "onCharacteristicChanged");
+            //DeviceControlActivity.mBluetooth = "IDLE";
             broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic);
+
+        }
+
+        // callback of writeCharacteristic(..)
+        @Override
+        public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
+            //super.onCharacteristicWrite(gatt, characteristic, status);
+            Log.e(TAG, "onCharacteristicWrite" + status);
+            DeviceControlActivity.mBluetooth = "IDLE";
+        }
+
+        @Override
+        public void onDescriptorWrite(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
+            //super.onDescriptorWrite(gatt, descriptor, status);
+            Log.e(TAG, "onDescriptorWrite" + status);
+            DeviceControlActivity.mBluetooth = "IDLE";
         }
     };
 
@@ -137,10 +163,12 @@ public class BluetoothLeService extends Service {
 
         if (data != null && data.length > 0) {
 
-            final StringBuilder stringBuilder = new StringBuilder(data.length);
-            for (byte byteChar : data)
-                stringBuilder.append(String.format("%02X ", byteChar));
-            intent.putExtra(EXTRA_DATA, new String(data) + "\n" + stringBuilder.toString());
+            //final StringBuilder stringBuilder = new StringBuilder(data.length);
+            //for (byte byteChar : data)
+            //    stringBuilder.append(String.format("%02X ", byteChar));
+            //intent.putExtra(EXTRA_DATA, new String(data) + "\n" + stringBuilder.toString());
+            final int value = data[0] & 0xFF;
+            intent.putExtra(EXTRA_DATA, value);
         }
         sendBroadcast(intent);
     }
@@ -200,6 +228,7 @@ public class BluetoothLeService extends Service {
             Log.e(TAG, "Trying to use an existing mBluetoothGatt for connection.");
             if (mBluetoothGatt.connect()) {
                 mConnectionState = STATE_CONNECTING;
+                //readCharacteristic(mBluetoothGatt.getService(UUID.fromString(SampleGattAttributes.MEASURE)).getCharacteristic(UUID.fromString(SampleGattAttributes.POSITION_1)));
                 return true;
             } else {
                 return false;
@@ -229,12 +258,15 @@ public class BluetoothLeService extends Service {
         }
         mBluetoothGatt.setCharacteristicNotification(characteristic, enabled);
 
-//        //Write
-//        if (UUID_MEASUREMENT.equals(characteristic.getUuid())) {
-//            BluetoothGattDescriptor descriptor = characteristic.getDescriptor(UUID.fromString(SampleGattAttributes.POSITION_1));
-//            descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
-//            Log.e(TAG, "WriteDescriptor: " + mBluetoothGatt.writeDescriptor(descriptor));
-//        }
+        Log.e(TAG,"setCharacteristicNotification run");
+
+        // For Characteristics with Descriptor, enable Notification
+        if (UUID.fromString(SampleGattAttributes.POSITION_1).equals(characteristic.getUuid())) {
+            BluetoothGattDescriptor descriptor = characteristic.getDescriptor(UUID.fromString(SampleGattAttributes.CLIENT_CHARACTERISTIC_CONFIG));
+            descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+            boolean notifyStatus = mBluetoothGatt.writeDescriptor(descriptor);
+            Log.e(TAG, "WriteDescriptor: " + notifyStatus);
+        }
     }
 
     public void readCharacteristic(BluetoothGattCharacteristic characteristic) {
@@ -244,6 +276,19 @@ public class BluetoothLeService extends Service {
             return;
         }
         mBluetoothGatt.readCharacteristic(characteristic);
+    }
+
+    public void writeCharacteristic(BluetoothGattCharacteristic characteristic, int value) {
+        if (mBluetoothAdapter == null || mBluetoothGatt == null) {
+            Log.e(TAG, "BluetoothAdapter not initialized");
+            return;
+        }
+        byte bValue=(byte) value;
+        characteristic.setValue(new byte[]{bValue});
+
+        boolean wStatus = mBluetoothGatt.writeCharacteristic(characteristic);
+
+        Log.e(TAG, "writeCharacteristic run." + Arrays.toString(characteristic.getValue()) + " " + wStatus);
     }
 
     // Connect to Device.Service.Characteristic -> POSITION_1

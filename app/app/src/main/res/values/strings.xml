@@ -20,4 +20,9 @@
     <string name="image_2">Image_2</string>
     <string name="image_3">Image_3</string>
     <string name="image_4">Image_4</string>
+
+    <string name="plus">Increase</string>
+    <string name="minus">Decrease</string>
+    <string name="run">Run</string>
+    <string name="sleep">Sleep</string>
 </resources>
