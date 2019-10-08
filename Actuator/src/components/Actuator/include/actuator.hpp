@@ -12,14 +12,14 @@ namespace Actuator {
 	#define pwmPin3 GPIO_NUM_36
 	#define pwmPin4 GPIO_NUM_27  // 34-39 are input only pins
 
-	#define act1ControlA GPIO_NUM_21
-	#define act1ControlB GPIO_NUM_22
-	#define act2ControlA GPIO_NUM_18
-	#define act2ControlB GPIO_NUM_19
-	#define act3ControlA GPIO_NUM_12
-	#define act3ControlB GPIO_NUM_25
-	#define act4ControlA GPIO_NUM_14
-	#define act4ControlB GPIO_NUM_26
+	#define act1ControlA GPIO_NUM_18
+	#define act1ControlB GPIO_NUM_19
+	#define act2ControlA GPIO_NUM_21
+	#define act2ControlB GPIO_NUM_22
+	#define act3ControlA GPIO_NUM_14
+	#define act3ControlB GPIO_NUM_26
+	#define act4ControlA GPIO_NUM_12
+	#define act4ControlB GPIO_NUM_25
 	#define ActReclineOutLimit 100
 	#define ActLegrestOutLimit 86
 	#define ActTiltOutLimit 100

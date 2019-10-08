@@ -15,10 +15,10 @@
 #define MS_TO_TICKS( xTimeInMs ) (uint32_t)( ( ( TickType_t ) xTimeInMs * configTICK_RATE_HZ ) / ( TickType_t ) 1000 )
 namespace Actuator{
 
-	ACT actLegrest(act1ControlA,act1ControlB,pwmPin1,90,10,ActReclineOutLimit);
-	ACT actRecline(act2ControlA,act2ControlB,pwmPin2,100,0,ActLegrestOutLimit);
-	ACT actElevation(act3ControlA,act3ControlB,pwmPin3,90,10,ActTiltOutLimit);
-	ACT actTilt(act4ControlA,act4ControlB,pwmPin4,90,10,ActElevationOutLimit);
+	ACT actRecline(act1ControlA,act1ControlB,pwmPin1,90,10,ActReclineOutLimit);
+	ACT actLegrest(act2ControlA,act2ControlB,pwmPin2,100,0,ActLegrestOutLimit);
+	ACT actTilt(act3ControlA,act3ControlB,pwmPin3,90,10,ActTiltOutLimit);
+	ACT actElevation(act4ControlA,act4ControlB,pwmPin4,90,10,ActElevationOutLimit);
 
 
 	float SeatAngleToGround = 0;
