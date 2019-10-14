@@ -9,8 +9,10 @@ namespace SerialTask {
 
   // User definitions for the task
   bool changeState = false;
-  char leftSpeed[1];
-  char rightSpeed[1];
+  char leftSpeed[2];
+  char rightSpeed[2];
+  char rampSpeedUP=1;   //1% per cycle
+  char rampSpeedDown=2; //2% per cycle
   // Everything below here is not exported by the header
 
   #define EX_UART_NUM   UART_NUM_0
@@ -106,7 +108,9 @@ namespace SerialTask {
     __change_state__ = false;
     __state_delay__ = 55;
     leftSpeed[0]=0;
+    leftSpeed[1]=0;
     rightSpeed[0]=0;
+    rightSpeed[1]=0;
     state_State_1_setState();
     // execute the init transition for the initial state and task
     uart_config_t uart_config = {
@@ -156,7 +160,7 @@ namespace SerialTask {
       state_State_1_execute();
       // now wait if we haven't changed state
       if (!__change_state__) {
-        vTaskDelay( MS_TO_TICKS(__state_delay__) );
+        vTaskDelay( MS_TO_TICKS(__state_delay__) );      //55 ms delay
       }
       else {
         vTaskDelay( MS_TO_TICKS(1) );
@@ -181,13 +185,16 @@ namespace SerialTask {
 
       uint8_t data[BUF_SIZE];
 
-      if (startupCounter == waitCounter) {
-        printInfo();
-        startupCounter++;
-      }
-      else if (startupCounter < waitCounter)
-        startupCounter++;
+//      if (startupCounter == waitCounter) {
+//        //printInfo();
+//        startupCounter++;
+//      }
+//      else if (startupCounter < waitCounter)
+//        startupCounter++;
 
+
+      leftSpeed[0]=caculateSpeedRamp(leftSpeed[0],leftSpeed[1]);
+      rightSpeed[0]=caculateSpeedRamp(rightSpeed[0],rightSpeed[1]);
       uart_write_bytes(UART_NUM_1,  leftSpeed, 1);
       uart_write_bytes(UART_NUM_2,  rightSpeed, 1);
       //printf("speed: %d; %d;\n", (int)leftSpeed[0], (int)rightSpeed[0]);
@@ -218,6 +225,46 @@ namespace SerialTask {
   void state_State_1_finalization( void ) {
 
   }
+  char caculateSpeedRamp(char currSpeed, char targetSpeed)
+  {
+	  if (targetSpeed==0)   // speed ramp down to stop
+	  {
+		  if (currSpeed>=rampSpeedDown)
+		  {
+			  currSpeed=currSpeed-rampSpeedDown;
+		  }
+		  else
+		  {
+			  if (currSpeed<=(-rampSpeedDown))
+			  {
+				  currSpeed=currSpeed+rampSpeedDown;
+			  }
+			  else
+			  {
+				  currSpeed = targetSpeed;
+			  }
+		  }
+	  }
+	  else  // speed ramp up to target
+	  {
+		  if (currSpeed>=(targetSpeed+rampSpeedUP))
+		  {
+			  currSpeed=currSpeed-rampSpeedUP;
+		  }
+		  else
+		  {
+			  if (currSpeed<=(targetSpeed-rampSpeedUP))
+			  {
+				  currSpeed=currSpeed+rampSpeedUP;
+			  }
+			  else
+			  {
+				  currSpeed = targetSpeed;
+			  }
+		  }
 
+	  }
+	  return currSpeed;
+  }
  
 };

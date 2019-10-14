@@ -18,11 +18,13 @@ namespace SerialTask {
 
   // Task Forward Declarations
   extern bool changeState;
-  extern char leftSpeed[1];
-  extern char rightSpeed[1];
+  // current speed = speed[0], target speed= speed[1]
+  extern char leftSpeed[2];
+  extern char rightSpeed[2];
 
   // Generated task function
   void  taskFunction ( void *pvParameter );
+  char caculateSpeedRamp(char currSpeed, char targetSpeed);
 
   // Generated state functions
   void  state_State_1_execute      ( void );

@@ -5,8 +5,8 @@
 
 
 namespace Motor{
-	uint8_t forwardSpeedLimit = 100;
-	uint8_t rotationSpeedLimit = 50;
+	uint8_t forwardSpeedLimit = 70;
+	uint8_t rotationSpeedLimit = 35;
 	void caculateMotorSpeed(uint8_t joyX,uint8_t joyY,Actuator::system_modes mode)
 	{
 		float x =0;
@@ -17,8 +17,8 @@ namespace Motor{
 		if (mode != Actuator::system_modes::DriveMode)
 		{
 //			printf("joystick error!\n");
-			SerialTask::leftSpeed[0] = char(0);
-			SerialTask::rightSpeed[0] = char(0);
+			SerialTask::leftSpeed[1] = char(0);
+			SerialTask::rightSpeed[1] = char(0);
 		}
 		else
 		{
@@ -37,8 +37,8 @@ namespace Motor{
 			}
 			left = left*factor;
 			right= -1*right*factor; //motor mount reversed.
-			SerialTask::leftSpeed[0] = char(left);
-			SerialTask::rightSpeed[0] = char(right);
+			SerialTask::leftSpeed[1] = char(left);
+			SerialTask::rightSpeed[1] = char(right);
 			//printf("left=%f,right=%f\n",left,right);
 		}
 
