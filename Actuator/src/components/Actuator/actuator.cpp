@@ -40,6 +40,9 @@ namespace Actuator{
 	int dirCounter_down;
 	int dirCounter_left;
 	int dirCounter_right;
+	int buttonCounter_up=0;
+	int buttonCounter_low=0;
+
 	bool stateChanged = false;     //when this is true, save actuator position in tilt or stand mode.
 	bool system_mode_changed = true; //when this is true, send new system mode to the App.
 	std::string str;
@@ -63,6 +66,8 @@ namespace Actuator{
 		dirCounter_down=0;
 		dirCounter_left=0;
 		dirCounter_right=0;
+		buttonCounter_up=0;
+		buttonCounter_low=0;
 		actionInput = nonMoving;
 
 		std::string str;
@@ -415,7 +420,7 @@ namespace Actuator{
 						}
 						break;
 					case ErrorMode:
-						systemMode = system_modes::DriveMode;
+						systemMode = system_modes::System_sleep;
 						draw_circle_inline(1);
 						break;
 					default:
@@ -431,16 +436,52 @@ namespace Actuator{
 
 	void checkButton()
 	{
-		if (I2C::joystickButtonHold_up && !I2C::joystickButtonHold_low && systemMode==DriveMode&& systemMode!=ErrorMode)
+		if (I2C::joystickButtonHold_up && !I2C::joystickButtonHold_low)
+		{
+			buttonCounter_up++;
+		}
+		else
+		{
+			buttonCounter_up=0;
+		}
+		if (!I2C::joystickButtonHold_up && I2C::joystickButtonHold_low)
+		{
+			buttonCounter_low++;
+		}
+		else
+		{
+			buttonCounter_low=0;
+		}
+		if (buttonCounter_up==2)   // up button pressed to change mode from drive to act or from act to drive mode
+		{
+			if (systemMode==DriveMode)
 			{
 				systemMode = Actuator_recline;
-				draw_circle_inline(2);
 			}
-		if (!I2C::joystickButtonHold_up && I2C::joystickButtonHold_low && systemMode!=DriveMode && systemMode!=ErrorMode)
+			else
+			{
+				if (systemMode!=DriveMode&& systemMode!=ErrorMode &&  systemMode!= System_sleep)
+				{
+					systemMode=DriveMode;
+				}
+			}
+
+		}
+		if (buttonCounter_low==2)  // go to sleep mode or wake up from sleep mode.
+		{
+			if (systemMode==System_sleep)
 			{
 				systemMode = DriveMode;
-				draw_circle_inline(1);
 			}
+			else
+			{
+				if (systemMode!=System_sleep&& systemMode!=ErrorMode)
+				{
+					systemMode=System_sleep;
+				}
+			}
+		}
+//		printf("system mode  %d, low_counter %d, up_counter %d\n",systemMode,buttonCounter_low,buttonCounter_up);
 	}
 
 	void actuatorStop()
