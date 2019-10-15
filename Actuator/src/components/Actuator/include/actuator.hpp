@@ -35,7 +35,9 @@ namespace Actuator {
 		Actuator_tilt,
 		Actuator_elevation,
 		Actuator_stand,
+		System_sleep,
 		ErrorMode,
+		system_mode_max,
 	};
 	enum joystick_direction
 	{
@@ -64,8 +66,9 @@ namespace Actuator {
 	extern system_modes systemMode;
 	extern system_modes last_system_modes;
 	extern joystick_direction joyDir;
+	extern bool system_mode_changed;
 
-
+	extern float speedLimit;
 	void taskFunction ( void *pvParameter );
 	void controlPinSetup(gpio_num_t gpio_num);
 	joystick_direction get_joyDir(uint8_t x, uint8_t y);

@@ -35,6 +35,9 @@
 
 namespace BLE
 {
+	enum Speed_setting speedSettings =speed_low;
+	enum Actuator_moving_dir actMovDir = AMD_stop;
+	uint8_t data_send[10];
 
 	uint16_t con_id=0;
 
@@ -63,7 +66,7 @@ namespace BLE
 	Actuator::system_modes old_mode;
 	bool BLE_ready =false;
 
-	uint16_t heart_rate_handle_table[HRS_IDX_NB];
+	uint16_t pChair_handle_table[HRS_IDX_NB];
 
 	typedef struct {
 		uint8_t                 *prepare_buf;
@@ -165,7 +168,7 @@ namespace BLE
 						esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t *param);
 
 	/* One gatt-based profile one app_id and one gatts_if, this array will store the gatts_if returned by ESP_GATTS_REG_EVT */
-	static struct gatts_profile_inst heart_rate_profile_tab[PROFILE_NUM] = {
+	static struct gatts_profile_inst Pchair_profile_tab[PROFILE_NUM] = {
 		[PROFILE_APP_IDX] = {
 			.gatts_cb = gatts_profile_event_handler,
 			.gatts_if = ESP_GATT_IF_NONE,       /* Not get the gatt_if, so initial is ESP_GATT_IF_NONE */
@@ -400,18 +403,39 @@ namespace BLE
 			case ESP_GATTS_WRITE_EVT:
 
 
-				if(param->write.handle ==heart_rate_handle_table[IDX_CHAR_VAL_A] )  // write value to charA
+				if(param->write.handle ==pChair_handle_table[IDX_CHAR_VAL_A] )  // write value to charA
 				{
-					if (param->write.len==1)// one byte
+					if (param->write.len==2)// two byte data pack
 					{
-
+						if (param->write.value[0] == Command::CMD_CHANGE_SYSTEM_MODE)
+						{
+							if (param->write.value[1] <Actuator::system_modes::system_mode_max )
+							{
+								Actuator::systemMode = Actuator::system_modes (param->write.value[1]);
+//								printf("changed mode to %d\n",(int)Actuator::systemMode);
+							}
+						}
+						if (param->write.value[0] == Command::CMD_SET_SPEED)
+						{
+							if (param->write.value[1] <3 )
+							{
+								speedSettings = Speed_setting(param->write.value[1]);
+//								printf("speedSettings %d \n",(int)speedSettings);
+							}
+						}
+						if (param->write.value[0] == Command::CMD_MOVE_ACTUATOR)
+							if (param->write.value[1] <3 )
+							{
+								actMovDir = Actuator_moving_dir (param->write.value[1]);
+//								printf("move direction is %d \n", (int)actMovDir);
+							}
 					}
 				}
 //				if (!param->write.is_prep){
 //					// the data length of gattc write  must be less than GATTS_DEMO_CHAR_VAL_LEN_MAX.
 //					ESP_LOGI(GATTS_TABLE_TAG, "GATT_WRITE_EVT, handle = %d, value len = %d, value :", param->write.handle, param->write.len);
 //					esp_log_buffer_hex(GATTS_TABLE_TAG, param->write.value, param->write.len);
-//					if (heart_rate_handle_table[IDX_CHAR_CFG_A] == param->write.handle && param->write.len == 2){
+//					if (pChair_handle_table[IDX_CHAR_CFG_A] == param->write.handle && param->write.len == 2){
 //						uint16_t descr_value = param->write.value[1]<<8 | param->write.value[0];
 //						if (descr_value == 0x0001){
 //							ESP_LOGI(GATTS_TABLE_TAG, "notify enable");
@@ -421,7 +445,7 @@ namespace BLE
 //								notify_data[i] = i % 0xff;
 //							}
 //							//the size of notify_data[] need less than MTU size
-//							esp_ble_gatts_send_indicate(gatts_if, param->write.conn_id, heart_rate_handle_table[IDX_CHAR_VAL_A],
+//							esp_ble_gatts_send_indicate(gatts_if, param->write.conn_id, pChair_handle_table[IDX_CHAR_VAL_A],
 //													sizeof(notify_data), notify_data, false);
 //						}else if (descr_value == 0x0002){
 //							ESP_LOGI(GATTS_TABLE_TAG, "indicate enable");
@@ -431,7 +455,7 @@ namespace BLE
 //								indicate_data[i] = i % 0xff;
 //							}
 //							//the size of indicate_data[] need less than MTU size
-//							esp_ble_gatts_send_indicate(gatts_if, param->write.conn_id, heart_rate_handle_table[IDX_CHAR_VAL_A],
+//							esp_ble_gatts_send_indicate(gatts_if, param->write.conn_id, pChair_handle_table[IDX_CHAR_VAL_A],
 //												sizeof(indicate_data), indicate_data, true);
 //						}
 //						else if (descr_value == 0x0000){
@@ -495,8 +519,8 @@ namespace BLE
 				}
 				else {
 					ESP_LOGI(GATTS_TABLE_TAG, "create attribute table successfully, the number handle = %d\n",param->add_attr_tab.num_handle);
-					memcpy(heart_rate_handle_table, param->add_attr_tab.handles, sizeof(heart_rate_handle_table));
-					esp_ble_gatts_start_service(heart_rate_handle_table[IDX_SVC]);
+					memcpy(pChair_handle_table, param->add_attr_tab.handles, sizeof(pChair_handle_table));
+					esp_ble_gatts_start_service(pChair_handle_table[IDX_SVC]);
 				}
 				break;
 				}
@@ -529,7 +553,7 @@ namespace BLE
 		/* If event is register event, store the gatts_if for each profile */
 		if (event == ESP_GATTS_REG_EVT) {
 			if (param->reg.status == ESP_GATT_OK) {
-				heart_rate_profile_tab[PROFILE_APP_IDX].gatts_if = gatts_if;
+				Pchair_profile_tab[PROFILE_APP_IDX].gatts_if = gatts_if;
 			} else {
 				ESP_LOGE(GATTS_TABLE_TAG, "reg app failed, app_id %04x, status %d",
 						param->reg.app_id,
@@ -541,9 +565,9 @@ namespace BLE
 			int idx;
 			for (idx = 0; idx < PROFILE_NUM; idx++) {
 				/* ESP_GATT_IF_NONE, not specify a certain gatt_if, need to call every profile cb function */
-				if (gatts_if == ESP_GATT_IF_NONE || gatts_if == heart_rate_profile_tab[idx].gatts_if) {
-					if (heart_rate_profile_tab[idx].gatts_cb) {
-						heart_rate_profile_tab[idx].gatts_cb(event, gatts_if, param);
+				if (gatts_if == ESP_GATT_IF_NONE || gatts_if == Pchair_profile_tab[idx].gatts_if) {
+					if (Pchair_profile_tab[idx].gatts_cb) {
+						Pchair_profile_tab[idx].gatts_cb(event, gatts_if, param);
 					}
 				}
 			}
@@ -613,19 +637,21 @@ namespace BLE
 		if (local_mtu_ret){
 			ESP_LOGE(GATTS_TABLE_TAG, "set local  MTU failed, error code = %x", local_mtu_ret);
 		}
-		old_mode=Actuator::systemMode;
+
 		while(1)
 		{
 			if (BLE_ready)
 			{
-				if (old_mode!=Actuator::systemMode)
+				if (Actuator::system_mode_changed)
 				{
-
-					ret = esp_ble_gatts_set_attr_value(heart_rate_handle_table[IDX_CHAR_VAL_A],1,(uint8_t*)&Actuator::systemMode);
-					ret = esp_ble_gatts_send_indicate(heart_rate_profile_tab[PROFILE_APP_IDX].gatts_if,con_id,heart_rate_handle_table[IDX_CHAR_VAL_A],1,(uint8_t*)&Actuator::systemMode,false);
+					data_send[0]=CMD_CHANGE_SYSTEM_MODE;
+					data_send[1]=Actuator::systemMode;
+					ret = esp_ble_gatts_set_attr_value(pChair_handle_table[IDX_CHAR_VAL_A],2,data_send);
+					ret = esp_ble_gatts_send_indicate(Pchair_profile_tab[PROFILE_APP_IDX].gatts_if,con_id,pChair_handle_table[IDX_CHAR_VAL_A],2,data_send,false);
+					Actuator::system_mode_changed = false;
 					//printf("error:%d\n", (int)ret);
 				}
-				old_mode=Actuator::systemMode;
+
 			}
 			vTaskDelay( MS_TO_TICKS(100) );
 

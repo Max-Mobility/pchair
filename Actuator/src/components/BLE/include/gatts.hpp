@@ -31,7 +31,27 @@ namespace BLE
 
 		HRS_IDX_NB,
 	};
+	enum Command
+	{
+		CMD_SET_SPEED,
+		CMD_CHANGE_SYSTEM_MODE,
+		CMD_MOVE_ACTUATOR,
+	};
+	enum  Actuator_moving_dir
+	{
+		AMD_left,
+		AMD_right,
+		AMD_stop,
+	};
 
+	enum Speed_setting
+	{
+		speed_low,
+		speed_medium,
+		speed_high,
+	};
+	extern enum Speed_setting speedSettings;
+	extern enum Actuator_moving_dir actMovDir;
 	void BLEtaskFunction ( void *pvParameter );
 };
 #endif

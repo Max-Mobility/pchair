@@ -4,9 +4,28 @@
 #include "I2C.hpp"
 
 
+
 namespace Motor{
 	uint8_t forwardSpeedLimit = 70;
 	uint8_t rotationSpeedLimit = 35;
+	void caculateSpeedLimit(void)
+	{	float speedSet = 0.5;
+		switch(BLE::speedSettings)
+		{
+			case BLE::Speed_setting::speed_low:
+				speedSet = 0.5;
+			break;
+			case BLE::Speed_setting::speed_medium:
+				speedSet =0.7;
+			break;
+			case BLE::Speed_setting::speed_high:
+				speedSet =1.0;
+			break;
+		}
+		forwardSpeedLimit = uint8_t( speedSet*Actuator::speedLimit*100);
+		rotationSpeedLimit = uint8_t(speedSet*Actuator::speedLimit*50);
+
+	}
 	void caculateMotorSpeed(uint8_t joyX,uint8_t joyY,Actuator::system_modes mode)
 	{
 		float x =0;
@@ -22,6 +41,7 @@ namespace Motor{
 		}
 		else
 		{
+			caculateSpeedLimit();
 			x = converterJoystickReading(joyX);
 			y = converterJoystickReading(joyY);
 			left = (y*forwardSpeedLimit/100.0+x*rotationSpeedLimit/100.0);
@@ -39,7 +59,7 @@ namespace Motor{
 			right= -1*right*factor; //motor mount reversed.
 			SerialTask::leftSpeed[1] = char(left);
 			SerialTask::rightSpeed[1] = char(right);
-			//printf("left=%f,right=%f\n",left,right);
+//			printf("left=%f,right=%f,joyx=%d,joyY=%d\n",left,right,joyX,joyY);
 		}
 
 	}
@@ -71,7 +91,7 @@ namespace Motor{
 
 
 			caculateMotorSpeed(I2C::joystickX,I2C::joystickY,Actuator::systemMode);
-			vTaskDelay((20 * (1)) / portTICK_RATE_MS);
+			vTaskDelay((40 * (1)) / portTICK_RATE_MS);
 
 		}
 

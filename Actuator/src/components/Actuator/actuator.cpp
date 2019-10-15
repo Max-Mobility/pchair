@@ -20,6 +20,7 @@ namespace Actuator{
 	ACT actTilt(act3ControlA,act3ControlB,pwmPin3,90,10,ActTiltOutLimit);
 	ACT actElevation(act4ControlA,act4ControlB,pwmPin4,90,10,ActElevationOutLimit);
 
+	float speedLimit = 0.5;
 
 	float SeatAngleToGround = 0;
 	float BackAngleToGround =0;
@@ -39,7 +40,8 @@ namespace Actuator{
 	int dirCounter_down;
 	int dirCounter_left;
 	int dirCounter_right;
-	bool stateChanged = false;
+	bool stateChanged = false;     //when this is true, save actuator position in tilt or stand mode.
+	bool system_mode_changed = true; //when this is true, send new system mode to the App.
 	std::string str;
 
 	enum Elevation_state elevationState = seat_state;
@@ -84,29 +86,38 @@ namespace Actuator{
 			{
 				systemMode = ErrorMode;
 				actuatorStop();
-				printf("systemMode: %d\n",systemMode);
+				//printf("systemMode: %d\n",systemMode);
+				if (last_system_modes!=systemMode )
+				{
+					stateChanged =true;
+					system_mode_changed = true;
+				}
+				else
+					stateChanged=false;
+				last_system_modes=systemMode;
 			}
 			else
 			{	actionInput = getActionInput(actionInput);
 				updateAngle();
 				checkButton();
 				logCounter++;
-				if(logCounter%10==0) //1 log per second
-				{
-					printf("reclinePos:%d; LegPos:%d; TiltPos:%d; ElevPos:%d;   ",actRecline.position,actLegrest.position,actTilt.position,actElevation.position);
-				}
-				else
-				{
-					if(logCounter%5==0) //1 log per second
-					{
-						printf("Seat:%f; Back:%f; "
-								"Leg:%f; Chassis:%f; SavedSTC:%f; "
-								"LegH:%f mm;\n ",	SeatAngleToGround,BackAngleToGround,LegRestAngleToGround,
-								ChassisAngleToGround,SavedSeatAngleToGround,LegRestHeightToGround);
-					}
-				}
+//				if(logCounter%10==0) //1 log per second
+//				{
+//					printf("reclinePos:%d; LegPos:%d; TiltPos:%d; ElevPos:%d;   ",actRecline.position,actLegrest.position,actTilt.position,actElevation.position);
+//				}
+//				else
+//				{
+//					if(logCounter%5==0) //1 log per second
+//					{
+//						printf("Seat:%f; Back:%f; "
+//								"Leg:%f; Chassis:%f; SavedSTC:%f; "
+//								"LegH:%f mm;\n ",	SeatAngleToGround,BackAngleToGround,LegRestAngleToGround,
+//								ChassisAngleToGround,SavedSeatAngleToGround,LegRestHeightToGround);
+//					}
+//				}
 				if (last_system_modes!=systemMode )
 				{
+					system_mode_changed = true;
 					stateChanged =true;
 				}
 				else
@@ -114,6 +125,8 @@ namespace Actuator{
 				last_system_modes=systemMode;
 				switch (systemMode)
 				{
+					case System_sleep:
+						break;
 					case DriveMode:
 						actuatorStop();
 						break;
@@ -221,13 +234,24 @@ namespace Actuator{
 						{
 							SavedSeatAngleToGround = SeatAngleToGround;
 //							printf("changed to elevation state.\n");
-							if (Actuator::actElevation.position>GoKartHeight)
+							if (Actuator::actElevation.position<GoKartHeight-3 )
 							{
 								elevationState = seat_state;
+								speedLimit = 0.7;
 							}
 							else
 							{
-								elevationState = GoKart_state;
+								if (Actuator::actElevation.position>GoKartHeight+3 )
+
+									{
+										elevationState = floor_state;
+										speedLimit = 0.3;
+									}
+								else
+								{
+									elevationState = GoKart_state;
+									speedLimit = 1.0;
+								}
 							}
 						}
 						switch (actionInput)
@@ -393,6 +417,8 @@ namespace Actuator{
 					case ErrorMode:
 						systemMode = system_modes::DriveMode;
 						draw_circle_inline(1);
+						break;
+					default:
 						break;
 				}
 

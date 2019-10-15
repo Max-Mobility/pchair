@@ -9,12 +9,14 @@
 #include "I2C.hpp"
 #include "SerialTask.hpp"
 #include "Actuator.hpp"
+#include "gatts.hpp"
 
 namespace Motor{
 	#define joyStickZeroMin 118
 	#define joyStickZeroMax 137
 	extern uint8_t forwardSpeedLimit;
 	extern uint8_t rotationSpeedLimit;
+	void caculateSpeedLimit(void);
 	void caculateMotorSpeed(uint8_t joyX,uint8_t joyY,Actuator::system_modes mode);
 	float converterJoystickReading(uint8_t r);
 
