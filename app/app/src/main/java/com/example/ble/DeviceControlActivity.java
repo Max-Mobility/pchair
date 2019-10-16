@@ -165,14 +165,6 @@ public class DeviceControlActivity extends Activity {
 
         // update function and BLE activity
 
-//        imageView_plus.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Log.e(TAG, "plus: MOTION_UP. " + mBluetoothGattCharacteristic);
-//                sendChoiceToBluetooth("plus", mBluetoothGattCharacteristic);
-//            }
-//        });
-
         imageView_plus.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent event) {
@@ -188,13 +180,6 @@ public class DeviceControlActivity extends Activity {
             }
         });
 
-//        imageView_minus.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Log.e(TAG, "minus: -");
-//                sendChoiceToBluetooth("minus", mBluetoothGattCharacteristic);
-//            }
-//        });
         imageView_minus.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent event) {
@@ -215,6 +200,9 @@ public class DeviceControlActivity extends Activity {
             public void onClick(View view) {
                 Log.e(TAG, "run");
                 sendChoiceToBluetooth("run", mBluetoothGattCharacteristic);
+                // call SpeedControlActivity.java
+                final Intent intent = new Intent(DeviceControlActivity.this, SpeedControlActivity.class);
+                startActivity(intent);
             }
         });
 
