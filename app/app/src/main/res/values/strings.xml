@@ -25,4 +25,8 @@
     <string name="minus">Decrease</string>
     <string name="run">Run</string>
     <string name="sleep">Sleep</string>
+
+    <string name="speed_low">Low speed</string>
+    <string name="speed_mid">Mid Speed</string>
+    <string name="speed_high">High Speed</string>
 </resources>

@@ -36,16 +36,18 @@ public class DeviceControlActivity extends Activity {
 
     public static final String EXTRAS_DEVICE_NAME = "DEVICE_NAME";
     public static final String EXTRAS_DEVICE_ADDRESS = "DEVICE_ADDRESS";
+    public static BluetoothGattCharacteristic mNotifyCharacteristic, mBluetoothGattCharacteristic;
+    public static BluetoothLeService mBluetoothLeService;
 
     private TextView mConnectionState;
     private TextView mDataField;
     private String mDeviceName;
     private String mDeviceAddress;
     private ExpandableListView mGattServicesList;
-    private BluetoothLeService mBluetoothLeService;
     private ArrayList<ArrayList<BluetoothGattCharacteristic>> mGattCharacteristics = new ArrayList<>();
     private boolean mConnected = false;
-    private BluetoothGattCharacteristic mNotifyCharacteristic, mBluetoothGattCharacteristic;
+
+
 
     public static String mBluetooth = "BUSY";
 
@@ -202,6 +204,8 @@ public class DeviceControlActivity extends Activity {
                 sendChoiceToBluetooth("run", mBluetoothGattCharacteristic);
                 // call SpeedControlActivity.java
                 final Intent intent = new Intent(DeviceControlActivity.this, SpeedControlActivity.class);
+                intent.putExtra(SpeedControlActivity.EXTRAS_DEVICE_NAME, mDeviceName);
+                intent.putExtra(SpeedControlActivity.EXTRAS_DEVICE_ADDRESS, mDeviceAddress);
                 startActivity(intent);
             }
         });
