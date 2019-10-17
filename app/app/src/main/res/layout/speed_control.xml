@@ -4,46 +4,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <ImageView
-        android:id="@+id/speed_low"
-        android:layout_width="150dp"
-        android:layout_height="75dp"
-        android:layout_column="1"
-        android:layout_marginStart="84dp"
-        android:layout_marginBottom="352dp"
-        android:clickable="true"
-        android:contentDescription="@string/speed_low"
-        android:focusable="true"
-        android:src="@drawable/btn_star_big_off"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
 
-    <ImageView
-        android:id="@+id/speed_mid"
-        android:layout_width="150dp"
-        android:layout_height="75dp"
-        android:layout_column="3"
-        android:layout_marginStart="84dp"
-        android:layout_marginBottom="228dp"
-        android:clickable="true"
-        android:contentDescription="@string/speed_mid"
-        android:focusable="true"
-        android:src="@drawable/btn_star_big_on"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <ImageView
-        android:id="@+id/speed_high"
-        android:layout_width="150dp"
-        android:layout_height="75dp"
-        android:layout_column="1"
-        android:layout_marginStart="84dp"
-        android:layout_marginBottom="104dp"
-        android:clickable="true"
-        android:contentDescription="@string/speed_high"
-        android:focusable="true"
-        android:src="@drawable/btn_star_big_on_disable"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

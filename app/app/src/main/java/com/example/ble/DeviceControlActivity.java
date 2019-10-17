@@ -264,13 +264,6 @@ public class DeviceControlActivity extends Activity {
                 }
 
                 sendChoiceToBluetooth("run", mBluetoothGattCharacteristic);
-
-
-                // call SpeedControlActivity.java
-//                final Intent intent = new Intent(DeviceControlActivity.this, SpeedControlActivity.class);
-//                intent.putExtra(SpeedControlActivity.EXTRAS_DEVICE_NAME, mDeviceName);
-//                intent.putExtra(SpeedControlActivity.EXTRAS_DEVICE_ADDRESS, mDeviceAddress);
-//                startActivity(intent);
             }
         });
 
@@ -280,6 +273,12 @@ public class DeviceControlActivity extends Activity {
                 Log.e(TAG, "sleep");
                 sendChoiceToBluetooth("sleep", mBluetoothGattCharacteristic);
 
+                //TODO: place here temporarily.
+                //call SpeedControlActivity.java
+                final Intent intent = new Intent(DeviceControlActivity.this, SpeedControlActivity.class);
+                intent.putExtra(SpeedControlActivity.EXTRAS_DEVICE_NAME, mDeviceName);
+                intent.putExtra(SpeedControlActivity.EXTRAS_DEVICE_ADDRESS, mDeviceAddress);
+                startActivity(intent);
             }
         });
 

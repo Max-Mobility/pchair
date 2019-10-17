@@ -32,68 +32,6 @@ public class SpeedControlActivity extends Activity {
         Log.e(TAG, "get Intent." + mDeviceName);
 
         getActionBar().setTitle(mDeviceName);
-
-        addListenerOnImageView();
-
     }
-
-    private void addListenerOnImageView() {
-        ImageView imageView_low = findViewById(R.id.speed_low);
-        ImageView imageView_mid = findViewById(R.id.speed_mid);
-        ImageView imageView_high = findViewById(R.id.speed_high);
-
-        imageView_low.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Log.e(TAG, "Speed low.");
-                setBackground(R.id.speed_low);
-                sendChoiceToBluetooth("speed_low", DeviceControlActivity.mBluetoothGattCharacteristic);
-            }
-        });
-
-        imageView_mid.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Log.e(TAG, "Speed mid.");
-                setBackground(R.id.speed_mid);
-                sendChoiceToBluetooth("speed_mid", DeviceControlActivity.mBluetoothGattCharacteristic);
-            }
-        });
-
-        imageView_high.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Log.e(TAG, "Speed high.");
-                setBackground(R.id.speed_high);
-                sendChoiceToBluetooth("speed_high", DeviceControlActivity.mBluetoothGattCharacteristic);
-            }
-        });
-    }
-
-    private void sendChoiceToBluetooth(String string, BluetoothGattCharacteristic characteristic) {
-//        int button;
-//        switch (string) {
-//            case "speed_low":
-//                button = 11;
-//                break;
-//            case "speed_mid":
-//                button = 12;
-//                break;
-//            case "speed_high":
-//                button = 13;
-//                break;
-//            default:
-//                throw new IllegalStateException("Unexpected value: " + string);
-//        }
-//        DeviceControlActivity.mBluetoothLeService.writeCharacteristic(characteristic, button);
-    }
-
-    private void setBackground(int image) {
-        findViewById(R.id.speed_low).setBackgroundColor(0x00000000);
-        findViewById(R.id.speed_mid).setBackgroundColor(0x00000000);
-        findViewById(R.id.speed_high).setBackgroundColor(0x00000000);
-        findViewById(image).setBackgroundColor(Color.parseColor("#009688"));
-    }
-
 
 }
