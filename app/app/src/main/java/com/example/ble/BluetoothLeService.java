@@ -278,13 +278,13 @@ public class BluetoothLeService extends Service {
         mBluetoothGatt.readCharacteristic(characteristic);
     }
 
-    public void writeCharacteristic(BluetoothGattCharacteristic characteristic, int value) {
+    public void writeCharacteristic(BluetoothGattCharacteristic characteristic, byte[] value) {
         if (mBluetoothAdapter == null || mBluetoothGatt == null) {
             Log.e(TAG, "BluetoothAdapter not initialized");
             return;
         }
-        byte bValue=(byte) value;
-        characteristic.setValue(new byte[]{bValue});
+
+        characteristic.setValue(value);
 
         boolean wStatus = mBluetoothGatt.writeCharacteristic(characteristic);
 

@@ -71,21 +71,21 @@ public class SpeedControlActivity extends Activity {
     }
 
     private void sendChoiceToBluetooth(String string, BluetoothGattCharacteristic characteristic) {
-        int button;
-        switch (string) {
-            case "speed_low":
-                button = 11;
-                break;
-            case "speed_mid":
-                button = 12;
-                break;
-            case "speed_high":
-                button = 13;
-                break;
-            default:
-                throw new IllegalStateException("Unexpected value: " + string);
-        }
-        DeviceControlActivity.mBluetoothLeService.writeCharacteristic(characteristic, button);
+//        int button;
+//        switch (string) {
+//            case "speed_low":
+//                button = 11;
+//                break;
+//            case "speed_mid":
+//                button = 12;
+//                break;
+//            case "speed_high":
+//                button = 13;
+//                break;
+//            default:
+//                throw new IllegalStateException("Unexpected value: " + string);
+//        }
+//        DeviceControlActivity.mBluetoothLeService.writeCharacteristic(characteristic, button);
     }
 
     private void setBackground(int image) {

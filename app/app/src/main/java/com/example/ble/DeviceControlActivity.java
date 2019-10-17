@@ -43,11 +43,55 @@ public class DeviceControlActivity extends Activity {
     private TextView mDataField;
     private String mDeviceName;
     private String mDeviceAddress;
+    private String mSpeed;
     private ExpandableListView mGattServicesList;
     private ArrayList<ArrayList<BluetoothGattCharacteristic>> mGattCharacteristics = new ArrayList<>();
     private boolean mConnected = false;
 
+    private ImageView imageView_0;
+    private ImageView imageView_1;
+    private ImageView imageView_2;
+    private ImageView imageView_3;
+    private ImageView imageView_4;
+    private ImageView imageView_zoom;
+    private ImageView imageView_plus;
+    private ImageView imageView_minus;
 
+    private ImageView imageView_run;
+    private ImageView imageView_sleep;
+    private ImageView imageView_low;
+    private ImageView imageView_mid;
+    private ImageView imageView_high;
+
+    static private class system_modes {
+        static byte DriveMode = 0;
+        static byte Actuator_recline = 1;
+        static byte Actuator_legrest = 2;
+        static byte Actuator_tilt = 3;
+        static byte Actuator_elevation = 4;
+        static byte Actuator_stand = 5;
+        static byte System_sleep = 6;
+        static byte ErrorMode = 7;
+        static byte system_mode_max = 8;
+    }
+
+    static private class Command {
+        static byte CMD_SET_SPEED = 0;
+        static byte CMD_CHANGE_SYSTEM_MODE = 1;
+        static byte CMD_MOVE_ACTUATOR = 2;
+    }
+
+    static private class Actuator_moving_dir {
+        static byte AMD_left = 0;
+        static byte AMD_right = 1;
+        static byte AMD_stop = 2;
+    }
+
+    static private class Speed_setting {
+        static byte speed_low = 0;
+        static byte speed_medium = 1;
+        static byte speed_high = 2;
+    }
 
     public static String mBluetooth = "BUSY";
 
@@ -149,32 +193,40 @@ public class DeviceControlActivity extends Activity {
         Intent gattServiceIntent = new Intent(this, BluetoothLeService.class);
         bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
 
+        mSpeed = "speed_low";
+
+        imageView_0 = findViewById(R.id.image_0);
+        imageView_1 = findViewById(R.id.image_1);
+        imageView_2 = findViewById(R.id.image_2);
+        imageView_3 = findViewById(R.id.image_3);
+        imageView_4 = findViewById(R.id.image_4);
+        imageView_zoom = findViewById(R.id.image_zoom);
+        imageView_plus = findViewById(R.id.plusButton);
+        imageView_minus = findViewById(R.id.minusButton);
+
+        imageView_run = findViewById(R.id.run);
+        imageView_sleep = findViewById(R.id.sleep);
+        imageView_low = findViewById(R.id.speed_low);
+        imageView_mid = findViewById(R.id.speed_mid);
+        imageView_high = findViewById(R.id.speed_high);
+
         addListenerOnImageView();
+        setShownButton(R.id.sleep);
     }
 
     @SuppressLint("ClickableViewAccessibility")
     public void addListenerOnImageView() {
-        ImageView imageView_plus = findViewById(R.id.plusButton);
-        ImageView imageView_minus = findViewById(R.id.minusButton);
-        ImageView imageView_run = findViewById(R.id.run);
-        ImageView imageView_sleep = findViewById(R.id.sleep);
-
-        ImageView imageView_0 = findViewById(R.id.image_0);
-        ImageView imageView_1 = findViewById(R.id.image_1);
-        ImageView imageView_2 = findViewById(R.id.image_2);
-        ImageView imageView_3 = findViewById(R.id.image_3);
-        ImageView imageView_4 = findViewById(R.id.image_4);
 
         // update function and BLE activity
 
         imageView_plus.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent event) {
-                if(event.getAction() == MotionEvent.ACTION_DOWN){
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
                     Log.e(TAG, "plus: MOTION_DOWN. " + mBluetoothGattCharacteristic);
                     sendChoiceToBluetooth("plus down", mBluetoothGattCharacteristic);
                 }
-                if(event.getAction() == MotionEvent.ACTION_UP){
+                if (event.getAction() == MotionEvent.ACTION_UP) {
                     Log.e(TAG, "plus: MOTION_UP. " + mBluetoothGattCharacteristic);
                     sendChoiceToBluetooth("plus up", mBluetoothGattCharacteristic);
                 }
@@ -185,11 +237,11 @@ public class DeviceControlActivity extends Activity {
         imageView_minus.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent event) {
-                if(event.getAction() == MotionEvent.ACTION_DOWN){
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
                     Log.e(TAG, "minus: MOTION_DOWN. " + mBluetoothGattCharacteristic);
                     sendChoiceToBluetooth("minus down", mBluetoothGattCharacteristic);
                 }
-                if(event.getAction() == MotionEvent.ACTION_UP){
+                if (event.getAction() == MotionEvent.ACTION_UP) {
                     Log.e(TAG, "minus: MOTION_UP. " + mBluetoothGattCharacteristic);
                     sendChoiceToBluetooth("minus up", mBluetoothGattCharacteristic);
                 }
@@ -201,12 +253,24 @@ public class DeviceControlActivity extends Activity {
             @Override
             public void onClick(View view) {
                 Log.e(TAG, "run");
+                setShownButton(R.id.run);
+                if(mSpeed.equals("speed_mid")){
+                    setBackground(R.id.speed_mid);
+                } else if (mSpeed.equals("speed_high")){
+                    setBackground(R.id.speed_high);
+                } else {
+                    mSpeed="speed_low";
+                    setBackground(R.id.speed_low);
+                }
+
                 sendChoiceToBluetooth("run", mBluetoothGattCharacteristic);
+
+
                 // call SpeedControlActivity.java
-                final Intent intent = new Intent(DeviceControlActivity.this, SpeedControlActivity.class);
-                intent.putExtra(SpeedControlActivity.EXTRAS_DEVICE_NAME, mDeviceName);
-                intent.putExtra(SpeedControlActivity.EXTRAS_DEVICE_ADDRESS, mDeviceAddress);
-                startActivity(intent);
+//                final Intent intent = new Intent(DeviceControlActivity.this, SpeedControlActivity.class);
+//                intent.putExtra(SpeedControlActivity.EXTRAS_DEVICE_NAME, mDeviceName);
+//                intent.putExtra(SpeedControlActivity.EXTRAS_DEVICE_ADDRESS, mDeviceAddress);
+//                startActivity(intent);
             }
         });
 
@@ -224,8 +288,9 @@ public class DeviceControlActivity extends Activity {
             public void onClick(View view) {
                 Log.e(TAG, "Image_0");
                 setBackground(R.id.image_0);
+                setShownButton(R.id.image_0);
                 setZoomImage(R.id.image_0);
-                sendChoiceToBluetooth("image_0", mBluetoothGattCharacteristic);
+                sendChoiceToBluetooth("image_recline", mBluetoothGattCharacteristic);
             }
         });
 
@@ -234,8 +299,9 @@ public class DeviceControlActivity extends Activity {
             public void onClick(View view) {
                 Log.e(TAG, "Image_1");
                 setBackground(R.id.image_1);
+                setShownButton(R.id.image_1);
                 setZoomImage(R.id.image_1);
-                sendChoiceToBluetooth("image_1", mBluetoothGattCharacteristic);
+                sendChoiceToBluetooth("image_leg", mBluetoothGattCharacteristic);
             }
         });
 
@@ -244,8 +310,9 @@ public class DeviceControlActivity extends Activity {
             public void onClick(View view) {
                 Log.e(TAG, "Image_2");
                 setBackground(R.id.image_2);
+                setShownButton(R.id.image_2);
                 setZoomImage(R.id.image_2);
-                sendChoiceToBluetooth("image_2", mBluetoothGattCharacteristic);
+                sendChoiceToBluetooth("image_tilt", mBluetoothGattCharacteristic);
             }
         });
 
@@ -254,8 +321,9 @@ public class DeviceControlActivity extends Activity {
             public void onClick(View view) {
                 Log.e(TAG, "Image_3");
                 setBackground(R.id.image_3);
+                setShownButton(R.id.image_3);
                 setZoomImage(R.id.image_3);
-                sendChoiceToBluetooth("image_3", mBluetoothGattCharacteristic);
+                sendChoiceToBluetooth("image_elevation", mBluetoothGattCharacteristic);
             }
         });
 
@@ -264,14 +332,68 @@ public class DeviceControlActivity extends Activity {
             public void onClick(View view) {
                 Log.e(TAG, "Image_4");
                 setBackground(R.id.image_4);
+                setShownButton(R.id.image_4);
                 setZoomImage(R.id.image_4);
-                sendChoiceToBluetooth("image_4", mBluetoothGattCharacteristic);
+                sendChoiceToBluetooth("image_stand", mBluetoothGattCharacteristic);
+            }
+        });
+
+        imageView_low.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.e(TAG, "Speed low.");
+                mSpeed = "speed_low";
+                setBackground(R.id.speed_low);
+                sendChoiceToBluetooth("speed_low", mBluetoothGattCharacteristic);
+            }
+        });
+
+        imageView_mid.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.e(TAG, "Speed mid.");
+                mSpeed = "speed_mid";
+                setBackground(R.id.speed_mid);
+                sendChoiceToBluetooth("speed_mid", mBluetoothGattCharacteristic);
+            }
+        });
+
+        imageView_high.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.e(TAG, "Speed high.");
+                mSpeed = "speed_high";
+                setBackground(R.id.speed_high);
+                sendChoiceToBluetooth("speed_high", mBluetoothGattCharacteristic);
             }
         });
     }
 
+    private void setShownButton(int image) {
+
+        switch (image) {
+            case R.id.run:
+                imageView_low.setVisibility(View.VISIBLE);
+                imageView_mid.setVisibility(View.VISIBLE);
+                imageView_high.setVisibility(View.VISIBLE);
+
+                imageView_plus.setVisibility(View.INVISIBLE);
+                imageView_minus.setVisibility(View.INVISIBLE);
+                imageView_zoom.setVisibility(View.INVISIBLE);
+                break;
+            default:
+                imageView_low.setVisibility(View.INVISIBLE);
+                imageView_mid.setVisibility(View.INVISIBLE);
+                imageView_high.setVisibility(View.INVISIBLE);
+
+                imageView_plus.setVisibility(View.VISIBLE);
+                imageView_minus.setVisibility(View.VISIBLE);
+                imageView_zoom.setVisibility(View.VISIBLE);
+        }
+    }
+
     private void setZoomImage(int image) {
-        ImageView imageView_zoom = findViewById(R.id.image_zoom);
+
         switch (image) {
             case R.id.image_0:
                 imageView_zoom.setImageResource(R.drawable.btn_star_big_off);
@@ -295,40 +417,61 @@ public class DeviceControlActivity extends Activity {
 
     private void sendChoiceToBluetooth(String string, BluetoothGattCharacteristic characteristic) {
         // Send click information to bluetooth
-        int button;
+        byte[] button = new byte[2];
+
         switch (string) {
-            case "image_0":
-                button = 0;
+            case "image_recline":
+                button[0] = Command.CMD_CHANGE_SYSTEM_MODE;
+                button[1] = system_modes.Actuator_recline;
                 break;
-            case "image_1":
-                button = 1;
+            case "image_leg":
+                button[0] = Command.CMD_CHANGE_SYSTEM_MODE;
+                button[1] = system_modes.Actuator_legrest;
                 break;
-            case "image_2":
-                button = 2;
+            case "image_tilt":
+                button[0] = Command.CMD_CHANGE_SYSTEM_MODE;
+                button[1] = system_modes.Actuator_tilt;
                 break;
-            case "image_3":
-                button = 3;
+            case "image_elevation":
+                button[0] = Command.CMD_CHANGE_SYSTEM_MODE;
+                button[1] = system_modes.Actuator_elevation;
                 break;
-            case "image_4":
-                button = 4;
+            case "image_stand":
+                button[0] = Command.CMD_CHANGE_SYSTEM_MODE;
+                button[1] = system_modes.Actuator_stand;
                 break;
             case "plus down":
-                button = 5;
+                button[0] = Command.CMD_MOVE_ACTUATOR;
+                button[1] = Actuator_moving_dir.AMD_right;
                 break;
             case "plus up":
-                button = 6;
+            case "minus up":
+                button[0] = Command.CMD_MOVE_ACTUATOR;
+                button[1] = Actuator_moving_dir.AMD_stop;
                 break;
             case "minus down":
-                button = 7;
-                break;
-            case "minus up":
-                button = 8;
+                button[0] = Command.CMD_MOVE_ACTUATOR;
+                button[1] = Actuator_moving_dir.AMD_left;
                 break;
             case "run":
-                button = 9;
+                button[0] = Command.CMD_CHANGE_SYSTEM_MODE;
+                button[1] = system_modes.DriveMode;
                 break;
             case "sleep":
-                button = 10;
+                button[0] = Command.CMD_CHANGE_SYSTEM_MODE;
+                button[1] = system_modes.System_sleep;
+                break;
+            case "speed_low":
+                button[0] = Command.CMD_SET_SPEED;
+                button[1] = Speed_setting.speed_low;
+                break;
+            case "speed_mid":
+                button[0] = Command.CMD_SET_SPEED;
+                button[1] = Speed_setting.speed_medium;
+                break;
+            case "speed_high":
+                button[0] = Command.CMD_SET_SPEED;
+                button[1] = Speed_setting.speed_high;
                 break;
             default:
                 throw new IllegalStateException("Unexpected value: " + string);
@@ -381,7 +524,7 @@ public class DeviceControlActivity extends Activity {
 
             mBluetoothLeService.readCharacteristic(characteristic);
             mBluetoothGattCharacteristic = characteristic;
-
+            sendChoiceToBluetooth(mSpeed,mBluetoothGattCharacteristic);
         }
 
 //        if ((charaProp & BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0 && mBluetooth == "IDLE") {
@@ -495,12 +638,19 @@ public class DeviceControlActivity extends Activity {
     }
 
     private void setBackground(int image) {
-        findViewById(R.id.image_0).setBackgroundColor(0x00000000);
-        findViewById(R.id.image_1).setBackgroundColor(0x00000000);
-        findViewById(R.id.image_2).setBackgroundColor(0x00000000);
-        findViewById(R.id.image_3).setBackgroundColor(0x00000000);
-        findViewById(R.id.image_4).setBackgroundColor(0x00000000);
+        imageView_run.setBackgroundColor(Color.parseColor("#2196F3"));
+        imageView_low.setBackgroundColor(0x00000000);
+        imageView_mid.setBackgroundColor(0x00000000);
+        imageView_high.setBackgroundColor(0x00000000);
+        imageView_0.setBackgroundColor(0x00000000);
+        imageView_1.setBackgroundColor(0x00000000);
+        imageView_2.setBackgroundColor(0x00000000);
+        imageView_3.setBackgroundColor(0x00000000);
+        imageView_4.setBackgroundColor(0x00000000);
         findViewById(image).setBackgroundColor(Color.parseColor("#009688"));
+        if (image == R.id.speed_low || image == R.id.speed_mid || image == R.id.speed_high) {
+            imageView_run.setBackgroundColor(Color.parseColor("#00574B"));
+        }
     }
 
     private static IntentFilter makeGattUpdateIntentFilter() {
