@@ -12,6 +12,7 @@
 #include "DisplayTask.hpp"
 #include "Display.hpp"
 #include <cmath>
+#include "gatts.hpp"
 #define MS_TO_TICKS( xTimeInMs ) (uint32_t)( ( ( TickType_t ) xTimeInMs * configTICK_RATE_HZ ) / ( TickType_t ) 1000 )
 namespace Actuator{
 
@@ -106,20 +107,20 @@ namespace Actuator{
 				updateAngle();
 				checkButton();
 				logCounter++;
-//				if(logCounter%10==0) //1 log per second
-//				{
-//					printf("reclinePos:%d; LegPos:%d; TiltPos:%d; ElevPos:%d;   ",actRecline.position,actLegrest.position,actTilt.position,actElevation.position);
-//				}
-//				else
-//				{
-//					if(logCounter%5==0) //1 log per second
-//					{
-//						printf("Seat:%f; Back:%f; "
-//								"Leg:%f; Chassis:%f; SavedSTC:%f; "
-//								"LegH:%f mm;\n ",	SeatAngleToGround,BackAngleToGround,LegRestAngleToGround,
-//								ChassisAngleToGround,SavedSeatAngleToGround,LegRestHeightToGround);
-//					}
-//				}
+				if(logCounter%10==0) //1 log per second
+				{
+					printf("reclinePos:%d; LegPos:%d; TiltPos:%d; ElevPos:%d;   ",actRecline.position,actLegrest.position,actTilt.position,actElevation.position);
+				}
+				else
+				{
+					if(logCounter%5==0) //1 log per second
+					{
+						printf("Seat:%f; Back:%f; "
+								"Leg:%f; Chassis:%f; SavedSTC:%f; "
+								"LegH:%f mm;\n ",	SeatAngleToGround,BackAngleToGround,LegRestAngleToGround,
+								ChassisAngleToGround,SavedSeatAngleToGround,LegRestHeightToGround);
+					}
+				}
 				if (last_system_modes!=systemMode )
 				{
 					system_mode_changed = true;
@@ -134,6 +135,29 @@ namespace Actuator{
 						break;
 					case DriveMode:
 						actuatorStop();
+						if (Actuator::actElevation.position<GoKartHeight-3 )
+						{
+							speedLimit = 0.7;
+						}
+						else
+						{
+							if (Actuator::actElevation.position>GoKartHeight+3 )
+
+								{
+									speedLimit = 0.3;
+								}
+							else
+							{
+								speedLimit = 1.0;
+							}
+						}
+						if (SeatAngleToGround<-10)
+						{
+							speedLimit = 0;
+						}
+
+
+
 						break;
 					case Actuator_recline:                     // only move recline actuator
 						updateActPositionLimit();
@@ -495,15 +519,15 @@ namespace Actuator{
 	{
 		updateDirCounter();
 		action_input _actionInput = nonMoving;
-		if (dirCounter_up%10==2)
+		if ((dirCounter_up%10==2)&& (BLE::actMovDir == BLE::Actuator_moving_dir::AMD_stop))
 			_actionInput = movingUp;
-		if (dirCounter_down%10==2)
+		if ((dirCounter_down%10==2)&& (BLE::actMovDir == BLE::Actuator_moving_dir::AMD_stop))
 			_actionInput = movingDown;
-		if (dirCounter_left>=2)
+		if ((dirCounter_left>=2) ||(BLE::actMovDir == BLE::Actuator_moving_dir::AMD_left))
 			_actionInput = movingLeft;
-		if (dirCounter_right>=2)
+		if ((dirCounter_right>=2)||(BLE::actMovDir == BLE::Actuator_moving_dir::AMD_right))
 			_actionInput = movingRight;
-		if (dirCounter_mid>=2)
+		if ((dirCounter_mid>=2) && (BLE::actMovDir == BLE::Actuator_moving_dir::AMD_stop))
 			_actionInput = nonMoving;
 		return _actionInput;
 	}
