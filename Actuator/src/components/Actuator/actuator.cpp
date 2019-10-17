@@ -107,20 +107,20 @@ namespace Actuator{
 				updateAngle();
 				checkButton();
 				logCounter++;
-				if(logCounter%10==0) //1 log per second
-				{
-					printf("reclinePos:%d; LegPos:%d; TiltPos:%d; ElevPos:%d;   ",actRecline.position,actLegrest.position,actTilt.position,actElevation.position);
-				}
-				else
-				{
-					if(logCounter%5==0) //1 log per second
-					{
-						printf("Seat:%f; Back:%f; "
-								"Leg:%f; Chassis:%f; SavedSTC:%f; "
-								"LegH:%f mm;\n ",	SeatAngleToGround,BackAngleToGround,LegRestAngleToGround,
-								ChassisAngleToGround,SavedSeatAngleToGround,LegRestHeightToGround);
-					}
-				}
+//				if(logCounter%5==0) //1 log per second
+//				{
+//					printf("reclinePos:%d; LegPos:%d; TiltPos:%d; ElevPos:%d;   ",actRecline.position,actLegrest.position,actTilt.position,actElevation.position);
+//				}
+//				else
+//				{
+//					if(logCounter%5==0) //1 log per second
+//					{
+//						printf("Seat:%f; Back:%f; "
+//								"Leg:%f; Chassis:%f; SavedSTC:%f; "
+//								"LegH:%f mm;\n ",	SeatAngleToGround,BackAngleToGround,LegRestAngleToGround,
+//								ChassisAngleToGround,SavedSeatAngleToGround,LegRestHeightToGround);
+//					}
+//				}
 				if (last_system_modes!=systemMode )
 				{
 					system_mode_changed = true;
@@ -404,10 +404,10 @@ namespace Actuator{
 								if (ReclineAngleInRange())
 								{
 									actRecline.moveToMemory();
-									if (logCounter%5 ==0)
-									{
-										printf("Move Recline back!\n");
-									}
+//									if (logCounter%5 ==0)
+//									{
+//										printf("Move Recline back!\n");
+//									}
 								}
 								else
 								{
@@ -696,6 +696,10 @@ namespace Actuator{
 		float pos =0.0;
 		pos = (ACT::counter_high*100.0)/(ACT::counter_high+ACT::counter_low);
 		pos = (pos-ACT::pwm_low_limit)*100.0/(ACT::pwm_up_limit-ACT::pwm_low_limit);
+		if (pos>100)
+			pos=100;
+		if(pos<0)
+			pos=0;
 		ACT::position=uint32_t(pos);
 		ACT::counter_high=0;
 		ACT::counter_low=0;
