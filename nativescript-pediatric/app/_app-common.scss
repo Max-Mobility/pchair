@@ -25,6 +25,29 @@
         color: $page-icon-color;
         margin-top: 20%;
     }
+
+    .control-container {
+        height: 20%;
+    }
+
+    .control-item {
+        margin: 5;
+        padding: 5;
+
+        .control-image {
+            max-height: 10%;
+        }
+
+        .control-label {
+            horizontal-align: center;
+            text-align: center;
+        }
+    }
+
+    .active-controls {
+        vertical-align: center;
+        horizontal-align: center;
+    }
 }
 
 //Action bar

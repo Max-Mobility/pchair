@@ -1,7 +1,11 @@
+import { ObservableArray } from 'tns-core-modules/data/observable-array';
 import { Observable } from 'tns-core-modules/data/observable';
+import { ImageSource, fromFile, fromResource, fromBase64 } from "tns-core-modules/image-source";
 import { Bluetooth, Characteristic, Device } from 'nativescript-bluetooth';
 import { Toasty, ToastPosition } from 'nativescript-toasty';
+import { ListViewEventData } from 'nativescript-ui-listview';
 import { Prop } from '../obs-prop';
+import { ControlItem } from './control-item';
 
 export class SeatingViewModel extends Observable {
     public static SERVICE_UUID: string = '000012ff-0000-1000-8000-00805f9b34fb';
@@ -9,12 +13,33 @@ export class SeatingViewModel extends Observable {
     @Prop() peripheral: Device = null;
     @Prop() isBusy: boolean = false;
 
+    @Prop() controlItems: ObservableArray<ControlItem> = new ObservableArray(
+        new ControlItem('Legs', '~/assets/images/bluetooth.png'),
+        new ControlItem('Back', '~/assets/images/bluetooth.png'),
+        new ControlItem('Elevation', '~/assets/images/bluetooth.png'),
+        new ControlItem('Tilt', '~/assets/images/bluetooth.png'),
+        new ControlItem('Standing Function', '~/assets/images/bluetooth.png'),
+        new ControlItem('Go-Kart Function', '~/assets/images/bluetooth.png')
+    );
+    @Prop() selectedControl = this.controlItems.getItem(0);
+
     private _bluetooth: Bluetooth;
 
     constructor() {
         super();
         this._bluetooth = new Bluetooth();
         this._bluetooth.debug = true;
+    }
+
+    public async onTap(event: any) {
+        console.log('ontap', event);
+    }
+
+    public async onControlSelected(event: ListViewEventData) {
+        console.log('onControlTap()');
+        this.selectedControl = this.controlItems.getItem(event.index);
+        this.selectedControl.selected = true;
+        console.log('control:', this.selectedControl.name);
     }
 
     public async scanAndConnect() {
