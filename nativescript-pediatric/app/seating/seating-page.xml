@@ -17,7 +17,7 @@
     </ActionBar>
 
     <StackLayout class="page-content">
-        <Label class="page-icon fa" text="&#xf1ea;"></Label>
+        <Label class="page-icon fa" text="&#xf193;"></Label>
         <Label class="page-placeholder" text="<!-- Seating page content goes here -->"></Label>
     </StackLayout>
 </Page>

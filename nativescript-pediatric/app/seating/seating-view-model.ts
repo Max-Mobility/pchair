@@ -1,5 +1,6 @@
 import { Observable } from 'tns-core-modules/data/observable';
 import { Bluetooth, Characteristic, Device } from 'nativescript-bluetooth';
+import { Toasty, ToastPosition } from 'nativescript-toasty';
 import { Prop } from '../obs-prop';
 
 export class SeatingViewModel extends Observable {
@@ -36,8 +37,7 @@ export class SeatingViewModel extends Observable {
                 });
                 // if we've gotten to here then we've timed out without finding
                 // any devices
-                console.log('timeout!');
-                reject('timeout');
+                reject('Timeout searching for device');
             }) as Device;
             // we have a peripheral - so connect to it
             console.log('peripheral:', peripheral);
@@ -57,9 +57,18 @@ export class SeatingViewModel extends Observable {
             // if we've gotten here then we're connected
             console.log('connected');
         } catch (err) {
-            console.error('could not scan and connect:', err);
+            const msg = 'Could not scan and connect:\n' + err;
+            this.showError(msg);
         }
         this.isBusy = false;
+    }
+
+    private showError(msg: string) {
+        console.error(msg);
+        new Toasty({
+            text: msg,
+            position: ToastPosition.CENTER
+        }).show();
     }
 
     public async onBluetoothTap() {
