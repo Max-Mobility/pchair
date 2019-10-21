@@ -3,3 +3,8 @@ Actuator/src/build
 **/build
 build
 build/
+node_modules/
+platforms/
+hooks/
+*.js
+*.css
