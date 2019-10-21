@@ -3,10 +3,6 @@
     navigatingTo="onNavigatingTo"
     xmlns="http://schemas.nativescript.org/tns.xsd">
 
-    <ActionBar class="action-bar">
-        <Label class="action-bar-title" text="Seating"></Label>
-    </ActionBar>
-
     <GridLayout class="page-content">
         <Label class="page-icon fa" text="&#xf1ea;"></Label>
         <Label class="page-placeholder" text="<!-- Seating page content goes here -->"></Label>
