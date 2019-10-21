@@ -1,10 +1,12 @@
 import { Observable } from 'tns-core-modules/data/observable';
 import { Bluetooth, Characteristic, Device } from 'nativescript-bluetooth';
+import { Prop } from '../obs-prop';
 
 export class SeatingViewModel extends Observable {
     public static SERVICE_UUID: string = '000012ff-0000-1000-8000-00805f9b34fb';
 
-    public peripheral: Device = null;
+    @Prop() peripheral: Device = null;
+    @Prop() isBusy: boolean = false;
 
     private _bluetooth: Bluetooth;
 
@@ -16,6 +18,7 @@ export class SeatingViewModel extends Observable {
 
     public async scanAndConnect() {
         try {
+            this.isBusy = true;
             console.log('scanAndConnect()');
             const gotPermissions = await this._bluetooth.requestCoarseLocationPermission();
             console.log('gotPermissions:', gotPermissions);
@@ -56,6 +59,7 @@ export class SeatingViewModel extends Observable {
         } catch (err) {
             console.error('could not scan and connect:', err);
         }
+        this.isBusy = false;
     }
 
     public async onBluetoothTap() {

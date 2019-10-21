@@ -3,12 +3,20 @@
     xmlns="http://schemas.nativescript.org/tns.xsd">
 
     <ActionBar class="action-bar">
-      <Label class="action-bar-title" text="Seating"></Label>
+      <GridLayout columns="*, auto" rows="*">
+        <Label class="action-bar-title" text="Seating"></Label>
+        <Image col="1" height="32"
+               class="action-item"
+               tap="{{ onBluetoothTap }}"
+               visibility="{{ isBusy, isBusy ? 'collapse':'visible' }}"
+               src="~/assets/images/bluetooth.png"></Image>
+        <ActivityIndicator col="1" width="32" height="32"
+                           class="action-item"
+                           busy="{{ isBusy }}"/>
+      </GridLayout>
     </ActionBar>
 
     <StackLayout class="page-content">
-      <Label tap="{{ onBluetoothTap }}"
-             class="fa" text="&#xf293;"></Label>
         <Label class="page-icon fa" text="&#xf1ea;"></Label>
         <Label class="page-placeholder" text="<!-- Seating page content goes here -->"></Label>
     </StackLayout>

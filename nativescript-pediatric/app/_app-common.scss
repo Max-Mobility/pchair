@@ -32,6 +32,10 @@ ActionBar .action-bar-title {
     horizontal-align: center;
 }
 
+ActionBar .action-item {
+    margin: 5;
+}
+
 TabStripItem Label {
     color: $blue-dark;
 }
