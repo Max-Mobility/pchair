@@ -64,6 +64,8 @@ public class DeviceControlActivity extends Activity {
     private ImageView imageView_mid;
     private ImageView imageView_high;
 
+    private ImageView imageView_back;
+
     static private class system_modes {
         static byte DriveMode = 0;
         static byte Actuator_recline = 1;
@@ -194,7 +196,9 @@ public class DeviceControlActivity extends Activity {
         Intent gattServiceIntent = new Intent(this, BluetoothLeService.class);
         bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
 
-        mSpeed = "speed_low";
+        if (mSpeed == null) {
+            mSpeed = "speed_low";
+        }
 
         imageView_0 = findViewById(R.id.image_0);
         imageView_1 = findViewById(R.id.image_1);
@@ -211,8 +215,10 @@ public class DeviceControlActivity extends Activity {
         imageView_mid = findViewById(R.id.speed_mid);
         imageView_high = findViewById(R.id.speed_high);
 
+        imageView_back = findViewById(R.id.back_to_run);
+
         addListenerOnImageView();
-        setShownButton(R.id.sleep);
+        setShownButton(R.id.run);
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -272,14 +278,15 @@ public class DeviceControlActivity extends Activity {
             @Override
             public void onClick(View view) {
                 Log.e(TAG, "sleep");
+                setShownButton(R.id.sleep);
                 sendChoiceToBluetooth("sleep", mBluetoothGattCharacteristic);
 
                 //TODO: place here temporarily.
                 //call SpeedControlActivity.java
-                final Intent intent = new Intent(DeviceControlActivity.this, SpeedControlActivity.class);
-                intent.putExtra(SpeedControlActivity.EXTRAS_DEVICE_NAME, mDeviceName);
-                intent.putExtra(SpeedControlActivity.EXTRAS_DEVICE_ADDRESS, mDeviceAddress);
-                startActivity(intent);
+//                final Intent intent = new Intent(DeviceControlActivity.this, SpeedControlActivity.class);
+//                intent.putExtra(SpeedControlActivity.EXTRAS_DEVICE_NAME, mDeviceName);
+//                intent.putExtra(SpeedControlActivity.EXTRAS_DEVICE_ADDRESS, mDeviceAddress);
+//                startActivity(intent);
             }
         });
 
@@ -367,11 +374,57 @@ public class DeviceControlActivity extends Activity {
                 sendChoiceToBluetooth("speed_high", mBluetoothGattCharacteristic);
             }
         });
+
+        imageView_back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.e(TAG, "back to run.");
+                setShownButton(R.id.run);
+                if (mSpeed.equals("speed_mid")) {
+                    setBackground(R.id.speed_mid);
+                } else if (mSpeed.equals("speed_high")) {
+                    setBackground(R.id.speed_high);
+                } else {
+                    mSpeed = "speed_low";
+                    setBackground(R.id.speed_low);
+                }
+
+                sendChoiceToBluetooth("run", mBluetoothGattCharacteristic);
+            }
+        });
     }
 
     private void setShownButton(int image) {
 
-        if (image == R.id.run) {
+        if(image == R.id.sleep){
+            imageView_back.setVisibility(View.VISIBLE);
+
+            imageView_run.setVisibility(View.INVISIBLE);
+            imageView_sleep.setVisibility(View.INVISIBLE);
+            imageView_low.setVisibility(View.INVISIBLE);
+            imageView_mid.setVisibility(View.INVISIBLE);
+            imageView_high.setVisibility(View.INVISIBLE);
+
+            imageView_plus.setVisibility(View.INVISIBLE);
+            imageView_minus.setVisibility(View.INVISIBLE);
+            imageView_zoom.setVisibility(View.INVISIBLE);
+
+            imageView_0.setVisibility(View.INVISIBLE);
+            imageView_1.setVisibility(View.INVISIBLE);
+            imageView_2.setVisibility(View.INVISIBLE);
+            imageView_3.setVisibility(View.INVISIBLE);
+            imageView_4.setVisibility(View.INVISIBLE);
+        } else if (image == R.id.run) {
+            imageView_back.setVisibility(View.INVISIBLE);
+
+            imageView_0.setVisibility(View.VISIBLE);
+            imageView_1.setVisibility(View.VISIBLE);
+            imageView_2.setVisibility(View.VISIBLE);
+            imageView_3.setVisibility(View.VISIBLE);
+            imageView_4.setVisibility(View.VISIBLE);
+
+            imageView_sleep.setVisibility(View.VISIBLE);
+            imageView_run.setVisibility(View.VISIBLE);
             imageView_low.setVisibility(View.VISIBLE);
             imageView_mid.setVisibility(View.VISIBLE);
             imageView_high.setVisibility(View.VISIBLE);
@@ -380,6 +433,17 @@ public class DeviceControlActivity extends Activity {
             imageView_minus.setVisibility(View.INVISIBLE);
             imageView_zoom.setVisibility(View.INVISIBLE);
         } else {
+            imageView_back.setVisibility(View.INVISIBLE);
+
+            imageView_0.setVisibility(View.VISIBLE);
+            imageView_1.setVisibility(View.VISIBLE);
+            imageView_2.setVisibility(View.VISIBLE);
+            imageView_3.setVisibility(View.VISIBLE);
+            imageView_4.setVisibility(View.VISIBLE);
+
+            imageView_run.setVisibility(View.VISIBLE);
+            imageView_sleep.setVisibility(View.VISIBLE);
+
             imageView_low.setVisibility(View.INVISIBLE);
             imageView_mid.setVisibility(View.INVISIBLE);
             imageView_high.setVisibility(View.INVISIBLE);
@@ -609,9 +673,9 @@ public class DeviceControlActivity extends Activity {
 
     private void displayData(byte[] data) {
         //if (data != null) {
-        String str=new String(Arrays.toString(data));
+        String str = new String(Arrays.toString(data));
         mDataField.setText(str);
-        Log.e(TAG,"data: "+data.toString());
+        Log.e(TAG, "data: " + data.toString());
 
         if (data[0] == Command.CMD_CHANGE_SYSTEM_MODE && data[1] == system_modes.Actuator_recline) {
             setBackground(R.id.image_0);
@@ -650,12 +714,14 @@ public class DeviceControlActivity extends Activity {
             }
         }
         if (data[0] == Command.CMD_CHANGE_SYSTEM_MODE && data[1] == system_modes.System_sleep) {
+            setShownButton(R.id.sleep);
+
             //TODO: place here temporarily.
             //call SpeedControlActivity.java
-            final Intent intent = new Intent(DeviceControlActivity.this, SpeedControlActivity.class);
-            intent.putExtra(SpeedControlActivity.EXTRAS_DEVICE_NAME, mDeviceName);
-            intent.putExtra(SpeedControlActivity.EXTRAS_DEVICE_ADDRESS, mDeviceAddress);
-            startActivity(intent);
+//            final Intent intent = new Intent(DeviceControlActivity.this, SpeedControlActivity.class);
+//            intent.putExtra(SpeedControlActivity.EXTRAS_DEVICE_NAME, mDeviceName);
+//            intent.putExtra(SpeedControlActivity.EXTRAS_DEVICE_ADDRESS, mDeviceAddress);
+//            startActivity(intent);
         }
         if (data[0] == Command.CMD_SET_SPEED && data[1] == Speed_setting.speed_low) {
             setShownButton(R.id.run);
