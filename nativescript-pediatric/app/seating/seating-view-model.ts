@@ -13,15 +13,8 @@ export class SeatingViewModel extends Observable {
     @Prop() peripheral: Device = null;
     @Prop() isBusy: boolean = false;
 
-    @Prop() controlItems: ObservableArray<ControlItem> = new ObservableArray(
-        new ControlItem('Legs', '~/assets/images/bluetooth.png'),
-        new ControlItem('Back', '~/assets/images/bluetooth.png'),
-        new ControlItem('Elevation', '~/assets/images/bluetooth.png'),
-        new ControlItem('Tilt', '~/assets/images/bluetooth.png'),
-        new ControlItem('Standing Function', '~/assets/images/bluetooth.png'),
-        new ControlItem('Go-Kart Function', '~/assets/images/bluetooth.png')
-    );
-    @Prop() selectedControl = this.controlItems.getItem(0);
+    @Prop() controlItems: ObservableArray<ControlItem> = new ObservableArray();
+    @Prop() selectedControl: ControlItem = null;
 
     private _bluetooth: Bluetooth;
 
@@ -29,6 +22,14 @@ export class SeatingViewModel extends Observable {
         super();
         this._bluetooth = new Bluetooth();
         this._bluetooth.debug = true;
+        this.controlItems.push(new ControlItem('Legs', '~/assets/images/bluetooth.png'));
+        this.controlItems.push(new ControlItem('Back', '~/assets/images/bluetooth.png'));
+        this.controlItems.push(new ControlItem('Elevation', '~/assets/images/bluetooth.png'));
+        this.controlItems.push(new ControlItem('Tilt', '~/assets/images/bluetooth.png'));
+        this.controlItems.push(new ControlItem('Standing Function', '~/assets/images/bluetooth.png'));
+        this.controlItems.push(new ControlItem('Go-Kart Function', '~/assets/images/bluetooth.png'));
+        this.selectedControl = this.controlItems.getItem(0);
+        this.selectedControl.selected = true;
     }
 
     public async onTap(event: any) {
@@ -37,6 +38,7 @@ export class SeatingViewModel extends Observable {
 
     public async onControlSelected(event: ListViewEventData) {
         console.log('onControlTap()');
+
         this.selectedControl = this.controlItems.getItem(event.index);
         this.selectedControl.selected = true;
         console.log('control:', this.selectedControl.name);
