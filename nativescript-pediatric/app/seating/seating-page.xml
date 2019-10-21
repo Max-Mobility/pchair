@@ -3,11 +3,13 @@
     xmlns="http://schemas.nativescript.org/tns.xsd">
 
     <ActionBar class="action-bar">
-        <Label class="action-bar-title" text="Seating"></Label>
+      <Label class="action-bar-title" text="Seating"></Label>
     </ActionBar>
 
-    <GridLayout class="page-content">
+    <StackLayout class="page-content">
+      <Label tap="{{ onBluetoothTap }}"
+             class="fa" text="&#xf293;"></Label>
         <Label class="page-icon fa" text="&#xf1ea;"></Label>
         <Label class="page-placeholder" text="<!-- Seating page content goes here -->"></Label>
-    </GridLayout>
+    </StackLayout>
 </Page>

@@ -4,5 +4,5 @@ import { SeatingViewModel } from './seating-view-model';
 export function onNavigatingTo(args: NavigatedData) {
     const page = <Page>args.object;
     page.bindingContext = new SeatingViewModel();
-    page.actionBarHidden = true;
+    // page.actionBarHidden = true;
 }
