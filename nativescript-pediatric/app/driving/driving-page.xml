@@ -1,0 +1,14 @@
+<!--
+This is the page that is presented in the 'Driving' tab.
+Feel free to customize layouts and components to change how the tab view looks.
+-->
+<Page
+    class="page"
+    navigatingTo="onNavigatingTo"
+    xmlns="http://schemas.nativescript.org/tns.xsd">
+
+    <ActionBar class="action-bar">
+        <Label class="action-bar-title" text="Driving"></Label>
+    </ActionBar>
+
+</Page>

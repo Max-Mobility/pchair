@@ -1,6 +1,6 @@
 import { Observable } from "tns-core-modules/data/observable";
 
-export class SearchViewModel extends Observable {
+export class SeatingViewModel extends Observable {
     constructor() {
         super();
     }
