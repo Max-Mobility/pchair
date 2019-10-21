@@ -7,6 +7,10 @@ Feel free to customize layouts and components to change how the tab view looks.
     navigatingTo="onNavigatingTo"
     xmlns="http://schemas.nativescript.org/tns.xsd">
 
+    <ActionBar class="action-bar">
+        <Label class="action-bar-title" text="Driving"></Label>
+    </ActionBar>
+
     <GridLayout class="page-content">
         <Label class="page-icon fa" text="&#xf015;"></Label>
         <Label class="page-placeholder" text="<!-- Driving page content goes here -->"></Label>
