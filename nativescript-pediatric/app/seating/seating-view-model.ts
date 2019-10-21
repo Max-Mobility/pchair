@@ -8,7 +8,6 @@ export class SeatingViewModel extends Observable {
 
     constructor() {
         super();
-
     }
 
     public async scanAndConnect() {
@@ -45,6 +44,7 @@ export class SeatingViewModel extends Observable {
             });
             // if we've gotten here then we're connected
         } catch (err) {
+            console.error('could not scan and connect:', err);
         }
     }
 
