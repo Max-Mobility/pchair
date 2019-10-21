@@ -18,7 +18,7 @@ export class SeatingViewModel extends Observable {
                     serviceUUIDs: [SeatingViewModel.SERVICE_UUID],
                     seconds: 4,
                     skipPermissionCheck: false,
-                    onDiscovered: async function(peripheral: bluetooth.Peripheral) {
+                    onDiscovered: async (peripheral: bluetooth.Peripheral) => {
                         // stop scanning
                         await bluetooth.stopScanning();
                         // resolve
@@ -33,11 +33,11 @@ export class SeatingViewModel extends Observable {
             await new Promise(async (resolve, reject) => {
                 bluetooth.connect({
                     UUID: peripheral.UUID,
-                    onConnected: function(peripheral: bluetooth.Peripheral) {
+                    onConnected: (peripheral: bluetooth.Peripheral) => {
                         this.onConnected(peripheral);
                         resolve(peripheral);
                     },
-                    onDisconnected: function(peripheral: bluetooth.Peripheral) {
+                    onDisconnected: (peripheral: bluetooth.Peripheral) => {
                         this.onDisconnected(peripheral);
                         reject('Could not connect to' + peripheral);
                     }
@@ -48,11 +48,35 @@ export class SeatingViewModel extends Observable {
         }
     }
 
+    private async startNotifyCharacteristics(
+        characteristics: Array<bluetooth.Characteristic>
+    ): Promise<any> {
+        try {
+            for (const c of characteristics) {
+                await bluetooth.startNotifying({
+                    peripheralUUID: this.peripheral.UUID,
+                    serviceUUID: SeatingViewModel.SERVICE_UUID,
+                    characteristicUUID: c.UUID,
+                    onNotify: this.onNotify.bind(this)
+                });
+            }
+        } catch (err) {
+            console.error('could not start notifying');
+        }
+    }
+
     private async onConnected(peripheral: bluetooth.Peripheral) {
         this.peripheral = peripheral;
+        this.peripheral.services.forEach(async (service) => {
+            this.startNotifyCharacteristics(service.characteristics);
+        });
     }
 
     private async onDisconnected(peripheral: bluetooth.Peripheral) {
         this.peripheral = peripheral;
+    }
+
+    private async onNotify(args: any) {
+        console.log('onNotify:', args);
     }
 }
