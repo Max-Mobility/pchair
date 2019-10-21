@@ -70,6 +70,7 @@ namespace Actuator{
 		buttonCounter_up=0;
 		buttonCounter_low=0;
 		actionInput = nonMoving;
+		actRecline.position_in_limit=2;
 
 		std::string str;
 		str = "   Driving";
@@ -107,20 +108,20 @@ namespace Actuator{
 				updateAngle();
 				checkButton();
 				logCounter++;
-//				if(logCounter%5==0) //1 log per second
-//				{
-//					printf("reclinePos:%d; LegPos:%d; TiltPos:%d; ElevPos:%d;   ",actRecline.position,actLegrest.position,actTilt.position,actElevation.position);
-//				}
-//				else
-//				{
-//					if(logCounter%5==0) //1 log per second
-//					{
-//						printf("Seat:%f; Back:%f; "
-//								"Leg:%f; Chassis:%f; SavedSTC:%f; "
-//								"LegH:%f mm;\n ",	SeatAngleToGround,BackAngleToGround,LegRestAngleToGround,
-//								ChassisAngleToGround,SavedSeatAngleToGround,LegRestHeightToGround);
-//					}
-//				}
+				if(logCounter%10==0) //1 log per second
+				{
+					printf("reclinePos:%d; LegPos:%d; TiltPos:%d; ElevPos:%d;   ",actRecline.position,actLegrest.position,actTilt.position,actElevation.position);
+				}
+				else
+				{
+					if(logCounter%5==0) //1 log per second
+					{
+						printf("Seat:%f; Back:%f; "
+								"Leg:%f; Chassis:%f; SavedSTC:%f; "
+								"LegH:%f mm;\n ",	SeatAngleToGround,BackAngleToGround,LegRestAngleToGround,
+								ChassisAngleToGround,SavedSeatAngleToGround,LegRestHeightToGround);
+					}
+				}
 				if (last_system_modes!=systemMode )
 				{
 					system_mode_changed = true;
@@ -208,17 +209,17 @@ namespace Actuator{
 								break;
 							case movingLeft:
 								//actLegrest.moveIn();
-								if (LegRestHeightToGround>75)
+								if ((LegRestHeightToGround>25)&&(LegRestAngleToGround>90))
 									actLegrest.moveIn();
 								else
 									actLegrest.stop();
 								break;
 							case movingRight:
-								//actLegrest.moveOut();
-								if (LegRestHeightToGround>75)
-									actLegrest.moveOut();
-								else
-									actLegrest.stop();
+								actLegrest.moveOut();
+//								if (LegRestHeightToGround>75)
+//									actLegrest.moveOut();
+//								else
+//									actLegrest.stop();
 								break;
 						}
 						break;
@@ -310,27 +311,6 @@ namespace Actuator{
 								draw_circle_inline(6);
 								break;
 							case movingLeft:       // lower the elevation == moveOut
-								switch(elevationState)
-								{
-									case seat_state:
-										if (actElevation.position >GoKartHeight)
-											actElevation.stop();
-										else
-											actElevation.moveOut();
-										break;
-									case GoKart_state:
-										actElevation.moveOut();
-										break;
-									case floor_state:
-										actElevation.moveOut();
-										break;
-
-								}
-								maintainSeatAngle();
-								checkLegRestHeight();
-								checkReclineAngle();
-								break;
-							case movingRight:     // increase elevation by moving in
 								if (LegRestTouchGround())
 								{
 									actElevation.stop();
@@ -340,23 +320,44 @@ namespace Actuator{
 									switch(elevationState)
 									{
 										case seat_state:
-											actElevation.moveIn();   // move to higher elevation
+											if (actElevation.position >GoKartHeight)
+												actElevation.stop();
+											else
+												actElevation.moveOut();
 											break;
 										case GoKart_state:
-											actElevation.moveIn();   // move to higher elevation
+											actElevation.moveOut();
 											break;
-										case floor_state:	// move to higher elevation until reach GoKartHeight
-											if (actElevation.position>GoKartHeight)
-											{
-												actElevation.moveIn();
-											}
-											else
-											{
-												actElevation.stop();
-											}
+										case floor_state:
+											actElevation.moveOut();
 											break;
-									}
 
+									}
+								}
+								maintainSeatAngle();
+								checkLegRestHeight();
+								checkReclineAngle();
+								break;
+							case movingRight:     // increase elevation by moving in
+
+								switch(elevationState)
+								{
+									case seat_state:
+										actElevation.moveIn();   // move to higher elevation
+										break;
+									case GoKart_state:
+										actElevation.moveIn();   // move to higher elevation
+										break;
+									case floor_state:	// move to higher elevation until reach GoKartHeight
+										if (actElevation.position>GoKartHeight)
+										{
+											actElevation.moveIn();
+										}
+										else
+										{
+											actElevation.stop();
+										}
+										break;
 								}
 								maintainSeatAngle();
 								checkLegRestHeight();
@@ -917,7 +918,7 @@ namespace Actuator{
 	}
 	void checkLegRestHeight()
 	{
-		if((LegRestHeightToGround<40)||(LegRestAngleToGround<90))//mm
+		if((LegRestHeightToGround<20)||(LegRestAngleToGround<90))//mm
 		{
 			actLegrest.moveOut();
 		}
@@ -931,7 +932,7 @@ namespace Actuator{
 		if (BackAngleToGround>175)
 			actRecline.moveIn();
 		else
-			if (BackAngleToGround<85)
+			if (BackAngleToGround<90)
 				actRecline.moveOut();
 			else
 				actRecline.stop();
@@ -958,7 +959,7 @@ namespace Actuator{
 	}
 	bool LegRestTouchGround()
 	{
-		return LegRestHeightToGround<30;
+		return LegRestHeightToGround<0;
 	}
 	bool ReclineAngleInRange()
 	{
@@ -966,7 +967,7 @@ namespace Actuator{
 	}
 	bool LegRestInRange()
 	{
-		return ((LegRestHeightToGround>40)&&(LegRestAngleToGround>90));
+		return ((LegRestHeightToGround>20)&&(LegRestAngleToGround>90));
 	}
 	void updateActPositionLimit()
 	{

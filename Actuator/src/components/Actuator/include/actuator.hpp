@@ -21,10 +21,10 @@ namespace Actuator {
 	#define act4ControlA GPIO_NUM_12
 	#define act4ControlB GPIO_NUM_25
 	#define ActReclineOutLimit 100
-	#define ActLegrestOutLimit 86
-	#define ActTiltOutLimit 100
+	#define ActLegrestOutLimit 92//86
+	#define ActTiltOutLimit 92
 	#define ActElevationOutLimit 100
-	#define GoKartHeight 40
+	#define GoKartHeight 60
 	//#define actEnable GPIO_NUM_14
 
 	enum system_modes
