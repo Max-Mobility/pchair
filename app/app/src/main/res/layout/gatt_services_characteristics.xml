@@ -5,7 +5,7 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:layout_gravity="center|top"
-    android:background="@color/background_floating_material_light">
+    android:background="#ffffff">
 
     <TextView
         android:id="@+id/textView"
@@ -110,11 +110,11 @@
         android:layout_height="75dp"
         android:layout_marginStart="280dp"
         android:layout_marginBottom="484dp"
-        android:background="#2196F3"
+        android:background="#ffffff"
         android:clickable="true"
         android:contentDescription="@string/sleep"
         android:focusable="true"
-        android:src="@drawable/sleep"
+        android:src="@drawable/power"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
@@ -143,7 +143,7 @@
         android:clickable="true"
         android:contentDescription="@string/run"
         android:focusable="true"
-        android:src="@drawable/run"
+        android:src="@drawable/wheel"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
@@ -290,16 +290,16 @@
     <ImageView
         android:id="@+id/back_to_run"
         style="@android:style/Widget.Holo.Button"
-        android:layout_width="171dp"
-        android:layout_height="152dp"
-        android:layout_marginStart="96dp"
-        android:layout_marginBottom="180dp"
+        android:layout_width="250dp"
+        android:layout_height="350dp"
+        android:layout_marginStart="60dp"
+        android:layout_marginBottom="120dp"
         android:background="#ffffff"
         android:clickable="true"
         android:contentDescription="@string/run"
         android:focusable="true"
         android:padding="2dp"
-        android:src="@drawable/run"
+        android:src="@drawable/go"
         android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
