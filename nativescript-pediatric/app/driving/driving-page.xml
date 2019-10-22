@@ -21,19 +21,20 @@
         <gauge:RadRadialGauge row="1" height="50%" id="gaugeView" margin="10">
           <gauge:RadRadialGauge.scales>
 
-            <gauge:RadialScale startAngle="0" sweepAngle="360" minimum="0" maximum="100" radius="0.9">
+            <gauge:RadialScale startAngle="160" sweepAngle="220"
+                               minimum="0" maximum="100" radius="0.9">
               <gauge:RadialScale.scaleStyle>
-                <gauge:ScaleStyle ticksVisible="false" labelsVisible="false" lineThickness="0" />
+                <gauge:ScaleStyle ticksVisible="true" labelsVisible="true" lineThickness="0" />
               </gauge:RadialScale.scaleStyle>
 
               <gauge:RadialScale.indicators>
                 <gauge:RadialBarIndicator minimum="0" maximum="100" location="0.5">
                   <gauge:RadialBarIndicator.indicatorStyle>
-                    <gauge:BarIndicatorStyle fillColor="rgba(224,151,36,0.5)" barWidth="0.2"/>
+                    <gauge:BarIndicatorStyle cap="Round" fillColor="rgba(224,151,36,0.5)" barWidth="0.2"/>
                   </gauge:RadialBarIndicator.indicatorStyle>
                 </gauge:RadialBarIndicator>
 
-                <gauge:RadialBarIndicator minimum="0" maximum="0" location="0.5" isAnimated="true">
+                <gauge:RadialBarIndicator minimum="0" maximum="50" location="0.5" isAnimated="true">
                   <gauge:RadialBarIndicator.indicatorStyle>
                     <gauge:BarIndicatorStyle cap="Round" fillColor="rgba(224,151,36,1)" barWidth="0.2"/>
                   </gauge:RadialBarIndicator.indicatorStyle>
@@ -41,7 +42,7 @@
 
                 <gauge:RadialBarIndicator minimum="0" maximum="100" location="0.75">
                   <gauge:RadialBarIndicator.indicatorStyle>
-                    <gauge:BarIndicatorStyle fillColor="rgba(196,241,57,0.5)" barWidth="0.2"/>
+                    <gauge:BarIndicatorStyle cap="Round" fillColor="rgba(196,241,57,0.5)" barWidth="0.2"/>
                   </gauge:RadialBarIndicator.indicatorStyle>
                 </gauge:RadialBarIndicator>
 
@@ -53,13 +54,13 @@
 
                 <gauge:RadialBarIndicator minimum="0" maximum="100" location="1">
                   <gauge:RadialBarIndicator.indicatorStyle>
-                    <gauge:BarIndicatorStyle fillColor="rgba(132,235,247,0.5)" barWidth="0.2"/>
+                    <gauge:BarIndicatorStyle cap="Round" fillColor="rgba(132,235,247,0.5)" barWidth="0.2"/>
                   </gauge:RadialBarIndicator.indicatorStyle>
                 </gauge:RadialBarIndicator>
 
                 <gauge:RadialBarIndicator minimum="0" maximum="0" location="1" isAnimated="true">
                   <gauge:RadialBarIndicator.indicatorStyle>
-                    <gauge:BarIndicatorStyle cap="Round" fillColor="rgba(132,235,247,1)" barWidth="0.2"/>
+                    <gauge:BarIndicatorStyle cap="Round" cap="Round" fillColor="rgba(132,235,247,1)" barWidth="0.2"/>
                   </gauge:RadialBarIndicator.indicatorStyle>
                 </gauge:RadialBarIndicator>
               </gauge:RadialScale.indicators>
