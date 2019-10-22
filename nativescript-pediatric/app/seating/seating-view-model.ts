@@ -40,7 +40,9 @@ export class SeatingViewModel extends Observable {
 
     public async onControlSelected(event: ListViewEventData) {
         console.log('onControlTap()');
-
+        this.controlItems.map(e => {
+            e.selected = false;
+        });
         this.selectedControl = this.controlItems.getItem(event.index);
         this.selectedControl.selected = true;
         console.log('control:', this.selectedControl.name);

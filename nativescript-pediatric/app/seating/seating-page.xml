@@ -24,7 +24,7 @@
                     items="{{ controlItems }}"
                     itemSelected="{{ onControlSelected }}">
       <lv:RadListView.listViewLayout>
-        <lv:ListViewLinearLayout scrollDirection="Horizontal"/>
+        <lv:ListViewStaggeredLayout scrollDirection="Vertical" spanCount="3"/>
       </lv:RadListView.listViewLayout>
       <lv:RadListView.itemTemplate>
         <StackLayout class="control-item">
