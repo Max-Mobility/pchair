@@ -28,6 +28,8 @@
 
     .control-container {
 
+        max-height: 100;
+
         .control-item {
             margin: 5;
             padding: 5;
@@ -60,7 +62,7 @@
         .control-btn {
             horizontal-align: center;
             text-align: center;
-            text-transform: bold;
+            font-weight: bold;
             font-size: 30;
         }
     }

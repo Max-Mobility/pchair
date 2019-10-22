@@ -19,27 +19,35 @@
   </ActionBar>
 
   <StackLayout class="page-content" width="100%" height="100%">
-    <lv:RadListView class="control-container"
-                    selectionBehavior="Press" multipleSelection="false"
-                    items="{{ controlItems }}"
-                    itemSelected="{{ onControlSelected }}">
-      <lv:RadListView.listViewLayout>
-        <lv:ListViewStaggeredLayout scrollDirection="Vertical" spanCount="3"/>
-      </lv:RadListView.listViewLayout>
-      <lv:RadListView.itemTemplate>
-        <StackLayout class="control-item">
-          <Image class="control-image" src="{{ img }}"></Image>
-          <Label class="control-label" text="{{ name }}"></Label>
-        </StackLayout>
-      </lv:RadListView.itemTemplate>
-    </lv:RadListView>
-
     <ScrollView width="100%" height="100%">
-      <StackLayout class="active-controls">
-        <Button class="control-btn" text="+" tap="{{ onIncreaseControl }}"></Button>
-        <Image class="control-image" src="{{ selectedControl.img }}"></Image>
-        <Label class="control-label" text="{{ selectedControl.name }}"></Label>
-        <Button class="control-btn" text="-" tap="{{ onIncreaseControl }}"></Button>
+      <StackLayout>
+
+        <StackLayout>
+          <lv:RadListView class="control-container"
+                          selectionBehavior="Press" multipleSelection="false"
+                          items="{{ controlItems }}"
+                          itemSelected="{{ onControlSelected }}">
+            <lv:RadListView.listViewLayout>
+              <lv:ListViewStaggeredLayout scrollDirection="Vertical" spanCount="3"/>
+            </lv:RadListView.listViewLayout>
+            <lv:RadListView.itemTemplate>
+              <StackLayout class="control-item">
+                <Image class="control-image" src="{{ img }}"></Image>
+                <Label class="control-label" text="{{ name }}"></Label>
+              </StackLayout>
+            </lv:RadListView.itemTemplate>
+          </lv:RadListView>
+        </StackLayout>
+
+        <StackLayout width="90%" height="2" backgroundColor="blue"></StackLayout>
+
+        <StackLayout class="active-controls">
+          <Button class="control-btn" text="+" tap="{{ onIncreaseControl }}"></Button>
+          <Image class="control-image" src="{{ selectedControl.img }}"></Image>
+          <Label class="control-label" text="{{ selectedControl.name }}"></Label>
+          <Button class="control-btn" text="-" tap="{{ onIncreaseControl }}"></Button>
+        </StackLayout>
+
       </StackLayout>
     </ScrollView>
   </StackLayout>
