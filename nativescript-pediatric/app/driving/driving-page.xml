@@ -22,7 +22,7 @@
           <gauge:RadRadialGauge.scales>
 
             <gauge:RadialScale startAngle="160" sweepAngle="220"
-                               minimum="0" maximum="100" radius="0.9">
+                               minimum="0" maximum="100" radius="0.45">
               <gauge:RadialScale.scaleStyle>
                 <gauge:ScaleStyle ticksVisible="true" labelsVisible="true" lineThickness="0" />
               </gauge:RadialScale.scaleStyle>
@@ -34,9 +34,9 @@
                   </gauge:RadialBarIndicator.indicatorStyle>
                 </gauge:RadialBarIndicator>
 
-                <gauge:RadialBarIndicator minimum="0" maximum="50" location="0.5" isAnimated="true">
+                <gauge:RadialBarIndicator minimum="0" maximum="{{ acceleration }}" location="0.5" isAnimated="true">
                   <gauge:RadialBarIndicator.indicatorStyle>
-                    <gauge:BarIndicatorStyle cap="Round" fillColor="rgba(224,151,36,1)" barWidth="0.2"/>
+                    <gauge:BarIndicatorStyle cap="Round" fillColor="rgba(224,151,36,0.8)" barWidth="0.2"/>
                   </gauge:RadialBarIndicator.indicatorStyle>
                 </gauge:RadialBarIndicator>
 
@@ -46,9 +46,9 @@
                   </gauge:RadialBarIndicator.indicatorStyle>
                 </gauge:RadialBarIndicator>
 
-                <gauge:RadialBarIndicator minimum="0" maximum="75" location="0.75" isAnimated="true">
+                <gauge:RadialBarIndicator minimum="0" maximum="{{ turningSpeed }}" location="0.75" isAnimated="true">
                   <gauge:RadialBarIndicator.indicatorStyle>
-                    <gauge:BarIndicatorStyle cap="Round" fillColor="rgba(196,241,57,1)" barWidth="0.2"/>
+                    <gauge:BarIndicatorStyle cap="Round" fillColor="rgba(196,241,57,0.8)" barWidth="0.2"/>
                   </gauge:RadialBarIndicator.indicatorStyle>
                 </gauge:RadialBarIndicator>
 
@@ -58,9 +58,9 @@
                   </gauge:RadialBarIndicator.indicatorStyle>
                 </gauge:RadialBarIndicator>
 
-                <gauge:RadialBarIndicator minimum="0" maximum="30" location="1" isAnimated="true">
+                <gauge:RadialBarIndicator minimum="0" maximum="{{ forwardSpeed }}" location="1" isAnimated="true">
                   <gauge:RadialBarIndicator.indicatorStyle>
-                    <gauge:BarIndicatorStyle cap="Round" cap="Round" fillColor="rgba(132,235,247,1)" barWidth="0.2"/>
+                    <gauge:BarIndicatorStyle cap="Round" cap="Round" fillColor="rgba(132,235,247,0.8)" barWidth="0.2"/>
                   </gauge:RadialBarIndicator.indicatorStyle>
                 </gauge:RadialBarIndicator>
               </gauge:RadialScale.indicators>
