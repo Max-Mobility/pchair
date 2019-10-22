@@ -1,6 +1,5 @@
 import { ObservableArray } from 'tns-core-modules/data/observable-array';
 import { Observable } from 'tns-core-modules/data/observable';
-import { ImageSource, fromFile, fromResource, fromBase64 } from "tns-core-modules/image-source";
 import { Bluetooth, Characteristic, Device } from 'nativescript-bluetooth';
 import { Toasty, ToastPosition } from 'nativescript-toasty';
 import { ListViewEventData } from 'nativescript-ui-listview';
