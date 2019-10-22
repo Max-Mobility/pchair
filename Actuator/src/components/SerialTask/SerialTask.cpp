@@ -11,8 +11,8 @@ namespace SerialTask {
   bool changeState = false;
   char leftSpeed[2];
   char rightSpeed[2];
-  char rampSpeedUP		=	6;   //6% per cycle
-  char rampSpeedDown	=	18; //18% per cycle
+  char rampSpeedUP		=	4;   //6% per cycle
+  char rampSpeedDown	=	8; //18% per cycle
   // Everything below here is not exported by the header
 
   #define EX_UART_NUM   UART_NUM_0
@@ -193,10 +193,10 @@ namespace SerialTask {
 //        startupCounter++;
 
 
-      //leftSpeed[0]=caculateSpeedRamp(leftSpeed[0],leftSpeed[1]);
-      //rightSpeed[0]=caculateSpeedRamp(rightSpeed[0],rightSpeed[1]);
-      leftSpeed[0]=leftSpeed[1];
-	  rightSpeed[0]=rightSpeed[1];
+      leftSpeed[0]=caculateSpeedRamp(leftSpeed[0],leftSpeed[1]);
+      rightSpeed[0]=caculateSpeedRamp(rightSpeed[0],rightSpeed[1]);
+      //leftSpeed[0]=leftSpeed[1];
+	  //rightSpeed[0]=rightSpeed[1];
       uart_write_bytes(UART_NUM_1,  leftSpeed, 1);
       uart_write_bytes(UART_NUM_2,  rightSpeed, 1);
 //      printf("speed: %2x; %2x;\n", leftSpeed[0], rightSpeed[0]);

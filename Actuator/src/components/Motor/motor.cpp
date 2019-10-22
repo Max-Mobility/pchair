@@ -7,7 +7,7 @@
 
 namespace Motor{
 	uint8_t forwardSpeedLimit = 70;
-	uint8_t rotationSpeedLimit = 35;
+	uint8_t rotationSpeedLimit = 20;
 	void caculateSpeedLimit(void)
 	{	float speedSet = 0.5;
 		switch(BLE::speedSettings)
@@ -23,7 +23,7 @@ namespace Motor{
 			break;
 		}
 		forwardSpeedLimit = uint8_t( speedSet*Actuator::speedLimit*100);
-		rotationSpeedLimit = uint8_t(speedSet*Actuator::speedLimit*50);
+		rotationSpeedLimit = uint8_t(speedSet*Actuator::speedLimit*30);
 
 	}
 	void caculateMotorSpeed(uint8_t joyX,uint8_t joyY,Actuator::system_modes mode)
