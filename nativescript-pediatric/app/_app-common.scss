@@ -33,6 +33,20 @@
         text-align: center;
     }
 
+    .driving-legend {
+        horizontal-align: center;
+        vertical-align: center;
+
+        .legend-item {
+
+            .legend-label {
+                margin: 10;
+                vertical-align: center;
+                text-align: center;
+            }
+        }
+    }
+
     .control-container {
 
         max-height: 100;
