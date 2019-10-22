@@ -1,16 +1,15 @@
-import { Observable } from 'tns-core-modules/data/observable';
-import { ImageSource, fromFile, fromResource, fromBase64 } from "tns-core-modules/image-source";
-import { Prop } from '../obs-prop';
-
-export class ControlItem extends Observable {
-    @Prop() img: string = '';
-    @Prop() name: string = '';
-    @Prop() selected: boolean = false;
+export class ControlItem {
+    public img: string = '';
+    public name: string = '';
+    public selected: boolean = false;
 
     constructor(name: string, img: string) {
-        super();
         this.name = name;
         this.img = img;
         this.selected = false;
+    }
+
+    toString(): string {
+        return `ControlItem: ${this.name} : ${this.img}`;
     }
 }
