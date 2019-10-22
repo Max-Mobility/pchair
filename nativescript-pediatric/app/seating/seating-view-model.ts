@@ -22,12 +22,12 @@ export class SeatingViewModel extends Observable {
         this._bluetooth = new Bluetooth();
         this._bluetooth.debug = true;
         this.controlItems.push([
-            new ControlItem('Legs', '~/assets/images/bluetooth.png'),
-            new ControlItem('Back', '~/assets/images/bluetooth.png'),
-            new ControlItem('Elevation', '~/assets/images/bluetooth.png'),
-            new ControlItem('Tilt', '~/assets/images/bluetooth.png'),
-            new ControlItem('Standing Function', '~/assets/images/bluetooth.png'),
-            new ControlItem('Go-Kart Function', '~/assets/images/bluetooth.png')
+            new ControlItem('Legs', '~/assets/images/leg.png'),
+            new ControlItem('Back', '~/assets/images/back.png'),
+            new ControlItem('Elevation', '~/assets/images/elev.png'),
+            new ControlItem('Tilt', '~/assets/images/tilt.png'),
+            new ControlItem('Standing Function', '~/assets/images/stand.png'),
+            new ControlItem('Go-Kart Function', '~/assets/images/go.png')
         ]);
         this.selectedControl = this.controlItems.getItem(0);
         this.selectedControl.selected = true;
