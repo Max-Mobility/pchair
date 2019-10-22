@@ -219,6 +219,14 @@ public class DeviceControlActivity extends Activity {
 
         addListenerOnImageView();
         setShownButton(R.id.run);
+        if (mSpeed.equals("speed_mid")) {
+            setBackground(R.id.speed_mid);
+        } else if (mSpeed.equals("speed_high")) {
+            setBackground(R.id.speed_high);
+        } else {
+            mSpeed = "speed_low";
+            setBackground(R.id.speed_low);
+        }
     }
 
     @SuppressLint("ClickableViewAccessibility")

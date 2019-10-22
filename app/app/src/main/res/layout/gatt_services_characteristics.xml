@@ -104,27 +104,12 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
-        android:id="@+id/run"
-        style="@android:style/Widget.Holo.Button"
-        android:layout_width="75dp"
-        android:layout_height="75dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginBottom="440dp"
-        android:background="#ffffff"
-        android:clickable="true"
-        android:contentDescription="@string/run"
-        android:focusable="true"
-        android:src="@drawable/run"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <ImageView
         android:id="@+id/sleep"
         style="@android:style/Widget.Holo.Button"
         android:layout_width="75dp"
         android:layout_height="75dp"
-        android:layout_marginStart="276dp"
-        android:layout_marginBottom="444dp"
+        android:layout_marginStart="280dp"
+        android:layout_marginBottom="484dp"
         android:background="#2196F3"
         android:clickable="true"
         android:contentDescription="@string/sleep"
@@ -134,26 +119,12 @@
         app:layout_constraintStart_toStartOf="parent" />
 
     <ImageView
-        android:id="@+id/image_0"
-        android:layout_width="75dp"
-        android:layout_height="75dp"
-        android:layout_column="1"
-        android:layout_marginStart="16dp"
-        android:layout_marginBottom="348dp"
-        android:clickable="true"
-        android:contentDescription="@string/image_0"
-        android:focusable="true"
-        android:src="@drawable/back"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <ImageView
         android:id="@+id/image_1"
         android:layout_width="75dp"
         android:layout_height="75dp"
         android:layout_column="3"
         android:layout_marginStart="16dp"
-        android:layout_marginBottom="264dp"
+        android:layout_marginBottom="292dp"
         android:clickable="true"
         android:contentDescription="@string/image_1"
         android:focusable="true"
@@ -162,16 +133,31 @@
         app:layout_constraintStart_toStartOf="parent" />
 
     <ImageView
-        android:id="@+id/image_2"
+        android:id="@+id/run"
+        style="@android:style/Widget.Holo.Button"
+        android:layout_width="75dp"
+        android:layout_height="75dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginBottom="472dp"
+        android:background="#ffffff"
+        android:clickable="true"
+        android:contentDescription="@string/run"
+        android:focusable="true"
+        android:src="@drawable/run"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <ImageView
+        android:id="@+id/image_0"
         android:layout_width="75dp"
         android:layout_height="75dp"
         android:layout_column="1"
         android:layout_marginStart="16dp"
-        android:layout_marginBottom="176dp"
+        android:layout_marginBottom="384dp"
         android:clickable="true"
-        android:contentDescription="@string/image_2"
+        android:contentDescription="@string/image_0"
         android:focusable="true"
-        android:src="@drawable/tilt"
+        android:src="@drawable/back"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
@@ -181,7 +167,7 @@
         android:layout_height="75dp"
         android:layout_column="1"
         android:layout_marginStart="16dp"
-        android:layout_marginBottom="88dp"
+        android:layout_marginBottom="108dp"
         android:clickable="true"
         android:contentDescription="@string/image_3"
         android:focusable="true"
@@ -195,7 +181,7 @@
         android:layout_height="75dp"
         android:layout_column="3"
         android:layout_marginStart="16dp"
-        android:layout_marginBottom="4dp"
+        android:layout_marginBottom="16dp"
         android:clickable="true"
         android:contentDescription="@string/image_4"
         android:focusable="true"
@@ -204,12 +190,26 @@
         app:layout_constraintStart_toStartOf="parent" />
 
     <ImageView
-        android:id="@+id/image_zoom"
-        android:layout_width="214dp"
-        android:layout_height="224dp"
+        android:id="@+id/image_2"
+        android:layout_width="75dp"
+        android:layout_height="75dp"
         android:layout_column="1"
-        android:layout_marginStart="136dp"
-        android:layout_marginBottom="108dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginBottom="200dp"
+        android:clickable="true"
+        android:contentDescription="@string/image_2"
+        android:focusable="true"
+        android:src="@drawable/tilt"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <ImageView
+        android:id="@+id/image_zoom"
+        android:layout_width="259dp"
+        android:layout_height="287dp"
+        android:layout_column="1"
+        android:layout_marginStart="100dp"
+        android:layout_marginBottom="96dp"
         android:contentDescription="@string/no_data"
         android:src="@drawable/sleep"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -221,7 +221,7 @@
         android:layout_width="75dp"
         android:layout_height="60dp"
         android:layout_marginStart="208dp"
-        android:layout_marginBottom="368dp"
+        android:layout_marginBottom="404dp"
         android:background="#ffffff"
         android:clickable="true"
         android:contentDescription="@string/plus"
@@ -233,10 +233,10 @@
     <ImageView
         android:id="@+id/minusButton"
         style="@android:style/Widget.Holo.Button"
-        android:layout_width="75dp"
+        android:layout_width="60dp"
         android:layout_height="60dp"
-        android:layout_marginStart="208dp"
-        android:layout_marginBottom="24dp"
+        android:layout_marginStart="220dp"
+        android:layout_marginBottom="16dp"
         android:background="#ffffff"
         android:clickable="true"
         android:contentDescription="@string/minus"
@@ -290,14 +290,15 @@
     <ImageView
         android:id="@+id/back_to_run"
         style="@android:style/Widget.Holo.Button"
-        android:layout_width="146dp"
-        android:layout_height="141dp"
+        android:layout_width="171dp"
+        android:layout_height="152dp"
         android:layout_marginStart="96dp"
-        android:layout_marginBottom="172dp"
+        android:layout_marginBottom="180dp"
         android:background="#ffffff"
         android:clickable="true"
         android:contentDescription="@string/run"
         android:focusable="true"
+        android:padding="2dp"
         android:src="@drawable/run"
         android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
