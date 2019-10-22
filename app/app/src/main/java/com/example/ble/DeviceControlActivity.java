@@ -25,6 +25,7 @@ import android.widget.ImageView;
 import android.widget.SimpleExpandableListAdapter;
 import android.widget.TextView;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -62,6 +63,8 @@ public class DeviceControlActivity extends Activity {
     private ImageView imageView_low;
     private ImageView imageView_mid;
     private ImageView imageView_high;
+
+    private ImageView imageView_back;
 
     static private class system_modes {
         static byte DriveMode = 0;
@@ -112,38 +115,38 @@ public class DeviceControlActivity extends Activity {
         }
     };
 
-    private final ExpandableListView.OnChildClickListener servicesListClickListener = new ExpandableListView.OnChildClickListener() {
-        @Override
-        public boolean onChildClick(ExpandableListView expandableListView, View view, int groupPosition, int childPosition, long l) {
-
-            if (mGattCharacteristics != null) {
-
-                final BluetoothGattCharacteristic characteristic = mGattCharacteristics.get(groupPosition).get(childPosition);
-                final int charaProp = characteristic.getProperties();
-                Log.e(TAG, "charaProp: " + charaProp);
-
-                if ((charaProp & BluetoothGattCharacteristic.PROPERTY_READ) > 0) {
-
-                    Log.e(TAG, "PROPERTY_READ." + characteristic.getUuid());
-
-                    // Clear Notification so it does not update user interface.
-                    if (mNotifyCharacteristic != null) {
-                        mBluetoothLeService.setCharacteristicNotification(mNotifyCharacteristic, false);
-                        mNotifyCharacteristic = null;
-                    }
-                    mBluetoothLeService.readCharacteristic(characteristic);
-                }
-
-                if ((charaProp & BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0) {
-                    Log.e(TAG, "PROPERTY_NOTIFY." + characteristic.getUuid());
-                    mNotifyCharacteristic = characteristic;
-                    mBluetoothLeService.setCharacteristicNotification(characteristic, true);
-                }
-                return true;
-            }
-            return false;
-        }
-    };
+//    private final ExpandableListView.OnChildClickListener servicesListClickListener = new ExpandableListView.OnChildClickListener() {
+//        @Override
+//        public boolean onChildClick(ExpandableListView expandableListView, View view, int groupPosition, int childPosition, long l) {
+//
+//            if (mGattCharacteristics != null) {
+//
+//                final BluetoothGattCharacteristic characteristic = mGattCharacteristics.get(groupPosition).get(childPosition);
+//                final int charaProp = characteristic.getProperties();
+//                Log.e(TAG, "charaProp: " + charaProp);
+//
+//                if ((charaProp & BluetoothGattCharacteristic.PROPERTY_READ) > 0) {
+//
+//                    Log.e(TAG, "PROPERTY_READ." + characteristic.getUuid());
+//
+//                    // Clear Notification so it does not update user interface.
+//                    if (mNotifyCharacteristic != null) {
+//                        mBluetoothLeService.setCharacteristicNotification(mNotifyCharacteristic, false);
+//                        mNotifyCharacteristic = null;
+//                    }
+//                    mBluetoothLeService.readCharacteristic(characteristic);
+//                }
+//
+//                if ((charaProp & BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0) {
+//                    Log.e(TAG, "PROPERTY_NOTIFY." + characteristic.getUuid());
+//                    mNotifyCharacteristic = characteristic;
+//                    mBluetoothLeService.setCharacteristicNotification(characteristic, true);
+//                }
+//                return true;
+//            }
+//            return false;
+//        }
+//    };
 
     private final BroadcastReceiver mGattUpdateReceiver = new BroadcastReceiver() {
         @Override
@@ -164,7 +167,7 @@ public class DeviceControlActivity extends Activity {
 
             } else if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
                 //displayData(intent.getStringExtra(BluetoothLeService.EXTRA_DATA));
-                displayData(intent.getIntExtra(BluetoothLeService.EXTRA_DATA, 0));
+                displayData(intent.getByteArrayExtra(BluetoothLeService.EXTRA_DATA));
             }
         }
     };
@@ -193,7 +196,9 @@ public class DeviceControlActivity extends Activity {
         Intent gattServiceIntent = new Intent(this, BluetoothLeService.class);
         bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
 
-        mSpeed = "speed_low";
+        if (mSpeed == null) {
+            mSpeed = "speed_low";
+        }
 
         imageView_0 = findViewById(R.id.image_0);
         imageView_1 = findViewById(R.id.image_1);
@@ -210,8 +215,18 @@ public class DeviceControlActivity extends Activity {
         imageView_mid = findViewById(R.id.speed_mid);
         imageView_high = findViewById(R.id.speed_high);
 
+        imageView_back = findViewById(R.id.back_to_run);
+
         addListenerOnImageView();
-        setShownButton(R.id.sleep);
+        setShownButton(R.id.run);
+        if (mSpeed.equals("speed_mid")) {
+            setBackground(R.id.speed_mid);
+        } else if (mSpeed.equals("speed_high")) {
+            setBackground(R.id.speed_high);
+        } else {
+            mSpeed = "speed_low";
+            setBackground(R.id.speed_low);
+        }
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -254,12 +269,12 @@ public class DeviceControlActivity extends Activity {
             public void onClick(View view) {
                 Log.e(TAG, "run");
                 setShownButton(R.id.run);
-                if(mSpeed.equals("speed_mid")){
+                if (mSpeed.equals("speed_mid")) {
                     setBackground(R.id.speed_mid);
-                } else if (mSpeed.equals("speed_high")){
+                } else if (mSpeed.equals("speed_high")) {
                     setBackground(R.id.speed_high);
                 } else {
-                    mSpeed="speed_low";
+                    mSpeed = "speed_low";
                     setBackground(R.id.speed_low);
                 }
 
@@ -271,14 +286,15 @@ public class DeviceControlActivity extends Activity {
             @Override
             public void onClick(View view) {
                 Log.e(TAG, "sleep");
+                setShownButton(R.id.sleep);
                 sendChoiceToBluetooth("sleep", mBluetoothGattCharacteristic);
 
                 //TODO: place here temporarily.
                 //call SpeedControlActivity.java
-                final Intent intent = new Intent(DeviceControlActivity.this, SpeedControlActivity.class);
-                intent.putExtra(SpeedControlActivity.EXTRAS_DEVICE_NAME, mDeviceName);
-                intent.putExtra(SpeedControlActivity.EXTRAS_DEVICE_ADDRESS, mDeviceAddress);
-                startActivity(intent);
+//                final Intent intent = new Intent(DeviceControlActivity.this, SpeedControlActivity.class);
+//                intent.putExtra(SpeedControlActivity.EXTRAS_DEVICE_NAME, mDeviceName);
+//                intent.putExtra(SpeedControlActivity.EXTRAS_DEVICE_ADDRESS, mDeviceAddress);
+//                startActivity(intent);
             }
         });
 
@@ -366,28 +382,83 @@ public class DeviceControlActivity extends Activity {
                 sendChoiceToBluetooth("speed_high", mBluetoothGattCharacteristic);
             }
         });
+
+        imageView_back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.e(TAG, "back to run.");
+                setShownButton(R.id.run);
+                if (mSpeed.equals("speed_mid")) {
+                    setBackground(R.id.speed_mid);
+                } else if (mSpeed.equals("speed_high")) {
+                    setBackground(R.id.speed_high);
+                } else {
+                    mSpeed = "speed_low";
+                    setBackground(R.id.speed_low);
+                }
+
+                sendChoiceToBluetooth("run", mBluetoothGattCharacteristic);
+            }
+        });
     }
 
     private void setShownButton(int image) {
 
-        switch (image) {
-            case R.id.run:
-                imageView_low.setVisibility(View.VISIBLE);
-                imageView_mid.setVisibility(View.VISIBLE);
-                imageView_high.setVisibility(View.VISIBLE);
+        if(image == R.id.sleep){
+            imageView_back.setVisibility(View.VISIBLE);
 
-                imageView_plus.setVisibility(View.INVISIBLE);
-                imageView_minus.setVisibility(View.INVISIBLE);
-                imageView_zoom.setVisibility(View.INVISIBLE);
-                break;
-            default:
-                imageView_low.setVisibility(View.INVISIBLE);
-                imageView_mid.setVisibility(View.INVISIBLE);
-                imageView_high.setVisibility(View.INVISIBLE);
+            imageView_run.setVisibility(View.INVISIBLE);
+            imageView_sleep.setVisibility(View.INVISIBLE);
+            imageView_low.setVisibility(View.INVISIBLE);
+            imageView_mid.setVisibility(View.INVISIBLE);
+            imageView_high.setVisibility(View.INVISIBLE);
 
-                imageView_plus.setVisibility(View.VISIBLE);
-                imageView_minus.setVisibility(View.VISIBLE);
-                imageView_zoom.setVisibility(View.VISIBLE);
+            imageView_plus.setVisibility(View.INVISIBLE);
+            imageView_minus.setVisibility(View.INVISIBLE);
+            imageView_zoom.setVisibility(View.INVISIBLE);
+
+            imageView_0.setVisibility(View.INVISIBLE);
+            imageView_1.setVisibility(View.INVISIBLE);
+            imageView_2.setVisibility(View.INVISIBLE);
+            imageView_3.setVisibility(View.INVISIBLE);
+            imageView_4.setVisibility(View.INVISIBLE);
+        } else if (image == R.id.run) {
+            imageView_back.setVisibility(View.INVISIBLE);
+
+            imageView_0.setVisibility(View.VISIBLE);
+            imageView_1.setVisibility(View.VISIBLE);
+            imageView_2.setVisibility(View.VISIBLE);
+            imageView_3.setVisibility(View.VISIBLE);
+            imageView_4.setVisibility(View.VISIBLE);
+
+            imageView_sleep.setVisibility(View.VISIBLE);
+            imageView_run.setVisibility(View.VISIBLE);
+            imageView_low.setVisibility(View.VISIBLE);
+            imageView_mid.setVisibility(View.VISIBLE);
+            imageView_high.setVisibility(View.VISIBLE);
+
+            imageView_plus.setVisibility(View.INVISIBLE);
+            imageView_minus.setVisibility(View.INVISIBLE);
+            imageView_zoom.setVisibility(View.INVISIBLE);
+        } else {
+            imageView_back.setVisibility(View.INVISIBLE);
+
+            imageView_0.setVisibility(View.VISIBLE);
+            imageView_1.setVisibility(View.VISIBLE);
+            imageView_2.setVisibility(View.VISIBLE);
+            imageView_3.setVisibility(View.VISIBLE);
+            imageView_4.setVisibility(View.VISIBLE);
+
+            imageView_run.setVisibility(View.VISIBLE);
+            imageView_sleep.setVisibility(View.VISIBLE);
+
+            imageView_low.setVisibility(View.INVISIBLE);
+            imageView_mid.setVisibility(View.INVISIBLE);
+            imageView_high.setVisibility(View.INVISIBLE);
+
+            imageView_plus.setVisibility(View.VISIBLE);
+            imageView_minus.setVisibility(View.VISIBLE);
+            imageView_zoom.setVisibility(View.VISIBLE);
         }
     }
 
@@ -395,19 +466,19 @@ public class DeviceControlActivity extends Activity {
 
         switch (image) {
             case R.id.image_0:
-                imageView_zoom.setImageResource(R.drawable.btn_star_big_off);
+                imageView_zoom.setImageResource(R.drawable.back);
                 break;
             case R.id.image_1:
-                imageView_zoom.setImageResource(R.drawable.btn_star_big_on);
+                imageView_zoom.setImageResource(R.drawable.leg);
                 break;
             case R.id.image_2:
-                imageView_zoom.setImageResource(R.drawable.btn_star_big_on_disable);
+                imageView_zoom.setImageResource(R.drawable.tilt);
                 break;
             case R.id.image_3:
-                imageView_zoom.setImageResource(R.drawable.btn_star_big_on_disable_focused);
+                imageView_zoom.setImageResource(R.drawable.elev);
                 break;
             case R.id.image_4:
-                imageView_zoom.setImageResource(R.drawable.btn_star_big_on_pressed);
+                imageView_zoom.setImageResource(R.drawable.stand);
                 break;
             default:
                 imageView_zoom.setImageResource(R.drawable.sleep);
@@ -523,7 +594,8 @@ public class DeviceControlActivity extends Activity {
 
             mBluetoothLeService.readCharacteristic(characteristic);
             mBluetoothGattCharacteristic = characteristic;
-            sendChoiceToBluetooth(mSpeed,mBluetoothGattCharacteristic);
+            sendChoiceToBluetooth(mSpeed, mBluetoothGattCharacteristic);
+
         }
 
 //        if ((charaProp & BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0 && mBluetooth == "IDLE") {
@@ -548,96 +620,135 @@ public class DeviceControlActivity extends Activity {
 //        }
     }
 
-    private void displayGattServices(List<BluetoothGattService> gattServices) {
+//    private void displayGattServices(List<BluetoothGattService> gattServices) {
+//
+//        if (gattServices == null) return;
+//
+//        String uuid = null;
+//        String unknownServiceString = getResources().getString(R.string.unknown_service);
+//        String unknownCharaString = getResources().getString(R.string.unknown_characteristic);
+//
+//        ArrayList<HashMap<String, String>> gattServiceData = new ArrayList<>();
+//        ArrayList<ArrayList<HashMap<String, String>>> gattCharacteristicData = new ArrayList<>();
+//        mGattCharacteristics = new ArrayList<>();
+//
+//        //Loops through available GATT Services.
+//        String LIST_UUID = "UUID";
+//        String LIST_NAME = "NAME";
+//        for (BluetoothGattService gattService : gattServices) {
+//
+//            HashMap<String, String> currentServiceData = new HashMap<>();
+//            uuid = gattService.getUuid().toString();
+//            currentServiceData.put(LIST_NAME, SampleGattAttributes.lookup(uuid, unknownServiceString));
+//            currentServiceData.put(LIST_UUID, uuid);
+//            gattServiceData.add(currentServiceData);
+//
+//            ArrayList<HashMap<String, String>> gattCharacteristicGroupData = new ArrayList<>();
+//            List<BluetoothGattCharacteristic> gattCharacteristics = gattService.getCharacteristics();
+//            ArrayList<BluetoothGattCharacteristic> charas = new ArrayList<>();
+//
+//            for (BluetoothGattCharacteristic gattCharacteristic : gattCharacteristics) {
+//
+//                charas.add(gattCharacteristic);
+//                HashMap<String, String> currentCharaData = new HashMap<>();
+//                uuid = gattCharacteristic.getUuid().toString();
+//
+//                if (uuid.equals(SampleGattAttributes.POSITION_1)) {
+//                    currentCharaData.put(LIST_NAME, SampleGattAttributes.lookup(uuid, unknownCharaString));
+//                    currentCharaData.put(LIST_UUID, uuid);
+//                    gattCharacteristicGroupData.add(currentCharaData);
+//                }
+//
+//
+//            }
+//            mGattCharacteristics.add(charas);
+//            gattCharacteristicData.add(gattCharacteristicGroupData);
+//        }
+//
+//        SimpleExpandableListAdapter gattServiceAdapter = new SimpleExpandableListAdapter(
+//                this,
+//                gattServiceData,
+//                android.R.layout.simple_expandable_list_item_2,
+//                new String[]{LIST_NAME, LIST_UUID},
+//                new int[]{android.R.id.text1, android.R.id.text2},
+//                gattCharacteristicData,
+//                android.R.layout.simple_expandable_list_item_2,
+//                new String[]{LIST_NAME, LIST_UUID},
+//                new int[]{android.R.id.text1, android.R.id.text2}
+//        );
+//        mGattServicesList.setAdapter(gattServiceAdapter);
+//    }
 
-        if (gattServices == null) return;
-
-        String uuid = null;
-        String unknownServiceString = getResources().getString(R.string.unknown_service);
-        String unknownCharaString = getResources().getString(R.string.unknown_characteristic);
-
-        ArrayList<HashMap<String, String>> gattServiceData = new ArrayList<>();
-        ArrayList<ArrayList<HashMap<String, String>>> gattCharacteristicData = new ArrayList<>();
-        mGattCharacteristics = new ArrayList<>();
-
-        //Loops through available GATT Services.
-        String LIST_UUID = "UUID";
-        String LIST_NAME = "NAME";
-        for (BluetoothGattService gattService : gattServices) {
-
-            HashMap<String, String> currentServiceData = new HashMap<>();
-            uuid = gattService.getUuid().toString();
-            currentServiceData.put(LIST_NAME, SampleGattAttributes.lookup(uuid, unknownServiceString));
-            currentServiceData.put(LIST_UUID, uuid);
-            gattServiceData.add(currentServiceData);
-
-            ArrayList<HashMap<String, String>> gattCharacteristicGroupData = new ArrayList<>();
-            List<BluetoothGattCharacteristic> gattCharacteristics = gattService.getCharacteristics();
-            ArrayList<BluetoothGattCharacteristic> charas = new ArrayList<>();
-
-            for (BluetoothGattCharacteristic gattCharacteristic : gattCharacteristics) {
-
-                charas.add(gattCharacteristic);
-                HashMap<String, String> currentCharaData = new HashMap<>();
-                uuid = gattCharacteristic.getUuid().toString();
-
-                if (uuid.equals(SampleGattAttributes.POSITION_1)) {
-                    currentCharaData.put(LIST_NAME, SampleGattAttributes.lookup(uuid, unknownCharaString));
-                    currentCharaData.put(LIST_UUID, uuid);
-                    gattCharacteristicGroupData.add(currentCharaData);
-                }
-
-
-            }
-            mGattCharacteristics.add(charas);
-            gattCharacteristicData.add(gattCharacteristicGroupData);
-        }
-
-        SimpleExpandableListAdapter gattServiceAdapter = new SimpleExpandableListAdapter(
-                this,
-                gattServiceData,
-                android.R.layout.simple_expandable_list_item_2,
-                new String[]{LIST_NAME, LIST_UUID},
-                new int[]{android.R.id.text1, android.R.id.text2},
-                gattCharacteristicData,
-                android.R.layout.simple_expandable_list_item_2,
-                new String[]{LIST_NAME, LIST_UUID},
-                new int[]{android.R.id.text1, android.R.id.text2}
-        );
-        mGattServicesList.setAdapter(gattServiceAdapter);
-    }
-
-    private void displayData(int data) {
+    private void displayData(byte[] data) {
         //if (data != null) {
-        mDataField.setText(Integer.toString(data));
-        //Log.e(TAG,"data: "+data);
+        String str = new String(Arrays.toString(data));
+        mDataField.setText(str);
+        Log.e(TAG, "data: " + data.toString());
 
-        if (data % 5 == 0) {
+        if (data[0] == Command.CMD_CHANGE_SYSTEM_MODE && data[1] == system_modes.Actuator_recline) {
             setBackground(R.id.image_0);
+            setShownButton(R.id.image_0);
             setZoomImage(R.id.image_0);
         }
-        if (data % 5 == 1) {
+        if (data[0] == Command.CMD_CHANGE_SYSTEM_MODE && data[1] == system_modes.Actuator_legrest) {
             setBackground(R.id.image_1);
+            setShownButton(R.id.image_1);
             setZoomImage(R.id.image_1);
         }
-
-        if (data % 5 == 2) {
+        if (data[0] == Command.CMD_CHANGE_SYSTEM_MODE && data[1] == system_modes.Actuator_tilt) {
             setBackground(R.id.image_2);
+            setShownButton(R.id.image_2);
             setZoomImage(R.id.image_2);
         }
-        if (data % 5 == 3) {
+        if (data[0] == Command.CMD_CHANGE_SYSTEM_MODE && data[1] == system_modes.Actuator_elevation) {
             setBackground(R.id.image_3);
+            setShownButton(R.id.image_3);
             setZoomImage(R.id.image_3);
         }
-        if (data % 5 == 4) {
+        if (data[0] == Command.CMD_CHANGE_SYSTEM_MODE && data[1] == system_modes.Actuator_stand) {
             setBackground(R.id.image_4);
+            setShownButton(R.id.image_4);
             setZoomImage(R.id.image_4);
+        }
+        if (data[0] == Command.CMD_CHANGE_SYSTEM_MODE && data[1] == system_modes.DriveMode) {
+            setShownButton(R.id.run);
+            if (mSpeed.equals("speed_mid")) {
+                setBackground(R.id.speed_mid);
+            } else if (mSpeed.equals("speed_high")) {
+                setBackground(R.id.speed_high);
+            } else {
+                mSpeed = "speed_low";
+                setBackground(R.id.speed_low);
+            }
+        }
+        if (data[0] == Command.CMD_CHANGE_SYSTEM_MODE && data[1] == system_modes.System_sleep) {
+            setShownButton(R.id.sleep);
+
+            //TODO: place here temporarily.
+            //call SpeedControlActivity.java
+//            final Intent intent = new Intent(DeviceControlActivity.this, SpeedControlActivity.class);
+//            intent.putExtra(SpeedControlActivity.EXTRAS_DEVICE_NAME, mDeviceName);
+//            intent.putExtra(SpeedControlActivity.EXTRAS_DEVICE_ADDRESS, mDeviceAddress);
+//            startActivity(intent);
+        }
+        if (data[0] == Command.CMD_SET_SPEED && data[1] == Speed_setting.speed_low) {
+            setShownButton(R.id.run);
+            setBackground(R.id.speed_low);
+        }
+
+        if (data[0] == Command.CMD_SET_SPEED && data[1] == Speed_setting.speed_medium) {
+            setShownButton(R.id.run);
+            setBackground(R.id.speed_mid);
+        }
+        if (data[0] == Command.CMD_SET_SPEED && data[1] == Speed_setting.speed_high) {
+            setShownButton(R.id.run);
+            setBackground(R.id.speed_high);
         }
 
     }
 
     private void setBackground(int image) {
-        imageView_run.setBackgroundColor(Color.parseColor("#2196F3"));
+        imageView_run.setBackgroundColor(0x00000000);
         imageView_low.setBackgroundColor(0x00000000);
         imageView_mid.setBackgroundColor(0x00000000);
         imageView_high.setBackgroundColor(0x00000000);

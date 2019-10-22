@@ -15,6 +15,7 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.UUID;
 
@@ -27,6 +28,7 @@ public class BluetoothLeService extends Service {
     private String mBluetoothDeviceAddress;
     private BluetoothGatt mBluetoothGatt;
     private int mConnectionState = BluetoothAdapter.STATE_DISCONNECTED;
+    private ArrayList<byte[]> mBluetoothArray = new ArrayList<byte[]>();
 
     private static final int STATE_DISCONNECTED = 0;
     private static final int STATE_CONNECTING = 1;
@@ -84,7 +86,7 @@ public class BluetoothLeService extends Service {
         @Override
         public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
             //super.onCharacteristicRead(gatt, characteristic, status);
-            Log.e(TAG, "onCharacteristicRead:"+status+" "+BluetoothGatt.GATT_SUCCESS);
+            Log.e(TAG, "onCharacteristicRead:" + status + " " + BluetoothGatt.GATT_SUCCESS);
 
 
             if (status == BluetoothGatt.GATT_SUCCESS) {
@@ -111,6 +113,8 @@ public class BluetoothLeService extends Service {
             //super.onCharacteristicWrite(gatt, characteristic, status);
             Log.e(TAG, "onCharacteristicWrite" + status);
             DeviceControlActivity.mBluetooth = "IDLE";
+            mBluetoothArray.remove(0);
+            writeBLE(characteristic);
         }
 
         @Override
@@ -130,7 +134,6 @@ public class BluetoothLeService extends Service {
 
         final Intent intent = new Intent(action);
 
-        //TODO: Need to update
         //https://www.bluetooth.com/specifications/gatt/characteristics/
 //        if (UUID_MEASUREMENT.equals(characteristic.getUuid())) {
 //            // Heart rate:
@@ -167,8 +170,10 @@ public class BluetoothLeService extends Service {
             //for (byte byteChar : data)
             //    stringBuilder.append(String.format("%02X ", byteChar));
             //intent.putExtra(EXTRA_DATA, new String(data) + "\n" + stringBuilder.toString());
-            final int value = data[0] & 0xFF;
-            intent.putExtra(EXTRA_DATA, value);
+            //final int value = data[0] & 0xFF;
+            intent.putExtra(EXTRA_DATA, data);
+        } else if (data == null) {
+            Log.e(TAG, "Extra data is null.");
         }
         sendBroadcast(intent);
     }
@@ -258,7 +263,7 @@ public class BluetoothLeService extends Service {
         }
         mBluetoothGatt.setCharacteristicNotification(characteristic, enabled);
 
-        Log.e(TAG,"setCharacteristicNotification run");
+        Log.e(TAG, "setCharacteristicNotification run");
 
         // For Characteristics with Descriptor, enable Notification
         if (UUID.fromString(SampleGattAttributes.POSITION_1).equals(characteristic.getUuid())) {
@@ -283,12 +288,26 @@ public class BluetoothLeService extends Service {
             Log.e(TAG, "BluetoothAdapter not initialized");
             return;
         }
+        if (value != null) {
+            mBluetoothArray.add(value);
+        }
 
-        characteristic.setValue(value);
+        if (!mBluetoothArray.isEmpty() && DeviceControlActivity.mBluetooth.equals("IDLE")) {
+            DeviceControlActivity.mBluetooth = "BUSY";
+            writeBLE(characteristic);
+        }
+    }
 
-        boolean wStatus = mBluetoothGatt.writeCharacteristic(characteristic);
-
-        Log.e(TAG, "writeCharacteristic run." + Arrays.toString(characteristic.getValue()) + " " + wStatus);
+    private void writeBLE(BluetoothGattCharacteristic characteristic) {
+        if (!mBluetoothArray.isEmpty()) {
+            byte[] value = mBluetoothArray.get(0);
+            characteristic.setValue(value);
+            mBluetoothGatt.writeCharacteristic(characteristic);
+            //boolean wStatus = mBluetoothGatt.writeCharacteristic(characteristic);
+            //Log.e(TAG, "writeCharacteristic run." + Arrays.toString(characteristic.getValue()) + " " + wStatus);
+        } else {
+            DeviceControlActivity.mBluetooth = "IDLE";
+        }
     }
 
     // Connect to Device.Service.Characteristic -> POSITION_1
