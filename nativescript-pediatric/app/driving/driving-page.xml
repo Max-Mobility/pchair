@@ -2,27 +2,27 @@
     This is the page that is presented in the 'Driving' tab.
     Feel free to customize layouts and components to change how the tab view looks.
 -->
-<Page
-    class="page"
-    navigatingTo="onNavigatingTo"
-    xmlns:gauge="nativescript-ui-gauge" xmlns="http://www.nativescript.org/tns.xsd"
-    xmlns="http://schemas.nativescript.org/tns.xsd">
+<Page class="page" navigatingTo="onNavigatingTo" 
+  xmlns:gauge="nativescript-ui-gauge" 
+  xmlns="http://www.nativescript.org/tns.xsd" 
+  xmlns="http://schemas.nativescript.org/tns.xsd">
 
   <ActionBar class="action-bar">
-    <Label class="action-bar-title" text="Driving"></Label>
+    <GridLayout columns="*, auto" rows="*">
+      <Label class="action-bar-title" text="Driving"></Label>
+      <Image col="1" height="55" class="action-item" backgroundColor="{{ isConnected, isConnected ? 'green' : 'red'}}" tap="{{ isConnected, isConnected ? onDisconnectTap : onBluetoothTap }}" visibility="{{ isBusy, isBusy ? 'collapse':'visible' }}" src="font://&#xf293;" class="fa t-36"></Image>
+      <ActivityIndicator col="1" width="32" height="32" class="action-item" busy="{{ isBusy }}"/>
+    </GridLayout>
   </ActionBar>
 
   <StackLayout class="page-content" width="100%" height="100%">
     <ScrollView width="100%" height="100%">
-      <GridLayout rows="auto, auto, auto, auto" columns="*"
-                  width="100%" height="100%"
-                  class="active-controls">
+      <GridLayout rows="auto, auto, auto, auto" columns="*" width="100%" height="100%" class="active-controls">
         <Label row="0" class="driving-label" text="Driving Settings" textWrap="true"></Label>
         <gauge:RadRadialGauge row="1" height="50%" id="gaugeView" margin="10">
           <gauge:RadRadialGauge.scales>
 
-            <gauge:RadialScale startAngle="160" sweepAngle="220"
-                               minimum="0" maximum="100" radius="0.45">
+            <gauge:RadialScale startAngle="160" sweepAngle="220" minimum="0" maximum="100" radius="0.45">
               <gauge:RadialScale.scaleStyle>
                 <gauge:ScaleStyle ticksVisible="true" labelsVisible="true" lineThickness="0" />
               </gauge:RadialScale.scaleStyle>
@@ -30,16 +30,16 @@
               <gauge:RadialScale.indicators>
                 <gauge:RadialBarIndicator minimum="0" maximum="100" location="0.5">
                   <gauge:RadialBarIndicator.indicatorStyle>
-                    <gauge:BarIndicatorStyle cap="Round" fillColor="rgba(224,151,36,0.5)" barWidth="0.2"/>
+                    <gauge:BarIndicatorStyle cap="Round" fillColor="rgba(121,7,242,0.5)" barWidth="0.2"/>
                   </gauge:RadialBarIndicator.indicatorStyle>
                 </gauge:RadialBarIndicator>
 
-                <gauge:RadialBarIndicator minimum="0" maximum="{{ acceleration }}" location="0.5" isAnimated="true">
+                <gauge:RadialBarIndicator minimum="0" maximum="{{ currentSpeed }}" location="0.5" isAnimated="true">
                   <gauge:RadialBarIndicator.indicatorStyle>
-                    <gauge:BarIndicatorStyle cap="Round" fillColor="rgba(224,151,36,0.8)" barWidth="0.2"/>
+                    <gauge:BarIndicatorStyle cap="Round" fillColor="rgba(121,7,242,0.8)" barWidth="0.2"/>
                   </gauge:RadialBarIndicator.indicatorStyle>
                 </gauge:RadialBarIndicator>
-
+                <!-- 
                 <gauge:RadialBarIndicator minimum="0" maximum="100" location="0.75">
                   <gauge:RadialBarIndicator.indicatorStyle>
                     <gauge:BarIndicatorStyle cap="Round" fillColor="rgba(196,241,57,0.5)" barWidth="0.2"/>
@@ -50,7 +50,7 @@
                   <gauge:RadialBarIndicator.indicatorStyle>
                     <gauge:BarIndicatorStyle cap="Round" fillColor="rgba(196,241,57,0.8)" barWidth="0.2"/>
                   </gauge:RadialBarIndicator.indicatorStyle>
-                </gauge:RadialBarIndicator>
+                </gauge:RadialBarIndicator> -->
 
                 <gauge:RadialBarIndicator minimum="0" maximum="100" location="1">
                   <gauge:RadialBarIndicator.indicatorStyle>
@@ -58,9 +58,9 @@
                   </gauge:RadialBarIndicator.indicatorStyle>
                 </gauge:RadialBarIndicator>
 
-                <gauge:RadialBarIndicator minimum="0" maximum="{{ forwardSpeed }}" location="1" isAnimated="true">
+                <gauge:RadialBarIndicator minimum="0" maximum="{{ maxSpeed }}" location="1" isAnimated="true">
                   <gauge:RadialBarIndicator.indicatorStyle>
-                    <gauge:BarIndicatorStyle cap="Round" cap="Round" fillColor="rgba(132,235,247,0.8)" barWidth="0.2"/>
+                    <gauge:BarIndicatorStyle cap="Round" cap="Round" fillColor= "{{ speedColor }}" barWidth="0.2"/>
                   </gauge:RadialBarIndicator.indicatorStyle>
                 </gauge:RadialBarIndicator>
               </gauge:RadialScale.indicators>
@@ -71,16 +71,16 @@
         // legend
         <StackLayout class="driving-legend" row="2">
           <StackLayout class="legend-item" orientation="horizontal">
-            <Button backgroundColor="rgba(132,235,247,0.8)" borderRadius="50"/>
-            <Label class="legend-label" text="Forward Speed"/>
+            <Button backgroundColor="rgba(132,235,247,0.8)" borderRadius="50" tap="{{ highSpeedTap }}"/>
+            <Label class="legend-label" text="High Speed"/>
           </StackLayout>
           <StackLayout class="legend-item" orientation="horizontal">
-            <Button backgroundColor="rgba(196,241,57,0.8)" borderRadius="50"/>
-            <Label class="legend-label" text="Turning Speed"/>
+            <Button backgroundColor="rgba(196,241,57,0.8)" borderRadius="50" tap="{{ mediumSpeedTap }}"/>
+            <Label class="legend-label" text="Medium Speed"/>
           </StackLayout>
           <StackLayout class="legend-item" orientation="horizontal">
-            <Button backgroundColor="rgba(224,151,36,0.8)" borderRadius="50"/>
-            <Label class="legend-label" text="Acceleration"/>
+            <Button backgroundColor="rgba(224,151,36,0.8)" borderRadius="50" tap="{{ lowSpeedTap }}"/>
+            <Label class="legend-label" text="Low Speed"/>
           </StackLayout>
         </StackLayout>
       </GridLayout>

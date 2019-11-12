@@ -25,11 +25,15 @@ https://docs.nativescript.org/angular/ui/ng-ui-widgets/tabs.
                 will "adopt"; any other layout elements you try to specify will be ignored
             -->
             <Label text="Driving" />
-            <Image src="font://&#xf0e4;" class="fa t-36" />
+            <Image src="font://&#xf1b9;" class="fa t-36" />
         </TabStripItem>
         <TabStripItem>
             <Label text="Seating" />
             <Image src="font://&#xf193;" class="fa t-36" />
+        </TabStripItem>
+        <TabStripItem>
+            <Label text="Sleep" />
+            <Image src="font://&#xf236;" class="fa t-36" />
         </TabStripItem>
     </TabStrip>
 
@@ -39,6 +43,10 @@ https://docs.nativescript.org/angular/ui/ng-ui-widgets/tabs.
 
     <TabContentItem>
         <Frame defaultPage="seating/seating-page" />
+    </TabContentItem>
+
+    <TabContentItem>
+        <Frame defaultPage="sleep/sleep-page" />
     </TabContentItem>
 
 </BottomNavigation>

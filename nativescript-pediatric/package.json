@@ -22,7 +22,8 @@
     "nativescript-toasty": "^2.0.1",
     "nativescript-ui-gauge": "^5.0.0",
     "nativescript-ui-listview": "^7.1.0",
-    "tns-core-modules": "~6.1.0"
+    "tns-core-modules": "~6.1.0",
+    "tns-platform-declarations": "^6.2.0"
   },
   "devDependencies": {
     "nativescript-dev-webpack": "~1.2.0",
