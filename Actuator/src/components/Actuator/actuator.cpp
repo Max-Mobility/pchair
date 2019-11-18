@@ -368,12 +368,21 @@ namespace Actuator{
 					case Actuator_stand:
 						if (stateChanged)
 						{
-
-							actRecline.position_memory=actRecline.position;
-							actLegrest.position_memory=actLegrest.position;
-							actTilt.position_memory=actTilt.position;
-							actElevation.position_memory=actElevation.position;
-							SavedSeatAngleToGround = SeatAngleToGround;
+							if (SeatAngleToGround>-10)
+							{
+								actRecline.position_memory=actRecline.position;
+								actLegrest.position_memory=actLegrest.position;
+								actTilt.position_memory=actTilt.position;
+								actElevation.position_memory=actElevation.position;
+								SavedSeatAngleToGround = SeatAngleToGround;
+							}
+							else   // not normal seating position, so set to default seating position
+							{
+								actRecline.position_memory=10;
+								actLegrest.position_memory=20;
+								actTilt.position_memory=30;
+								actElevation.position_memory=10;
+							}
 							printf("Recline:%d; Leg:%d; Tilt:%d; Elev:%d;\n",actRecline.position_memory,actLegrest.position_memory,
 									actTilt.position_memory,actElevation.position_memory);
 
