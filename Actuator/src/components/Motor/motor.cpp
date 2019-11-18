@@ -10,6 +10,8 @@ namespace Motor{
 	uint8_t rotationSpeedLimit = 17;
 	uint8_t phone_joystickX=128;
 	uint8_t phone_joystickY=128;
+	float joyXReading = 0;
+	float joyYReading = 0;
 	void caculateSpeedLimit(void)
 	{	float speedSet = 0.5;
 		switch(BLE::speedSettings)
@@ -31,10 +33,9 @@ namespace Motor{
 		//rotationSpeedLimit = uint8_t(speedSet*Actuator::speedLimit*30);
 
 	}
-	void caculateMotorSpeed(uint8_t joyX,uint8_t joyY,Actuator::system_modes mode)
+	void caculateMotorSpeed(float x,float y,Actuator::system_modes mode)
 	{
-		float x =0;
-		float y =0;
+
 		float left = 0;
 		float right =0;
 		float factor = 1;
@@ -48,13 +49,9 @@ namespace Motor{
 		{
 			caculateSpeedLimit();
 
-			x = converterJoystickReading(joyX);
-			y = converterJoystickReading(joyY);
-
-
 			left = (y*forwardSpeedLimit/100.0+x*rotationSpeedLimit/100.0);
 			right =( y*forwardSpeedLimit/100.0 - x*rotationSpeedLimit/100.0);
-//			printf("joyx=%d,joyY=%d,left=%f,right=%f  ",joyX,joyY,left,right);
+//			printf("joyx=%f,joyY=%f,left=%f,right=%f \n ",x,y,left,right);
 			if (abs(left)>forwardSpeedLimit)
 			{
 				factor = forwardSpeedLimit/float(abs(left));
@@ -72,18 +69,26 @@ namespace Motor{
 
 	}
 
-	float converterJoystickReading(uint8_t r)
+	float converterJoystickReadingX(uint8_t r)
 	{
 		float x=0;
-		if (r>joyStickZeroMax)
+		if (r>joyStickXMax)
 		{
-			x =( (r -joyStickZeroMax)*100.0/(255-joyStickZeroMax));
+			r = joyStickXMax;
+		}
+		if (r<joyStickXMin)
+		{
+			r=joyStickXMin;
+		}
+		if (r>joyStickXZeroMax)
+		{
+			x =( (r -joyStickXZeroMax)*100.0/(joyStickXMax-joyStickXZeroMax));
 		}
 		else
 		{
-			if (r < joyStickZeroMin)
+			if (r < joyStickXZeroMin)
 			{
-				x =( (r-joyStickZeroMin)*100.0/joyStickZeroMin);
+				x =( (r-joyStickXZeroMin)*100.0/(joyStickXZeroMin-joyStickXMin));
 			}
 			else
 				x=0;
@@ -92,18 +97,71 @@ namespace Motor{
 
 	}
 
+	float converterJoystickReadingY(uint8_t r)
+	{
+		float x=0;
+		if (r>joyStickYMax)
+		{
+			r = joyStickYMax;
+		}
+		if (r<joyStickYMin)
+		{
+			r=joyStickYMin;
+		}
+		if (r>joyStickYZeroMax)
+		{
+			x =( (r -joyStickYZeroMax)*100.0/(joyStickYMax-joyStickYZeroMax));
+		}
+		else
+		{
+			if (r < joyStickYZeroMin)
+			{
+				x =( (r-joyStickYZeroMin)*100.0/(joyStickYZeroMin-joyStickYMin));
+			}
+			else
+				x=0;
+		}
+		return x;
+	}
+
+	float converterJoystickReadingPhone(uint8_t r)
+		{
+			float x=0;
+			if (r>138)
+			{
+				x =( (r -138)*100.0/(255-138));
+			}
+			else
+			{
+				if (r < 118)
+				{
+					x =( (r-118)*100.0/118);
+				}
+				else
+					x=0;
+			}
+			return x;
+
+		}
+
+
 	void taskFunction ( void *pvParameter ) {
 
 		while(1)
 		{
 			if ( Actuator::systemMode==Actuator::system_modes::PhoneControlMode )
 			{
-				caculateMotorSpeed(phone_joystickX,phone_joystickY,Actuator::systemMode);
+				joyXReading = converterJoystickReadingPhone(phone_joystickX);
+				joyYReading = converterJoystickReadingPhone(phone_joystickY);
+
 			}
 			else
 			{
-				caculateMotorSpeed(I2C::joystickX,I2C::joystickY,Actuator::systemMode);
+				joyXReading = converterJoystickReadingX(I2C::joystickX);
+				joyYReading = converterJoystickReadingY(I2C::joystickY);
+
 			}
+			caculateMotorSpeed(joyXReading,joyYReading,Actuator::systemMode);
 			vTaskDelay((40 * (1)) / portTICK_RATE_MS);
 
 		}

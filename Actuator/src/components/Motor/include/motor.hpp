@@ -12,15 +12,24 @@
 #include "gatts.hpp"
 
 namespace Motor{
-	#define joyStickZeroMin 118
-	#define joyStickZeroMax 137
+	#define joyStickXZeroMin 120
+	#define joyStickXZeroMax 140
+	#define joyStickXMin 27
+	#define joyStickXMax 225
+	#define joyStickYZeroMin 114
+	#define joyStickYZeroMax 134
+	#define joyStickYMin 36
+	#define joyStickYMax 212
+
 	extern uint8_t forwardSpeedLimit;
 	extern uint8_t rotationSpeedLimit;
 	extern uint8_t phone_joystickX;
 	extern uint8_t phone_joystickY;
 	void caculateSpeedLimit(void);
-	void caculateMotorSpeed(uint8_t joyX,uint8_t joyY,Actuator::system_modes mode);
-	float converterJoystickReading(uint8_t r);
+	void caculateMotorSpeed(float x,float y,Actuator::system_modes mode);
+	float converterJoystickReadingX(uint8_t r);
+	float converterJoystickReadingY(uint8_t r);
+	float converterJoystickReadingPhone(uint8_t r);
 
 	void  taskFunction ( void *pvParameter );
 
