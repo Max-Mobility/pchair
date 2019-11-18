@@ -16,6 +16,8 @@ namespace Motor{
 	#define joyStickZeroMax 137
 	extern uint8_t forwardSpeedLimit;
 	extern uint8_t rotationSpeedLimit;
+	extern uint8_t phone_joystickX;
+	extern uint8_t phone_joystickY;
 	void caculateSpeedLimit(void);
 	void caculateMotorSpeed(uint8_t joyX,uint8_t joyY,Actuator::system_modes mode);
 	float converterJoystickReading(uint8_t r);

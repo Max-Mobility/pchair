@@ -12,7 +12,7 @@ namespace SerialTask {
   char leftSpeed[2];
   char rightSpeed[2];
   char rampSpeedUP		=	4;   //6% per cycle
-  char rampSpeedDown	=	8; //18% per cycle
+  char rampSpeedDown	=	10; //18% per cycle
   // Everything below here is not exported by the header
 
   #define EX_UART_NUM   UART_NUM_0

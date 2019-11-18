@@ -7,23 +7,28 @@
 
 namespace Motor{
 	uint8_t forwardSpeedLimit = 70;
-	uint8_t rotationSpeedLimit = 20;
+	uint8_t rotationSpeedLimit = 17;
+	uint8_t phone_joystickX=128;
+	uint8_t phone_joystickY=128;
 	void caculateSpeedLimit(void)
 	{	float speedSet = 0.5;
 		switch(BLE::speedSettings)
 		{
 			case BLE::Speed_setting::speed_low:
 				speedSet = 0.5;
+				rotationSpeedLimit = 10;
 			break;
 			case BLE::Speed_setting::speed_medium:
 				speedSet =0.7;
+				rotationSpeedLimit = 17;
 			break;
 			case BLE::Speed_setting::speed_high:
 				speedSet =1.0;
+				rotationSpeedLimit = 25;
 			break;
 		}
 		forwardSpeedLimit = uint8_t( speedSet*Actuator::speedLimit*100);
-		rotationSpeedLimit = uint8_t(speedSet*Actuator::speedLimit*30);
+		//rotationSpeedLimit = uint8_t(speedSet*Actuator::speedLimit*30);
 
 	}
 	void caculateMotorSpeed(uint8_t joyX,uint8_t joyY,Actuator::system_modes mode)
@@ -33,7 +38,7 @@ namespace Motor{
 		float left = 0;
 		float right =0;
 		float factor = 1;
-		if (mode != Actuator::system_modes::DriveMode)
+		if ((mode != Actuator::system_modes::DriveMode )&&(mode != Actuator::system_modes::PhoneControlMode))
 		{
 //			printf("joystick error!\n");
 			SerialTask::leftSpeed[1] = char(0);
@@ -42,8 +47,11 @@ namespace Motor{
 		else
 		{
 			caculateSpeedLimit();
+
 			x = converterJoystickReading(joyX);
 			y = converterJoystickReading(joyY);
+
+
 			left = (y*forwardSpeedLimit/100.0+x*rotationSpeedLimit/100.0);
 			right =( y*forwardSpeedLimit/100.0 - x*rotationSpeedLimit/100.0);
 //			printf("joyx=%d,joyY=%d,left=%f,right=%f  ",joyX,joyY,left,right);
@@ -88,9 +96,14 @@ namespace Motor{
 
 		while(1)
 		{
-
-
-			caculateMotorSpeed(I2C::joystickX,I2C::joystickY,Actuator::systemMode);
+			if ( Actuator::systemMode==Actuator::system_modes::PhoneControlMode )
+			{
+				caculateMotorSpeed(phone_joystickX,phone_joystickY,Actuator::systemMode);
+			}
+			else
+			{
+				caculateMotorSpeed(I2C::joystickX,I2C::joystickY,Actuator::systemMode);
+			}
 			vTaskDelay((40 * (1)) / portTICK_RATE_MS);
 
 		}

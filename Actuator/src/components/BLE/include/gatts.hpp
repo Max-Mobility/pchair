@@ -36,6 +36,9 @@ namespace BLE
 		CMD_SET_SPEED,
 		CMD_CHANGE_SYSTEM_MODE,
 		CMD_MOVE_ACTUATOR,
+		CMD_PHONE_JOYX,
+		CMD_PHONE_JOYY,
+		CMD_DRIVE_SPEED,
 	};
 	enum  Actuator_moving_dir
 	{

@@ -32,6 +32,7 @@
 #include "esp_bt_main.h"
 #include "esp_gatt_common_api.h"
 #include "actuator.hpp"
+#include "motor.hpp"
 
 namespace BLE
 {
@@ -413,6 +414,11 @@ namespace BLE
 							{
 								Actuator::systemMode = Actuator::system_modes (param->write.value[1]);
 //								printf("changed mode to %d\n",(int)Actuator::systemMode);
+								if (param->write.value[1] == Actuator::system_modes::PhoneControlMode)
+								{
+									Motor::phone_joystickX =128;
+									Motor::phone_joystickY = 128;
+								}
 							}
 						}
 						if (param->write.value[0] == Command::CMD_SET_SPEED)
@@ -424,11 +430,23 @@ namespace BLE
 							}
 						}
 						if (param->write.value[0] == Command::CMD_MOVE_ACTUATOR)
+						{
 							if (param->write.value[1] <3 )
 							{
 								actMovDir = Actuator_moving_dir (param->write.value[1]);
 //								printf("move direction is %d \n", (int)actMovDir);
 							}
+						}
+						if (param->write.value[0] == Command::CMD_PHONE_JOYX)
+						{
+							Motor::phone_joystickX = param->write.value[1];
+
+						}
+						if (param->write.value[0] == Command::CMD_PHONE_JOYY)
+						{
+							Motor::phone_joystickY = param->write.value[1];
+
+						}
 					}
 				}
 //				if (!param->write.is_prep){
@@ -650,6 +668,15 @@ namespace BLE
 					ret = esp_ble_gatts_send_indicate(Pchair_profile_tab[PROFILE_APP_IDX].gatts_if,con_id,pChair_handle_table[IDX_CHAR_VAL_A],2,data_send,false);
 					Actuator::system_mode_changed = false;
 					//printf("error:%d\n", (int)ret);
+				}else
+				{
+					if (Actuator::systemMode == Actuator::system_modes::DriveMode)  // drive mode, send speed
+					{
+						data_send[0]=CMD_DRIVE_SPEED;
+						data_send[1]=abs(SerialTask::leftSpeed[1]);    //SEND left motor speed as driving speed
+						ret = esp_ble_gatts_set_attr_value(pChair_handle_table[IDX_CHAR_VAL_A],2,data_send);
+						ret = esp_ble_gatts_send_indicate(Pchair_profile_tab[PROFILE_APP_IDX].gatts_if,con_id,pChair_handle_table[IDX_CHAR_VAL_A],2,data_send,false);
+					}
 				}
 
 			}

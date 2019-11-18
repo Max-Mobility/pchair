@@ -36,6 +36,7 @@ namespace Actuator {
 		Actuator_elevation,
 		Actuator_stand,
 		System_sleep,
+		PhoneControlMode,
 		ErrorMode,
 		system_mode_max,
 	};
