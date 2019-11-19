@@ -267,7 +267,7 @@ namespace Actuator{
 							if (Actuator::actElevation.position<GoKartHeight-3 )
 							{
 								elevationState = seat_state;
-								speedLimit = 0.7;
+								speedLimit = 0.33;
 							}
 							else
 							{
@@ -275,7 +275,7 @@ namespace Actuator{
 
 									{
 										elevationState = floor_state;
-										speedLimit = 0.3;
+										speedLimit = 0.15;
 									}
 								else
 								{

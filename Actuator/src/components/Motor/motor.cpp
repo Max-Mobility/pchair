@@ -6,6 +6,15 @@
 
 
 namespace Motor{
+
+	float Lmotor_target = 0;
+	float Lmotor_curr   = 0;
+	float Rmotor_target = 0;
+	float Rmotor_curr   = 0;
+	float rampUp = 1.0;
+	float rampDown=2.3;
+	float driveBackFactor = 0.4;
+
 	uint8_t forwardSpeedLimit = 70;
 	uint8_t rotationSpeedLimit = 17;
 	uint8_t phone_joystickX=128;
@@ -17,16 +26,22 @@ namespace Motor{
 		switch(BLE::speedSettings)
 		{
 			case BLE::Speed_setting::speed_low:
-				speedSet = 0.5;
-				rotationSpeedLimit = 10;
+				speedSet = 0.4;
+				rotationSpeedLimit = 5;
+				rampUp = 0.75;
+				rampDown=1.3;
 			break;
 			case BLE::Speed_setting::speed_medium:
 				speedSet =0.7;
-				rotationSpeedLimit = 17;
+				rotationSpeedLimit = 6;
+				rampUp = 1.0;
+				rampDown=2.3;
 			break;
 			case BLE::Speed_setting::speed_high:
 				speedSet =1.0;
-				rotationSpeedLimit = 25;
+				rotationSpeedLimit = 9;
+				rampUp = 1.4;
+				rampDown=3.3;
 			break;
 		}
 		forwardSpeedLimit = uint8_t( speedSet*Actuator::speedLimit*100);
@@ -44,13 +59,24 @@ namespace Motor{
 //			printf("joystick error!\n");
 			SerialTask::leftSpeed[1] = char(0);
 			SerialTask::rightSpeed[1] = char(0);
+			SerialTask::leftSpeed[0] = char(0);
+			SerialTask::rightSpeed[0] = char(0);
 		}
 		else
 		{
 			caculateSpeedLimit();
+			if (y<0)  // driving backward
+			{
+				left = (y*forwardSpeedLimit*0.4/100.0+x*rotationSpeedLimit/100.0);
+				right =( y*forwardSpeedLimit*0.4/100.0 - x*rotationSpeedLimit/100.0);
+			}
+			else // driving forward
+			{
+				left = (y*forwardSpeedLimit/100.0+x*rotationSpeedLimit/100.0);
+				right =( y*forwardSpeedLimit/100.0 - x*rotationSpeedLimit/100.0);
+			}
 
-			left = (y*forwardSpeedLimit/100.0+x*rotationSpeedLimit/100.0);
-			right =( y*forwardSpeedLimit/100.0 - x*rotationSpeedLimit/100.0);
+
 //			printf("joyx=%f,joyY=%f,left=%f,right=%f \n ",x,y,left,right);
 			if (abs(left)>forwardSpeedLimit)
 			{
@@ -62,8 +88,13 @@ namespace Motor{
 			}
 			left = left*factor;
 			right= -1*right*factor; //motor mount reversed.
+			Lmotor_curr =caculateSpeedRamp(Lmotor_curr,left);
+			Rmotor_curr =caculateSpeedRamp(Rmotor_curr,right);
+
 			SerialTask::leftSpeed[1] = char(left);
 			SerialTask::rightSpeed[1] = char(right);
+			SerialTask::leftSpeed[0] = char(Lmotor_curr);
+			SerialTask::rightSpeed[0] = char(Lmotor_curr);
 //			printf("left=%f,right=%f,joyx=%d,joyY=%d\n",left,right,joyX,joyY);
 		}
 
@@ -144,7 +175,69 @@ namespace Motor{
 
 		}
 
+	float caculateSpeedRamp(float currSpeed, float targetSpeed)
+	{
 
+		if (currSpeed*targetSpeed <0) // different sign back to 0 first
+		{
+			if (currSpeed>=rampDown)
+			{
+				currSpeed=currSpeed-rampDown;
+			}
+			else
+			{
+				if (currSpeed<=(-rampDown))
+				{
+					currSpeed=currSpeed+rampDown;
+				}
+				else
+				{
+					currSpeed = 0;
+				}
+			}
+		}
+		else
+		{
+			if (abs(currSpeed)>abs(targetSpeed)) // need ramp down to target speed
+			{
+				if (currSpeed>=rampDown)
+				{
+					currSpeed=currSpeed-rampDown;
+				}
+				else
+				{
+					if (currSpeed<=(-rampDown))
+					{
+						currSpeed=currSpeed+rampDown;
+					}
+					else
+					{
+						currSpeed = targetSpeed;
+					}
+				}
+			}
+			else   // need ramp up to target
+			{
+				if (currSpeed>=(targetSpeed+rampUp))
+				{
+					currSpeed=currSpeed-rampUp;
+				}
+				else
+				{
+					if (currSpeed<=(targetSpeed-rampUp))
+					{
+						currSpeed=currSpeed+rampUp;
+					}
+					else
+					{
+						currSpeed = targetSpeed;
+					}
+				}
+			}
+		}
+
+		return currSpeed;
+	}
 	void taskFunction ( void *pvParameter ) {
 
 		while(1)
@@ -162,7 +255,7 @@ namespace Motor{
 
 			}
 			caculateMotorSpeed(joyXReading,joyYReading,Actuator::systemMode);
-			vTaskDelay((40 * (1)) / portTICK_RATE_MS);
+			vTaskDelay((50 * (1)) / portTICK_RATE_MS);
 
 		}
 

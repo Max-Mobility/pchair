@@ -21,6 +21,7 @@ namespace Motor{
 	#define joyStickYMin 36
 	#define joyStickYMax 212
 
+
 	extern uint8_t forwardSpeedLimit;
 	extern uint8_t rotationSpeedLimit;
 	extern uint8_t phone_joystickX;
@@ -30,6 +31,7 @@ namespace Motor{
 	float converterJoystickReadingX(uint8_t r);
 	float converterJoystickReadingY(uint8_t r);
 	float converterJoystickReadingPhone(uint8_t r);
+	float caculateSpeedRamp(float currSpeed, float targetSpeed);
 
 	void  taskFunction ( void *pvParameter );
 

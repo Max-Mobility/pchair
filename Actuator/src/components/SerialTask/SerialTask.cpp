@@ -11,8 +11,7 @@ namespace SerialTask {
   bool changeState = false;
   char leftSpeed[2];
   char rightSpeed[2];
-  char rampSpeedUP		=	4;   //6% per cycle
-  char rampSpeedDown	=	10; //18% per cycle
+
   // Everything below here is not exported by the header
 
   #define EX_UART_NUM   UART_NUM_0
@@ -106,7 +105,7 @@ namespace SerialTask {
   void taskFunction ( void *pvParameter ) {
     // initialize here
     __change_state__ = false;
-    __state_delay__ = 55;
+    __state_delay__ = 50;
     leftSpeed[0]=0;
     leftSpeed[1]=0;
     rightSpeed[0]=0;
@@ -193,8 +192,8 @@ namespace SerialTask {
 //        startupCounter++;
 
 
-      leftSpeed[0]=caculateSpeedRamp(leftSpeed[0],leftSpeed[1]);
-      rightSpeed[0]=caculateSpeedRamp(rightSpeed[0],rightSpeed[1]);
+//      leftSpeed[0]=caculateSpeedRamp(leftSpeed[0],leftSpeed[1]);
+//      rightSpeed[0]=caculateSpeedRamp(rightSpeed[0],rightSpeed[1]);
       //leftSpeed[0]=leftSpeed[1];
 	  //rightSpeed[0]=rightSpeed[1];
       uart_write_bytes(UART_NUM_1,  leftSpeed, 1);
@@ -227,48 +226,7 @@ namespace SerialTask {
   void state_State_1_finalization( void ) {
 
   }
-  char caculateSpeedRamp(char curr, char target)
-  { int8_t targetSpeed = target;
-    int8_t currSpeed = curr;
 
-	  if (targetSpeed==0)   // speed ramp down to stop
-	  {
-		  if (currSpeed>=rampSpeedDown)
-		  {
-			  currSpeed=currSpeed-rampSpeedDown;
-		  }
-		  else
-		  {
-			  if (currSpeed<=(-rampSpeedDown))
-			  {
-				  currSpeed=currSpeed+rampSpeedDown;
-			  }
-			  else
-			  {
-				  currSpeed = targetSpeed;
-			  }
-		  }
-	  }
-	  else  // speed ramp up to target
-	  {
-		  if (currSpeed>=(targetSpeed+rampSpeedUP))
-		  {
-			  currSpeed=currSpeed-rampSpeedUP;
-		  }
-		  else
-		  {
-			  if (currSpeed<=(targetSpeed-rampSpeedUP))
-			  {
-				  currSpeed=currSpeed+rampSpeedUP;
-			  }
-			  else
-			  {
-				  currSpeed = targetSpeed;
-			  }
-		  }
 
-	  }
-	  return currSpeed;
-  }
  
 };

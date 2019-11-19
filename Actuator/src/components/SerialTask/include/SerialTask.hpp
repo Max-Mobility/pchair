@@ -24,7 +24,7 @@ namespace SerialTask {
 
   // Generated task function
   void  taskFunction ( void *pvParameter );
-  char caculateSpeedRamp(char curr, char target);
+
 
   // Generated state functions
   void  state_State_1_execute      ( void );
