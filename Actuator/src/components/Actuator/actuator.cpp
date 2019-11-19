@@ -138,14 +138,14 @@ namespace Actuator{
 						actuatorStop();
 						if (Actuator::actElevation.position<GoKartHeight-3 )
 						{
-							speedLimit = 0.7;
+							speedLimit = 0.33;
 						}
 						else
 						{
 							if (Actuator::actElevation.position>GoKartHeight+3 )
 
 								{
-									speedLimit = 0.3;
+									speedLimit = 0;
 								}
 							else
 							{
@@ -154,7 +154,7 @@ namespace Actuator{
 						}
 						if (SeatAngleToGround<-10)
 						{
-							speedLimit = 0;
+							speedLimit = 0.15;
 						}
 
 
@@ -380,7 +380,7 @@ namespace Actuator{
 							{
 								actRecline.position_memory=10;
 								actLegrest.position_memory=20;
-								actTilt.position_memory=30;
+								actTilt.position_memory=20;
 								actElevation.position_memory=10;
 							}
 							printf("Recline:%d; Leg:%d; Tilt:%d; Elev:%d;\n",actRecline.position_memory,actLegrest.position_memory,

@@ -94,8 +94,8 @@ namespace Motor{
 			SerialTask::leftSpeed[1] = char(left);
 			SerialTask::rightSpeed[1] = char(right);
 			SerialTask::leftSpeed[0] = char(Lmotor_curr);
-			SerialTask::rightSpeed[0] = char(Lmotor_curr);
-//			printf("left=%f,right=%f,joyx=%d,joyY=%d\n",left,right,joyX,joyY);
+			SerialTask::rightSpeed[0] = char(Rmotor_curr);
+//			printf("left=%f,right=%f,joyx=%f,joyY=%f\n",Lmotor_curr,Rmotor_curr,x,y	);
 		}
 
 	}
