@@ -27,19 +27,19 @@ namespace Motor{
 		{
 			case BLE::Speed_setting::speed_low:
 				speedSet = 0.4;
-				rotationSpeedLimit = 5;
+				rotationSpeedLimit = 4;
 				rampUp = 0.75;
 				rampDown=1.3;
 			break;
 			case BLE::Speed_setting::speed_medium:
 				speedSet =0.7;
-				rotationSpeedLimit = 6;
+				rotationSpeedLimit = 5;
 				rampUp = 1.0;
 				rampDown=2.3;
 			break;
 			case BLE::Speed_setting::speed_high:
 				speedSet =1.0;
-				rotationSpeedLimit = 9;
+				rotationSpeedLimit = 6;
 				rampUp = 1.4;
 				rampDown=3.3;
 			break;
