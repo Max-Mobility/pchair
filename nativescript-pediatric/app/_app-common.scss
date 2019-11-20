@@ -2,7 +2,7 @@
 // This is where the vast majority of your CSS code goes.
 // Font icon class
 .fa {
-   font-family: "FontAwesome";
+    font-family: "FontAwesome";
 }
 
 .t-36 {
@@ -17,7 +17,6 @@
         vertical-align: center;
         horizontal-align: center;
     }
-
     .page-icon {
         font-size: 72;
         vertical-align: top;
@@ -25,20 +24,16 @@
         color: $page-icon-color;
         margin-top: 20%;
     }
-
     .driving-label {
         font-size: 50;
         margin-top: 20;
         horizontal-align: center;
         text-align: center;
     }
-
     .driving-legend {
         horizontal-align: center;
         vertical-align: center;
-
         .legend-item {
-
             .legend-label {
                 margin: 10;
                 vertical-align: center;
@@ -46,40 +41,30 @@
             }
         }
     }
-
     .control-container {
-
         max-height: 100;
-
         .control-item {
             margin: 5;
             padding: 5;
-
             .control-image {
                 height: 64;
             }
-
             .control-label {
                 horizontal-align: center;
                 text-align: center;
             }
         }
-
     }
-
     .active-controls {
         vertical-align: center;
         horizontal-align: center;
-
         .control-image {
             height: 128;
         }
-
         .control-label {
             horizontal-align: center;
             text-align: center;
         }
-
         .control-btn {
             horizontal-align: center;
             text-align: center;

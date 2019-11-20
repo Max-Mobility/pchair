@@ -1,5 +1,6 @@
 <Page
     navigatingTo="onNavigatingTo"
+    navigatedTo="onNavigatedTo"
     xmlns:lv="nativescript-ui-listview"
     xmlns:RL="nativescript-ripple"
     xmlns="http://schemas.nativescript.org/tns.xsd">
@@ -8,37 +9,39 @@
     <Label class="action-bar-title" text="Seating"></Label>
   </ActionBar>
 
-  <StackLayout class="page-content" width="100%" height="100%">
+  <DockLayout class="page-content" width="100%" height="100%" stretchLastChild="true">
     <ScrollView width="100%" height="100%">
-      <StackLayout>
+      <DockLayout dock="left">
 
         <StackLayout>
-          <lv:RadListView class="control-container"
+          <lv:RadListView id="listview"
+                          class="control-container"
                           selectionBehavior="Press" multipleSelection="false"
                           items="{{ controlItems }}"
-                          itemSelected="{{ onControlSelected }}">
+                          itemSelected="{{ onControlSelected }}"
+                          height="680">
             <lv:RadListView.listViewLayout>
-              <lv:ListViewStaggeredLayout scrollDirection="Vertical" spanCount="3"/>
+              <lv:ListViewStaggeredLayout scrollDirection="Vertical" spanCount="1"/>
             </lv:RadListView.listViewLayout>
             <lv:RadListView.itemTemplate>
               <StackLayout class="control-item">
-                <Image class="control-image" src="{{ img }}"></Image>
+                <Image class="control-image" src="{{ img }}" height="90" stretch="aspectFit"></Image>
                 <Label class="control-label" text="{{ name }}"></Label>
               </StackLayout>
             </lv:RadListView.itemTemplate>
           </lv:RadListView>
         </StackLayout>
 
-        <StackLayout width="90%" height="2" backgroundColor="blue"></StackLayout>
+        <StackLayout width="90%" width="2" backgroundColor="blue"></StackLayout>
 
         <StackLayout class="active-controls">
           <Button class="control-btn" text="+" tap="{{ onIncreaseControl }}"></Button>
-          <Image class="control-image" src="{{ selectedControl.img }}"></Image>
+          <Image class="control-image" src="{{ selectedControl.img }}" height="350"></Image>
           <Label class="control-label" text="{{ selectedControl.name }}"></Label>
-          <Button class="control-btn" text="-" tap="{{ onIncreaseControl }}"></Button>
+          <Button class="control-btn" text="-" tap="{{ onDecreaseControl }}"></Button>
         </StackLayout>
 
-      </StackLayout>
+      </DockLayout>
     </ScrollView>
-  </StackLayout>
+  </DockLayout>
 </Page>
