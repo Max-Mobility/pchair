@@ -4,14 +4,14 @@ import { RadListView } from 'nativescript-ui-listview';
 
 export function onNavigatingTo(args: NavigatedData) {
     const page = <Page>args.object;
-    page.bindingContext = new SeatingViewModel();//(data);
-    console.log("seating page loaded.");
+    page.bindingContext = new SeatingViewModel();
+    //console.log("seating page loaded.");
     // page.actionBarHidden = true;  
 }
 
 export function onPageLoaded(args: NavigatedData) {
     const page = <Page>args.object;
     const view:RadListView =page.getViewById("listview");
-    console.log("view: "+view);
+    //console.log("view: "+view);
     view.selectItemAt(0);  
 }

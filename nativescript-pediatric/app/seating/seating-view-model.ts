@@ -94,16 +94,16 @@ export class SeatingViewModel extends Observable {
                     this.changeSelection(0);
                     break;
                 case SYSTEM_MODES.ACTUATOR_LEGREST:
-                    this.changeSelection(0);
+                    this.changeSelection(1);
                     break;
                 case SYSTEM_MODES.ACTUATOR_TILT:
-                    this.changeSelection(0);
+                    this.changeSelection(2);
                     break;
                 case SYSTEM_MODES.ACTUATOR_ELEVATION:
-                    this.changeSelection(0);
+                    this.changeSelection(3);
                     break;
                 case SYSTEM_MODES.ACTUATOR_STAND:
-                    this.changeSelection(0);
+                    this.changeSelection(4);
                     break;
                 default:
                     this.changeSelection(0);

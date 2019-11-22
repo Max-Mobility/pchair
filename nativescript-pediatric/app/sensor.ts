@@ -15,11 +15,8 @@ public static sensor_gravity_event = 'sensor_gravity_event';
                 sensor: android.hardware.Sensor,
                 accuracy: number
               ) => {
-                console.log('accuracy', accuracy);
+                //console.log('accuracy', accuracy);
             },
-
-
-
             onSensorChanged:(result:string)=>{
                 const parsedData = JSON.parse(result);
                 // const rawSensorData = parsedData.data;

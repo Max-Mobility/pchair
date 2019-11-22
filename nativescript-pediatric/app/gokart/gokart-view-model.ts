@@ -69,7 +69,7 @@ export class GokartViewModel extends Observable {
         setTimeout(() => {
             this.zeroXY = this.arrayXY.reduce((sum, current) => sum + current, 0) / this.arrayXY.length;
             this.zeroZ = this.arrayZ.reduce((sum, current) => sum + current, 0) / this.arrayZ.length;
-            console.log("zero: " + this.zeroXY + " " + this.zeroZ);
+            //console.log("zero: " + this.zeroXY + " " + this.zeroZ);
             this.isCalibrated = true;
             this.isBusy = false;
         }, 10000);
@@ -137,12 +137,12 @@ export class GokartViewModel extends Observable {
         //console.log("arrayZ: "+this.arrayZ);
 
         if (this.isCalibrated) {
-            const deltaZ = angleZ - this.zeroZ;
-            const deltaXY = angleXY - this.zeroXY;
-            
+            const deltaZ = this.zeroZ - angleZ;
+            const deltaXY = this.zeroXY - angleXY;
 
-            const sendZ= (Math.min(Math.max(deltaZ, -20.0), 20.0)/20.0*127+127)*(-1.0);
-            const sendXY=(Math.min(Math.max(deltaXY, -30.0), 30.0)/30.0*127+127)*(-1.0);
+
+            const sendZ = Math.min(Math.max(deltaZ, -15.0), 15.0) / 15.0 * 127 + 128;
+            const sendXY = Math.min(Math.max(deltaXY, -20.0), 20.0) / 20.0 * 127 + 128;
 
             //console.log("delta: "+ sendXY +" "+sendZ);
 

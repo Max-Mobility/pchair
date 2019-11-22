@@ -8,7 +8,7 @@ export function onNavigatingTo(args: NavigatedData) {
     
 
     page.bindingContext = vm;
-    console.log("gokart page loaded.");
+    //console.log("gokart page loaded.");
     //vm.onPageLoaded(args);
     // page.actionBarHidden = true;
 }
@@ -16,13 +16,13 @@ export function onPageLoaded(args: NavigatedData) {
     
 
     vm.clearCalibration();
-    console.log("gokart page loaded.");
+    //console.log("gokart page loaded.");
     //vm.onPageLoaded(args);
     // page.actionBarHidden = true;
 }
 
 export function onPageUnloaded(args: NavigatedData) {
-    console.log("onPageUnloaded gokart.");
+    //console.log("onPageUnloaded gokart.");
     vm.clearCalibration();
     vm.stopSensor();
 }

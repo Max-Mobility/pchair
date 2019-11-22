@@ -7,7 +7,7 @@ export function onNavigatingTo(args: NavigatedData) {
     const vm = new DrivingViewModel();
 
     page.bindingContext = vm;
-    console.log("driving page loaded.");
+    //console.log("driving page loaded.");
     //vm.onPageLoaded(args);
     // page.actionBarHidden = true;
 }
