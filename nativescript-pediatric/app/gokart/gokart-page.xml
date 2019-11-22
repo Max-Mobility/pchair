@@ -1,29 +1,20 @@
-<!--
-    This is the page that is presented in the 'Driving' tab.
-    Feel free to customize layouts and components to change how the tab view looks.
--->
 <Page class="page" navigatingTo="onNavigatingTo" 
+  loaded="onPageLoaded"
+  unloaded="onPageUnloaded"
   xmlns:gauge="nativescript-ui-gauge" 
   xmlns="http://www.nativescript.org/tns.xsd" 
   xmlns="http://schemas.nativescript.org/tns.xsd">
 
+
   <ActionBar class="action-bar">
-    <GridLayout columns="*, auto" rows="*">
-      <Label class="action-bar-title" text="Driving"></Label>
-      <Image col="1" height="55" class="action-item" 
-      backgroundColor="{{ isConnected, isConnected ? 'green' : 'red'}}" 
-      tap="{{ isConnected, isConnected ? onDisconnectTap : onBluetoothTap }}" 
-      visibility="{{ isBusy, isBusy ? 'collapse':'visible' }}" 
-      src="font://&#xf293;" class="fa t-36"></Image>
-      <ActivityIndicator col="1" width="32" height="32" class="action-item" busy="{{ isBusy }}"/>
-    </GridLayout>
+    <Label class="action-bar-title" text="Go-kart"></Label>
   </ActionBar>
 
   <StackLayout class="page-content" width="100%" height="100%">
     <ScrollView width="100%" height="100%">
       <GridLayout rows="auto, auto, auto" columns="*" width="100%" height="100%" class="active-controls">
-        <Label row="0" class="driving-label" text="Driving Settings" textWrap="true"></Label>
-        <gauge:RadRadialGauge row="1" height="50%" id="gaugeView" margin="10">
+
+        <gauge:RadRadialGauge row="0" height="50%" id="gaugeView" margin="10">
           <gauge:RadRadialGauge.scales>
 
             <gauge:RadialScale startAngle="160" sweepAngle="220" minimum="0" maximum="100" radius="0.45">
@@ -43,18 +34,6 @@
                     <gauge:BarIndicatorStyle cap="Round" fillColor="rgba(121,7,242,0.8)" barWidth="0.2"/>
                   </gauge:RadialBarIndicator.indicatorStyle>
                 </gauge:RadialBarIndicator>
-                <!-- 
-                <gauge:RadialBarIndicator minimum="0" maximum="100" location="0.75">
-                  <gauge:RadialBarIndicator.indicatorStyle>
-                    <gauge:BarIndicatorStyle cap="Round" fillColor="rgba(196,241,57,0.5)" barWidth="0.2"/>
-                  </gauge:RadialBarIndicator.indicatorStyle>
-                </gauge:RadialBarIndicator>
-
-                <gauge:RadialBarIndicator minimum="0" maximum="{{ turningSpeed }}" location="0.75" isAnimated="true">
-                  <gauge:RadialBarIndicator.indicatorStyle>
-                    <gauge:BarIndicatorStyle cap="Round" fillColor="rgba(196,241,57,0.8)" barWidth="0.2"/>
-                  </gauge:RadialBarIndicator.indicatorStyle>
-                </gauge:RadialBarIndicator> -->
 
                 <gauge:RadialBarIndicator minimum="0" maximum="100" location="1">
                   <gauge:RadialBarIndicator.indicatorStyle>
@@ -73,28 +52,30 @@
           </gauge:RadRadialGauge.scales>
         </gauge:RadRadialGauge>
 
-        <StackLayout class="driving-legend" row="2">
-          <StackLayout class="legend-item" orientation="horizontal">
-            <Button backgroundColor="rgba(132,235,247,0.8)" borderRadius="50" tap="{{ highSpeedTap }}"/>
+        <DockLayout row="1" class="driving-legend" dock="left">
+          <StackLayout class="legend-item" orientation="vertical">
+            <Button backgroundColor="rgba(132,235,247,0.8)" borderRadius="50" tap="{{ goKartHigh }}" width="100"/>
             <Label class="legend-label" text="High Speed"/>
           </StackLayout>
-          <StackLayout class="legend-item" orientation="horizontal">
-            <Button backgroundColor="rgba(196,241,57,0.8)" borderRadius="50" tap="{{ mediumSpeedTap }}"/>
+          <StackLayout class="legend-item" orientation="vertical">
+            <Button backgroundColor="rgba(196,241,57,0.8)" borderRadius="50" tap="{{ goKartMedium }}" width="100"/>
             <Label class="legend-label" text="Medium Speed"/>
           </StackLayout>
-          <StackLayout class="legend-item" orientation="horizontal">
-            <Button backgroundColor="rgba(224,151,36,0.8)" borderRadius="50" tap="{{ lowSpeedTap }}"/>
+          <StackLayout class="legend-item" orientation="vertical">
+            <Button backgroundColor="rgba(224,151,36,0.8)" borderRadius="50" tap="{{ goKartLow }}" width="100"/>
             <Label class="legend-label" text="Low Speed"/>
           </StackLayout>
-        </StackLayout>
-        
-        <!-- <StackLayout class="gokart" row = "2"> -->
-          <!-- <StackLayout class="gokart-item" orientation="horizontal"> -->
-            <!-- <Image class="gokart-image" src="~/assets/images/go.png" height="350"></Image> -->
-            <!-- <Button class="control-btn" text="calibration" tap="{{ calibrate }}"></Button> -->
-          <!-- </StackLayout> -->
-        <!-- <StackLayout> -->
+        </DockLayout>
+
+
+        <Image row="2" class="gokart-image" src="~/assets/images/go.png" width="200"
+        backgroundColor="{{ isCalibrated, isCalibrated ? 'rgba(123,239,178,1)' : 'rgba(240,52,52,1)'}}"
+        visibility="{{ isBusy, isBusy ? 'collapse':'visible' }}"
+        tap="{{ calibrate }}"></Image>
+        <ActivityIndicator row="2" width="200" height="200" class="action-item" busy="{{ isBusy }}"/>
+
       </GridLayout>
     </ScrollView>
   </StackLayout>
+
 </Page>

@@ -1,5 +1,5 @@
 import { ObservableArray } from 'tns-core-modules/data/observable-array';
-import { Observable, fromObject } from 'tns-core-modules/data/observable';
+import { Observable, fromObject, EventData } from 'tns-core-modules/data/observable';
 import { Bluetooth, Characteristic, Device, Service } from 'nativescript-bluetooth';
 import { Toasty, ToastPosition } from 'nativescript-toasty';
 import { ListViewEventData } from 'nativescript-ui-listview';
@@ -13,6 +13,7 @@ import {
     SPEED_SETTING, SPEED_SETTING_STR, SYSTEM_MODES, SYSTEM_MODES_STR
 } from "../enum";
 import { getFrameById, getViewById, ViewBase } from 'tns-core-modules/ui/frame/frame';
+import { TouchGestureEventData } from 'tns-core-modules/ui/gestures/gestures';
 
 export class SeatingViewModel extends Observable {
     @Prop() controlItems: ObservableArray<ControlItem> = new ObservableArray();
@@ -21,12 +22,6 @@ export class SeatingViewModel extends Observable {
     static select: string = null;
 
     private pChair: PChair;
-
-    private startEvent = {
-        eventname: "start",
-        index: 0
-    };
-
 
     constructor (){ 
         super();
@@ -40,10 +35,8 @@ export class SeatingViewModel extends Observable {
             new ControlItem('Stand', '~/assets/images/stand.png'),
             //new ControlItem('Go-Kart Function', '~/assets/images/go.png')
         ]);
-        //this.selectedControl = this.controlItems.getItem(0);
-        //this.selectedControl.selected = true;
-
-        this.onControlSelected(this.startEvent);
+        this.selectedControl = this.controlItems.getItem(0);
+        this.selectedControl.selected = true;
 
         SeatingViewModel.select=this.selectedControl.name;
         if(pChair.isConnected){
@@ -95,21 +88,36 @@ export class SeatingViewModel extends Observable {
         const command = args.data.Command;
         const value = args.data.Value;
         
-        // if(command == COMMAND.CMD_CHANGE_SYSTEM_MODE){
-        //     switch(value){
-        //         case SYSTEM_MODES.ACTUATOR_RECLINE:
-        //             this.onControlSelected
-        //     }
-        // }
-        // switch (command) {
-        //     case 0:
-        //         //console.log("Target speed: "+value);
-        //         // set speed in [0,100]
-        //         this.currentSpeed = Math.min(Math.max(value,0),100);
-        //         break;
-        //     default:
-        //         //console.log("Unexpected value" + args);
-        // }
+        if(command == COMMAND.CMD_CHANGE_SYSTEM_MODE){
+            switch(value){
+                case SYSTEM_MODES.ACTUATOR_RECLINE:
+                    this.changeSelection(0);
+                    break;
+                case SYSTEM_MODES.ACTUATOR_LEGREST:
+                    this.changeSelection(0);
+                    break;
+                case SYSTEM_MODES.ACTUATOR_TILT:
+                    this.changeSelection(0);
+                    break;
+                case SYSTEM_MODES.ACTUATOR_ELEVATION:
+                    this.changeSelection(0);
+                    break;
+                case SYSTEM_MODES.ACTUATOR_STAND:
+                    this.changeSelection(0);
+                    break;
+                default:
+                    this.changeSelection(0);
+            }
+        }
+    }
+
+    private changeSelection(index: number){
+        this.controlItems.map(e => {
+            e.selected = false;
+        });
+        this.selectedControl = this.controlItems.getItem(index);
+        this.selectedControl.selected = true;
+        SeatingViewModel.select = this.selectedControl.name;
     }
 
     private onPChairDisconnect(){
@@ -123,16 +131,36 @@ export class SeatingViewModel extends Observable {
 
     public async onControlSelected(event: ListViewEventData) {
         console.log('onControlTap()');
-        this.controlItems.map(e => {
-            e.selected = false;
-        });
-
         // const view=event.object;
         // view.selectItemAt(event.index);
-        this.selectedControl = this.controlItems.getItem(event.index);
-        this.selectedControl.selected = true;
-        SeatingViewModel.select = this.selectedControl.name;
+        this.changeSelection(event.index);
         pChair.sendChoice(SeatingViewModel.select);
         //console.log('control:', this.selectedControl.name);
+    }
+
+    public async onIncreaseControl(args: TouchGestureEventData) {
+        switch(args.action) {
+            case "down":
+                pChair.sendChoice("plus_down");
+                break;
+            case "up":
+                pChair.sendChoice("stop");
+                break;
+            default:
+                //console.log('unexpected value.');
+        }
+    }
+
+    public async onDecreaseControl(args: TouchGestureEventData) {
+        switch(args.action) {
+            case "down":
+                pChair.sendChoice("minus_down");
+                break;
+            case "up":
+                pChair.sendChoice("stop");
+                break;
+            default:
+                //console.log('unexpected value.');
+        }
     }
 }

@@ -11,6 +11,15 @@ public static sensor_gravity_event = 'sensor_gravity_event';
         this._sensor= new AndroidSensors(true);
 
         this.sensorListener = new AndroidSensorListener({
+            onAccuracyChanged: (
+                sensor: android.hardware.Sensor,
+                accuracy: number
+              ) => {
+                console.log('accuracy', accuracy);
+            },
+
+
+
             onSensorChanged:(result:string)=>{
                 const parsedData = JSON.parse(result);
                 // const rawSensorData = parsedData.data;
@@ -18,14 +27,21 @@ public static sensor_gravity_event = 'sensor_gravity_event';
                 // const time = parsedData.time;
                 if (parsedData.s ="9") // gravity = 9
                 {
-                    this.sendEvent(Sensor.sensor_gravity_event,parsedData);
-                    console.log("get gravity data"+result);
+                    const x : number = parseFloat(parsedData.d.x);
+                    const y : number = parseFloat(parsedData.d.y);
+                    const z : number = parseFloat(parsedData.d.z);
+                    this.sendEvent(Sensor.sensor_gravity_event,{
+                        x:x,
+                        y:y,
+                        z:z
+                    });
+                    // console.log("get gravity data: "+result);
                 }
             }
         })
         this._sensor.setListener(this.sensorListener);
         this.stopAcc();
-        this.startAcc();
+        // this.startAcc();
 
     };
     public startAcc(){

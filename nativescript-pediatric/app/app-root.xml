@@ -32,6 +32,10 @@ https://docs.nativescript.org/angular/ui/ng-ui-widgets/tabs.
             <Image src="font://&#xf193;" class="fa t-36" />
         </TabStripItem>
         <TabStripItem>
+            <Label text="Go-kart" />
+            <Image src="~/assets/images/go.png" class="fa t-36" />
+        </TabStripItem>
+        <TabStripItem>
             <Label text="Sleep" />
             <Image src="font://&#xf236;" class="fa t-36" />
         </TabStripItem>
@@ -43,6 +47,10 @@ https://docs.nativescript.org/angular/ui/ng-ui-widgets/tabs.
 
     <TabContentItem>
         <Frame defaultPage="seating/seating-page" />
+    </TabContentItem>
+
+    <TabContentItem>
+        <Frame defaultPage="gokart/gokart-page" />
     </TabContentItem>
 
     <TabContentItem>

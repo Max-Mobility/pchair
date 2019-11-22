@@ -1,12 +1,7 @@
 import { Observable } from "tns-core-modules/data/observable";
 import { Prop } from '../obs-prop';
-import { Bluetooth, Characteristic, Device, Service } from 'nativescript-bluetooth'
 import { Toasty, ToastPosition } from 'nativescript-toasty'
-import {
-    COMMAND, COMMAND_STR, ACTUATOR_MOVING_DIR, ACTUATOR_MOVING_DIR_STR,
-    SPEED_SETTING, SPEED_SETTING_STR, SYSTEM_MODES, SYSTEM_MODES_STR
-} from "../enum";
-
+import { COMMAND } from "../enum";
 import { PChair, pChair } from '../pchair';
 
 export class DrivingViewModel extends Observable {
@@ -125,7 +120,7 @@ export class DrivingViewModel extends Observable {
         await this.pChair.disconnect();
     }
 
-    highSpeedTap() {
+    private highSpeedTap() {
 
         if (this.isConnected) {
             console.log('High speed is chosen.');
@@ -135,7 +130,7 @@ export class DrivingViewModel extends Observable {
         }
     }
 
-    mediumSpeedTap() {
+    private mediumSpeedTap() {
         if (this.isConnected) {
             console.log('Medium speed is chosen.');
             this.maxSpeed = this.mediumSpeed;
@@ -144,7 +139,7 @@ export class DrivingViewModel extends Observable {
         }
     }
 
-    lowSpeedTap() {
+    private lowSpeedTap() {
         if (this.isConnected) {
             console.log('Low speed is chosen.');
             this.maxSpeed = this.lowSpeed;

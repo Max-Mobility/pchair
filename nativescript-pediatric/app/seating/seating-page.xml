@@ -1,6 +1,6 @@
 <Page
     navigatingTo="onNavigatingTo"
-    navigatedTo="onNavigatedTo"
+    loaded="onPageLoaded"
     xmlns:lv="nativescript-ui-listview"
     xmlns:RL="nativescript-ripple"
     xmlns="http://schemas.nativescript.org/tns.xsd">
@@ -35,10 +35,10 @@
         <StackLayout width="90%" width="2" backgroundColor="blue"></StackLayout>
 
         <StackLayout class="active-controls">
-          <Button class="control-btn" text="+" tap="{{ onIncreaseControl }}"></Button>
+          <Button class="control-btn" text="+" touch="{{ onIncreaseControl }}"></Button>
           <Image class="control-image" src="{{ selectedControl.img }}" height="350"></Image>
           <Label class="control-label" text="{{ selectedControl.name }}"></Label>
-          <Button class="control-btn" text="-" tap="{{ onDecreaseControl }}"></Button>
+          <Button class="control-btn" text="-" touch="{{ onDecreaseControl }}"></Button>
         </StackLayout>
 
       </DockLayout>

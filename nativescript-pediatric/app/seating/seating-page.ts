@@ -9,7 +9,7 @@ export function onNavigatingTo(args: NavigatedData) {
     // page.actionBarHidden = true;  
 }
 
-export function onNavigatedTo(args: NavigatedData) {
+export function onPageLoaded(args: NavigatedData) {
     const page = <Page>args.object;
     const view:RadListView =page.getViewById("listview");
     console.log("view: "+view);

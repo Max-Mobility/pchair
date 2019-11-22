@@ -12,6 +12,5 @@ Feel free to customize layouts and components to change how the tab view looks.
     </ActionBar>
     <GridLayout class="page-content">
         <Label class="page-icon fa" text="&#xf236;"></Label>
-        <Label class="page-placeholder" text="<!-- Sleep page content goes here -->"></Label>
     </GridLayout>
 </Page>

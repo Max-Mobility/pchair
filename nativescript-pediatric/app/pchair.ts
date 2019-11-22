@@ -29,7 +29,7 @@ export class PChair extends DeviceBase {
     @Prop() writeTimeoutId: any = null;
 
     public _bluetooth: Bluetooth;
-    private sendArray: string[] = [];
+    private sendArray: Array<Array<number>> = [];
 
     constructor() {
         super();
@@ -191,72 +191,113 @@ export class PChair extends DeviceBase {
         this.isBusy = false;
     }
 
+    public async sendGoKart(sendXY: number, sendZ: number) {
+        if (!this.characteristic.properties.write) {
+            console.log("Write property is not enabled.");
+            return;
+        }
+
+        var byteZero = COMMAND.CMD_PHONE_JOYX;
+        var byteOne=sendXY;   
+
+        var sendString = [byteZero, byteOne];
+        //console.log('sendString: ' + sendString);
+
+        this.toBluetooth(sendString);
+
+        byteZero = COMMAND.CMD_PHONE_JOYY;
+        byteOne=sendZ;   
+        sendString = [byteZero, byteOne];
+        //console.log('sendString: ' + sendString);
+        this.toBluetooth(sendString);
+    }
+
     public async sendChoice(string: string) {
         if (!this.characteristic.properties.write) {
             console.log("Write property is not enabled.");
             return;
         }
 
-        var sendString = null;
-        var byteZero: string = null;
-        var byteOne: string = null;
-        const byteComma: string = ',';
+        var byteZero: number;
+        var byteOne: number;
+        
         switch (string) {
             case 'run':
-                console.log("run");
-                byteZero = COMMAND_STR.CMD_CHANGE_SYSTEM_MODE_STR;
-                byteOne = SYSTEM_MODES_STR.DRIVEMODE_STR;
+                //console.log("run");
+                byteZero = COMMAND.CMD_CHANGE_SYSTEM_MODE;
+                byteOne = SYSTEM_MODES.DRIVEMODE;
                 break;
             case 'high_speed':
                 //console.log("high_speed");
-                byteZero = COMMAND_STR.CMD_SET_SPEED_STR;
-                byteOne = SPEED_SETTING_STR.SPEED_HIGH_STR;
+                byteZero = COMMAND.CMD_SET_SPEED;
+                byteOne = SPEED_SETTING.SPEED_HIGH;
                 break;
             case 'medium_speed':
                 //console.log("medium_speed");
-                byteZero = COMMAND_STR.CMD_SET_SPEED_STR;
-                byteOne = SPEED_SETTING_STR.SPEED_MEDIUM_STR;
+                byteZero = COMMAND.CMD_SET_SPEED;
+                byteOne = SPEED_SETTING.SPEED_MEDIUM;
                 break;
             case 'low_speed':
                 //console.log("low_speed");
-                byteZero = COMMAND_STR.CMD_SET_SPEED_STR;
-                byteOne = SPEED_SETTING_STR.SPEED_LOW_STR;
+                byteZero = COMMAND.CMD_SET_SPEED;
+                byteOne = SPEED_SETTING.SPEED_LOW;
                 break;
             case "Recline":
-                console.log("Recline");
-                byteZero = COMMAND_STR.CMD_CHANGE_SYSTEM_MODE_STR;
-                byteOne = SYSTEM_MODES_STR.ACTUATOR_RECLINE_STR;
+                //console.log("Recline");
+                byteZero = COMMAND.CMD_CHANGE_SYSTEM_MODE;
+                byteOne = SYSTEM_MODES.ACTUATOR_RECLINE;
                 break;
             case "Legs":
-                console.log("Legs");
-                byteZero = COMMAND_STR.CMD_CHANGE_SYSTEM_MODE_STR;
-                byteOne = SYSTEM_MODES_STR.ACTUATOR_LEGREST_STR;
+                //console.log("Legs");
+                byteZero = COMMAND.CMD_CHANGE_SYSTEM_MODE;
+                byteOne = SYSTEM_MODES.ACTUATOR_LEGREST;
                 break;
             case "Tilt":
-                console.log("Tilt");
-                byteZero = COMMAND_STR.CMD_CHANGE_SYSTEM_MODE_STR;
-                byteOne = SYSTEM_MODES_STR.ACTUATOR_TILT_STR;
+                //console.log("Tilt");
+                byteZero = COMMAND.CMD_CHANGE_SYSTEM_MODE;
+                byteOne = SYSTEM_MODES.ACTUATOR_TILT;
                 break;
             case "Elevation":
-                console.log("Elevation");
-                byteZero = COMMAND_STR.CMD_CHANGE_SYSTEM_MODE_STR;
-                byteOne = SYSTEM_MODES_STR.ACTUATOR_ELEVATION_STR;
+                //console.log("Elevation");
+                byteZero = COMMAND.CMD_CHANGE_SYSTEM_MODE;
+                byteOne = SYSTEM_MODES.ACTUATOR_ELEVATION;
                 break;
             case "Stand":
-                console.log("Stand");
-                byteZero = COMMAND_STR.CMD_CHANGE_SYSTEM_MODE_STR;
-                byteOne = SYSTEM_MODES_STR.ACTUATOR_STAND_STR;
+                //console.log("Stand");
+                byteZero = COMMAND.CMD_CHANGE_SYSTEM_MODE;
+                byteOne = SYSTEM_MODES.ACTUATOR_STAND;
+                break;
+            case "plus_down":
+                //console.log("plus_down");
+                byteZero = COMMAND.CMD_MOVE_ACTUATOR;
+                byteOne = ACTUATOR_MOVING_DIR.AMD_RIGHT;
+                break;
+            case "minus_down":
+                byteZero = COMMAND.CMD_MOVE_ACTUATOR;
+                byteOne = ACTUATOR_MOVING_DIR.AMD_LEFT;
+                break;
+            case "stop":
+                byteZero = COMMAND.CMD_MOVE_ACTUATOR;
+                byteOne = ACTUATOR_MOVING_DIR.AMD_STOP;
+                break;
+            case "sleep":
+                byteZero =  COMMAND.CMD_CHANGE_SYSTEM_MODE;
+                byteOne = SYSTEM_MODES.SYSTEM_SLEEP;
+                break;
+            case "gokart":
+                byteZero = COMMAND.CMD_CHANGE_SYSTEM_MODE;
+                byteOne = SYSTEM_MODES.PHONE_CONTROL_MODE;
                 break;
             default:
                 console.log("Unexpected value" + string);
         }
-        sendString = byteZero.concat(byteComma, byteOne);
-        console.log('sendString: ' + sendString);
+        const sendString = [ byteZero, byteOne ];
+        //console.log('sendString: ' + sendString);
 
         this.toBluetooth(sendString);
     }
 
-    private async toBluetooth(string: string) {
+    private async toBluetooth(string: Array<number>) {
 
         if (string != null) {
             //console.log('push string: '+string);
@@ -270,7 +311,8 @@ export class PChair extends DeviceBase {
 
     private async writeBLE() {
         if (this.sendArray.length > 0) {
-            var string: string = this.sendArray.shift();
+            const value = this.sendArray.shift()
+            var string=new Uint8Array(value);
             //console.log('get string: '+string);
             try {
                 this.isBusy = true;
@@ -281,7 +323,7 @@ export class PChair extends DeviceBase {
                     value: string
                 });
                 if (writeStatus.status !== android.bluetooth.BluetoothGatt.GATT_SUCCESS) {
-                    this.sendArray.unshift(string);
+                    this.sendArray.unshift(value);
                 }
                 console.log('write: ' + string);
             } catch (err) {
