@@ -1,63 +1,67 @@
 #ifndef __TFT__INCLUDE_GUARD
 #define __TFT__INCLUDE_GUARD
 
-
+#include "driver/gpio.h"
+#include "driver/spi_master.h"
+#include "esp_system.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "soc/gpio_struct.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
-#include "esp_system.h"
-#include "driver/spi_master.h"
-#include "soc/gpio_struct.h"
-#include "driver/gpio.h"
 
 //#include "pretty_effect.h"
 
 /*
- This code displays some fancy graphics on the 320x240 LCD on an ESP-WROVER_KIT board.
- This example demonstrates the use of both spi_device_transmit as well as
+ This code displays some fancy graphics on the 320x240 LCD on an ESP-WROVER_KIT
+ board. This example demonstrates the use of both spi_device_transmit as well as
  spi_device_queue_trans/spi_device_get_trans_result and pre-transmit callbacks.
 
- Some info about the ILI9341/ST7789V: It has an C/D line, which is connected to a GPIO here. It expects this
- line to be low for a command and high for data. We use a pre-transmit callback here to control that
- line: every transaction has as the user-definable argument the needed state of the D/C line and just
- before the transaction is sent, the callback will set this line to the correct state.
+ Some info about the ILI9341/ST7789V: It has an C/D line, which is connected to
+ a GPIO here. It expects this line to be low for a command and high for data. We
+ use a pre-transmit callback here to control that line: every transaction has as
+ the user-definable argument the needed state of the D/C line and just before
+ the transaction is sent, the callback will set this line to the correct state.
 */
 
 #define PIN_NUM_MISO GPIO_NUM_25
 #define PIN_NUM_MOSI GPIO_NUM_23
-#define PIN_NUM_CLK  GPIO_NUM_19
-#define PIN_NUM_CS   GPIO_NUM_22
+#define PIN_NUM_CLK GPIO_NUM_19
+#define PIN_NUM_CS GPIO_NUM_22
 
-#define PIN_NUM_DC   GPIO_NUM_21
-#define PIN_NUM_RST  GPIO_NUM_18
+#define PIN_NUM_DC GPIO_NUM_21
+#define PIN_NUM_RST GPIO_NUM_18
 #define PIN_NUM_BCKL GPIO_NUM_5
 
-//To speed up transfers, every SPI transfer sends a bunch of lines. This define specifies how many. More means more memory use,
-//but less overhead for setting up / finishing transfers. Make sure 240 is dividable by this.
+// To speed up transfers, every SPI transfer sends a bunch of lines. This define
+// specifies how many. More means more memory use, but less overhead for setting
+// up / finishing transfers. Make sure 240 is dividable by this.
 #define PARALLEL_LINES 16
 
 /*
- The LCD needs a bunch of command/argument values to be initialized. They are stored in this struct.
+ The LCD needs a bunch of command/argument values to be initialized. They are
+ stored in this struct.
 */
 typedef struct {
-    uint8_t cmd;
-    uint8_t data[16];
-    uint8_t databytes; //No of data in data; bit 7 = delay after set; 0xFF = end of cmds.
+  uint8_t cmd;
+  uint8_t data[16];
+  uint8_t databytes; // No of data in data; bit 7 = delay after set; 0xFF = end
+                     // of cmds.
 } lcd_init_cmd_t;
 
 typedef enum {
-    LCD_TYPE_ILI = 1,
-    LCD_TYPE_ST,
-    LCD_TYPE_MAX,
+  LCD_TYPE_ILI = 1,
+  LCD_TYPE_ST,
+  LCD_TYPE_MAX,
 } type_lcd_t;
 
-//Place data into DRAM. Constant data gets placed into DROM by default, which is not accessible by DMA.
-DRAM_ATTR static const lcd_init_cmd_t st_init_cmds[]={
+// Place data into DRAM. Constant data gets placed into DROM by default, which
+// is not accessible by DMA.
+DRAM_ATTR static const lcd_init_cmd_t st_init_cmds[] = {
     /* Memory Data Access Control, MX=MV=1, MY=ML=MH=0, RGB=0 */
-    {0x36, {(1<<7)|(1<<6)}, 1},
-	//{0x36, {0}, 1},
+    {0x36, {(1 << 7) | (1 << 6)}, 1},
+    //{0x36, {0}, 1},
     /* Interface Pixel Format, 16bits/pixel for RGB/MCU interface */
     {0x3A, {0x55}, 1},
     /* Porch Setting */
@@ -79,17 +83,22 @@ DRAM_ATTR static const lcd_init_cmd_t st_init_cmds[]={
     /* Power Control 1, AVDD=6.8V, AVCL=-4.8V, VDDS=2.3V */
     {0xD0, {0xA4, 0xA1}, 1},
     /* Positive Voltage Gamma Control */
-    {0xE0, {0xD0, 0x00, 0x05, 0x0E, 0x15, 0x0D, 0x37, 0x43, 0x47, 0x09, 0x15, 0x12, 0x16, 0x19}, 14},
+    {0xE0,
+     {0xD0, 0x00, 0x05, 0x0E, 0x15, 0x0D, 0x37, 0x43, 0x47, 0x09, 0x15, 0x12,
+      0x16, 0x19},
+     14},
     /* Negative Voltage Gamma Control */
-    {0xE1, {0xD0, 0x00, 0x05, 0x0D, 0x0C, 0x06, 0x2D, 0x44, 0x40, 0x0E, 0x1C, 0x18, 0x16, 0x19}, 14},
+    {0xE1,
+     {0xD0, 0x00, 0x05, 0x0D, 0x0C, 0x06, 0x2D, 0x44, 0x40, 0x0E, 0x1C, 0x18,
+      0x16, 0x19},
+     14},
     /* Sleep Out */
     {0x11, {0}, 0x80},
     /* Display On */
     {0x29, {0}, 0x80},
-    {0, {0}, 0xff}
-};
+    {0, {0}, 0xff}};
 
-DRAM_ATTR static const lcd_init_cmd_t ili_init_cmds[]={
+DRAM_ATTR static const lcd_init_cmd_t ili_init_cmds[] = {
     /* Power contorl B, power control = 0, DC_ENA = 1 */
     {0xCF, {0x00, 0x83, 0X30}, 3},
     /* Power on sequence control,
@@ -129,9 +138,15 @@ DRAM_ATTR static const lcd_init_cmd_t ili_init_cmds[]={
     /* Gamma set, curve 1 */
     {0x26, {0x01}, 1},
     /* Positive gamma correction */
-    {0xE0, {0x1F, 0x1A, 0x18, 0x0A, 0x0F, 0x06, 0x45, 0X87, 0x32, 0x0A, 0x07, 0x02, 0x07, 0x05, 0x00}, 15},
+    {0xE0,
+     {0x1F, 0x1A, 0x18, 0x0A, 0x0F, 0x06, 0x45, 0X87, 0x32, 0x0A, 0x07, 0x02,
+      0x07, 0x05, 0x00},
+     15},
     /* Negative gamma correction */
-    {0XE1, {0x00, 0x25, 0x27, 0x05, 0x10, 0x09, 0x3A, 0x78, 0x4D, 0x05, 0x18, 0x0D, 0x38, 0x3A, 0x1F}, 15},
+    {0XE1,
+     {0x00, 0x25, 0x27, 0x05, 0x10, 0x09, 0x3A, 0x78, 0x4D, 0x05, 0x18, 0x0D,
+      0x38, 0x3A, 0x1F},
+     15},
     /* Column address set, SC=0, EC=0xEF */
     {0x2A, {0x00, 0x00, 0x00, 0xEF}, 4},
     /* Page address set, SP=0, EP=0x013F */
@@ -158,7 +173,6 @@ DRAM_ATTR static const lcd_init_cmd_t ili_init_cmds[]={
  */
 void lcd_cmd(spi_device_handle_t spi, const uint8_t cmd);
 
-
 /* Send data to the LCD. Uses spi_device_polling_transmit, which waits until the
  * transfer is complete.
  *
@@ -168,35 +182,35 @@ void lcd_cmd(spi_device_handle_t spi, const uint8_t cmd);
  */
 void lcd_data(spi_device_handle_t spi, const uint8_t *data, int len);
 
-//This function is called (in irq context!) just before a transmission starts. It will
-//set the D/C line to the value indicated in the user field.
+// This function is called (in irq context!) just before a transmission starts.
+// It will set the D/C line to the value indicated in the user field.
 void lcd_spi_pre_transfer_callback(spi_transaction_t *t);
 
 uint32_t lcd_get_id(spi_device_handle_t spi);
 
-//Initialize the display
+// Initialize the display
 void lcd_init(spi_device_handle_t spi);
 
-
-/* To send a set of lines we have to send a command, 2 data bytes, another command, 2 more data bytes and another command
- * before sending the line data itself; a total of 6 transactions. (We can't put all of this in just one transaction
- * because the D/C line needs to be toggled in the middle.)
- * This routine queues these commands up as interrupt transactions so they get
- * sent faster (compared to calling spi_device_transmit several times), and at
- * the mean while the lines for next transactions can get calculated.
+/* To send a set of lines we have to send a command, 2 data bytes, another
+ * command, 2 more data bytes and another command before sending the line data
+ * itself; a total of 6 transactions. (We can't put all of this in just one
+ * transaction because the D/C line needs to be toggled in the middle.) This
+ * routine queues these commands up as interrupt transactions so they get sent
+ * faster (compared to calling spi_device_transmit several times), and at the
+ * mean while the lines for next transactions can get calculated.
  */
 void send_lines(spi_device_handle_t spi, int ypos, uint16_t *linedata);
 
-
 void send_line_finish(spi_device_handle_t spi);
 
-//Simple routine to generate some patterns and send them to the LCD. Don't expect anything too
-//impressive. Because the SPI driver handles transactions in the background, we can calculate the next line
-//while the previous one is being sent.
+// Simple routine to generate some patterns and send them to the LCD. Don't
+// expect anything too impressive. Because the SPI driver handles transactions in
+// the background, we can calculate the next line while the previous one is being
+// sent.
 void STDisplay_vram();
-void get_line_data(uint16_t *dest, int line,  int linect);
+void get_line_data(uint16_t *dest, int line, int linect);
 void TFT_init();
-void  TFT_taskFunction ( void *pvParameter );
+void TFT_taskFunction(void *pvParameter);
 extern spi_device_handle_t myspi;
 
 #endif // __TFT__INCLUDE_GUARD
