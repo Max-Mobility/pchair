@@ -670,10 +670,10 @@ namespace BLE
 					//printf("error:%d\n", (int)ret);
 				}else
 				{
-					if (Actuator::systemMode == Actuator::system_modes::DriveMode)  // drive mode, send speed
+					if ((Actuator::systemMode == Actuator::system_modes::DriveMode) ||(Actuator::systemMode == Actuator::system_modes::PhoneControlMode)) // drive mode, send speed
 					{
 						data_send[0]=CMD_DRIVE_SPEED;
-						data_send[1]=abs(SerialTask::leftSpeed[1]);    //SEND left motor speed as driving speed
+						data_send[1]=abs((int8_t) SerialTask::leftSpeed[1]);    //SEND left motor speed as driving speed
 						ret = esp_ble_gatts_set_attr_value(pChair_handle_table[IDX_CHAR_VAL_A],2,data_send);
 						ret = esp_ble_gatts_send_indicate(Pchair_profile_tab[PROFILE_APP_IDX].gatts_if,con_id,pChair_handle_table[IDX_CHAR_VAL_A],2,data_send,false);
 					}

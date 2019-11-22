@@ -61,6 +61,8 @@ namespace Motor{
 			SerialTask::rightSpeed[1] = char(0);
 			SerialTask::leftSpeed[0] = char(0);
 			SerialTask::rightSpeed[0] = char(0);
+			Lmotor_curr =0;
+			Rmotor_curr=0;
 		}
 		else
 		{
@@ -158,15 +160,15 @@ namespace Motor{
 	float converterJoystickReadingPhone(uint8_t r)
 		{
 			float x=0;
-			if (r>138)
+			if (r>148)
 			{
-				x =( (r -138)*100.0/(255-138));
+				x =( (r -148)*100.0/(255-148));
 			}
 			else
 			{
-				if (r < 118)
+				if (r < 108)
 				{
-					x =( (r-118)*100.0/118);
+					x =( (r-108)*100.0/108);
 				}
 				else
 					x=0;

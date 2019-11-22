@@ -24,7 +24,7 @@ namespace Actuator {
 	#define ActLegrestOutLimit 92//86
 	#define ActTiltOutLimit 92
 	#define ActElevationOutLimit 100
-	#define GoKartHeight 60
+	#define GoKartHeight 55
 	//#define actEnable GPIO_NUM_14
 
 	enum system_modes

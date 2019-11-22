@@ -70,7 +70,7 @@ namespace Actuator{
 		buttonCounter_up=0;
 		buttonCounter_low=0;
 		actionInput = nonMoving;
-		actRecline.position_in_limit=2;
+		actRecline.position_in_limit=6;
 
 		std::string str;
 		str = "   Driving";
@@ -108,20 +108,20 @@ namespace Actuator{
 				updateAngle();
 				checkButton();
 				logCounter++;
-				if(logCounter%10==0) //1 log per second
-				{
-					printf("reclinePos:%d; LegPos:%d; TiltPos:%d; ElevPos:%d;   ",actRecline.position,actLegrest.position,actTilt.position,actElevation.position);
-				}
-				else
-				{
-					if(logCounter%5==0) //1 log per second
-					{
-						printf("Seat:%f; Back:%f; "
-								"Leg:%f; Chassis:%f; SavedSTC:%f; "
-								"LegH:%f mm;\n ",	SeatAngleToGround,BackAngleToGround,LegRestAngleToGround,
-								ChassisAngleToGround,SavedSeatAngleToGround,LegRestHeightToGround);
-					}
-				}
+//				if(logCounter%10==0) //1 log per second
+//				{
+//					printf("reclinePos:%d; LegPos:%d; TiltPos:%d; ElevPos:%d;   ",actRecline.position,actLegrest.position,actTilt.position,actElevation.position);
+//				}
+//				else
+//				{
+//					if(logCounter%5==0) //1 log per second
+//					{
+//						printf("Seat:%f; Back:%f; "
+//								"Leg:%f; Chassis:%f; SavedSTC:%f; "
+//								"LegH:%f mm;\n ",	SeatAngleToGround,BackAngleToGround,LegRestAngleToGround,
+//								ChassisAngleToGround,SavedSeatAngleToGround,LegRestHeightToGround);
+//					}
+//				}
 				if (last_system_modes!=systemMode )
 				{
 					system_mode_changed = true;
@@ -133,6 +133,10 @@ namespace Actuator{
 				switch (systemMode)
 				{
 					case System_sleep:
+						break;
+					case PhoneControlMode:
+						actuatorStop();
+						speedLimit =1;
 						break;
 					case DriveMode:
 						actuatorStop();
@@ -149,7 +153,7 @@ namespace Actuator{
 								}
 							else
 							{
-								speedLimit = 1.0;
+								speedLimit = 0.33;
 							}
 						}
 						if (SeatAngleToGround<-10)
@@ -455,7 +459,7 @@ namespace Actuator{
 						break;
 					case ErrorMode:
 						systemMode = system_modes::System_sleep;
-						draw_circle_inline(1);
+//						draw_circle_inline(1);
 						break;
 					default:
 						break;
@@ -980,31 +984,31 @@ namespace Actuator{
 	}
 	void updateActPositionLimit()
 	{
-		if (actTilt.position>11)
+		if (actTilt.position>8)
 		{
 			actRecline.position_out_limit=100;
 		}
 		else
 		{
-			if (actTilt.position>6)
-				actRecline.position_out_limit=75;
+			if (actTilt.position>4)
+				actRecline.position_out_limit=20;
 			else
-				actRecline.position_out_limit=5;
+				actRecline.position_out_limit=10;
 		}
 
-		if (actRecline.position<5)
+		if (actRecline.position<10)
 		{
 			actTilt.position_in_limit=0;
 		}
 		else
 		{
-			if(actRecline.position<75)
+			if(actRecline.position<20)
 			{
-				actTilt.position_in_limit=6;
+				actTilt.position_in_limit=4;
 			}
 			else
 			{
-				actTilt.position_in_limit=11;
+				actTilt.position_in_limit=8;
 			}
 		}
 	}
