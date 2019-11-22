@@ -6,7 +6,7 @@ Tabs component is similar to BottomNavigation but suitable for mid level navigat
 supports swiping between the views. Learn more about the Tabs component in this documentation article:
 https://docs.nativescript.org/angular/ui/ng-ui-widgets/tabs.
 -->
-<BottomNavigation selectedIndexChanged="onSelectedIndexChanged">
+<BottomNavigation selectedIndexChanged="onSelectedIndexChanged" loaded="onload">
     <TabStrip>
         <!--
             Besides the approach demonstrated below there is alternative shorthand syntax for setting TabStripItem title and icon:

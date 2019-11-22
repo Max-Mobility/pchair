@@ -28,6 +28,7 @@ export class PChair extends DeviceBase {
     @Prop() isConnected: boolean = false;
     @Prop() writeTimeoutId: any = null;
 
+    public currSysMode: SYSTEM_MODES;
     public _bluetooth: Bluetooth;
     private sendArray: Array<Array<number>> = [];
 
@@ -42,12 +43,18 @@ export class PChair extends DeviceBase {
         this._bluetooth.addEventListener(Bluetooth.device_acl_connected_event, (eventData: any) => {
             console.log('periphral connected: ' + JSON.stringify(eventData.data.device.name));
             this.isConnected = true;
+            //this.onConnected(eventData.data.device);
         });
 
         this._bluetooth.addEventListener(Bluetooth.device_acl_disconnected_event, (eventData: any) => {
             console.log('periphral disconnected: ' + JSON.stringify(eventData.data.device.name));
             this.isConnected = false;
+            this.currSysMode = SYSTEM_MODES.SYSTEM_MODE_MAX;
+            this.onDisconnected(this.peripheral);
         });
+
+        this.currSysMode = SYSTEM_MODES.SYSTEM_MODE_MAX;
+
     }
 
     public async scanAndConnect() {
@@ -79,10 +86,12 @@ export class PChair extends DeviceBase {
                     UUID: peripheral.UUID,
                     onConnected: (peripheral: Device) => {
                         this.onConnected(peripheral);
+                        this.isConnected = true;
                         resolve(peripheral);
                     },
                     onDisconnected: (peripheral: Device) => {
                         this.onDisconnected(peripheral);
+                        this.isConnected = false;
                         reject('Could not connect to' + peripheral);
                     }
                 });
@@ -140,9 +149,13 @@ export class PChair extends DeviceBase {
         //console.log('onNotify value: ' + nValue[0] + " " + nValue[1]);
         //console.log('onNotify: ' + args.valueRaw);
         //console.log('onNofity uuid: ' + uuid.toString().substr(4,4));
-        
 
-        // TODO: add sendevent
+
+        // add sendevent
+        if (nValue[0] == COMMAND.CMD_CHANGE_SYSTEM_MODE) {
+            this.currSysMode = nValue[1];
+            console.log("notify value:" + nValue[1]);
+        }
         this.sendEvent(PChair.pchair_notify_event, {
             Command: nValue[0],
             Value: nValue[1]
@@ -151,6 +164,8 @@ export class PChair extends DeviceBase {
 
     private async onDisconnected(peripheral: Device) {
         this.peripheral = peripheral;
+        this.currSysMode = SYSTEM_MODES.SYSTEM_MODE_MAX;
+        this.sendEvent(PChair.pchair_disconnect_event);
     }
 
     private showError(msg: string) {
@@ -160,11 +175,11 @@ export class PChair extends DeviceBase {
             position: ToastPosition.CENTER
         }).show();
     }
-    
+
     public async disconnect() {
         try {
             this.isBusy = true;
-            console.log('disconnect(): '+this.characteristic.UUID);
+            console.log('disconnect(): ' + this.characteristic.UUID);
 
             await this._bluetooth.stopNotifying({
                 peripheralUUID: this.peripheral.UUID,
@@ -180,6 +195,8 @@ export class PChair extends DeviceBase {
                 UUID: this.peripheral.UUID
             }).then(() => {
                 console.log("disconnect successfully.");
+                this.isConnected = false;
+                this.currSysMode = SYSTEM_MODES.SYSTEM_MODE_MAX;
                 this.sendEvent(PChair.pchair_disconnect_event);
             }, (err) => {
                 console.log("discounnected error: " + err);
@@ -198,7 +215,7 @@ export class PChair extends DeviceBase {
         }
 
         var byteZero = COMMAND.CMD_PHONE_JOYX;
-        var byteOne=sendXY;   
+        var byteOne = sendXY;
 
         var sendString = [byteZero, byteOne];
         //console.log('sendString: ' + sendString);
@@ -206,7 +223,7 @@ export class PChair extends DeviceBase {
         this.toBluetooth(sendString);
 
         byteZero = COMMAND.CMD_PHONE_JOYY;
-        byteOne=sendZ;   
+        byteOne = sendZ;
         sendString = [byteZero, byteOne];
         //console.log('sendString: ' + sendString);
         this.toBluetooth(sendString);
@@ -220,7 +237,7 @@ export class PChair extends DeviceBase {
 
         var byteZero: number;
         var byteOne: number;
-        
+
         switch (string) {
             case 'run':
                 //console.log("run");
@@ -281,7 +298,7 @@ export class PChair extends DeviceBase {
                 byteOne = ACTUATOR_MOVING_DIR.AMD_STOP;
                 break;
             case "sleep":
-                byteZero =  COMMAND.CMD_CHANGE_SYSTEM_MODE;
+                byteZero = COMMAND.CMD_CHANGE_SYSTEM_MODE;
                 byteOne = SYSTEM_MODES.SYSTEM_SLEEP;
                 break;
             case "gokart":
@@ -291,10 +308,18 @@ export class PChair extends DeviceBase {
             default:
                 console.log("Unexpected value" + string);
         }
-        const sendString = [ byteZero, byteOne ];
+        const sendString = [byteZero, byteOne];
         //console.log('sendString: ' + sendString);
-
-        this.toBluetooth(sendString);
+        if (byteZero == COMMAND.CMD_CHANGE_SYSTEM_MODE) {
+            if (byteOne != this.currSysMode) {
+                //console.log("old sys mode:"+this.currSysMode);
+                this.toBluetooth(sendString);
+                this.currSysMode = byteOne;
+                //console.log("new sys mode:"+this.currSysMode);
+            }
+        } else {
+            this.toBluetooth(sendString);
+        }
     }
 
     private async toBluetooth(string: Array<number>) {
@@ -312,7 +337,7 @@ export class PChair extends DeviceBase {
     private async writeBLE() {
         if (this.sendArray.length > 0) {
             const value = this.sendArray.shift()
-            var string=new Uint8Array(value);
+            var string = new Uint8Array(value);
             //console.log('get string: '+string);
             try {
                 this.isBusy = true;

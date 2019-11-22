@@ -18,9 +18,9 @@ export class GokartViewModel extends Observable {
     private zeroZ: number;
 
 
-    @Prop() highSpeed: number = 100;
-    @Prop() mediumSpeed: number = 60;
-    @Prop() lowSpeed: number = 20;
+    @Prop() highSpeed: number = 15;
+    @Prop() mediumSpeed: number = 10.5;
+    @Prop() lowSpeed: number = 6;
     @Prop() maxSpeed: number = this.lowSpeed;
     @Prop() currentSpeed: number = 0;
     @Prop() speedColor: string = this.LOW_SPEED_COLOR;
@@ -56,7 +56,14 @@ export class GokartViewModel extends Observable {
         this.isBusy = true;
         this.isCalibrated = false;
         console.log("calibrate.");
-        this.mySensor.startAcc();
+
+        this.mySensor.stopAcc();
+
+        this.mySensor.off(
+            Sensor.sensor_gravity_event,
+            this.onSensorData,
+            this
+        );
 
         this.mySensor.on(
             Sensor.sensor_gravity_event,
@@ -64,7 +71,7 @@ export class GokartViewModel extends Observable {
             this
         );
 
-        // Calibrate after 10 sec
+        // Calibrate after 5 sec
         this.mySensor.startAcc();
         setTimeout(() => {
             this.zeroXY = this.arrayXY.reduce((sum, current) => sum + current, 0) / this.arrayXY.length;
@@ -72,7 +79,7 @@ export class GokartViewModel extends Observable {
             //console.log("zero: " + this.zeroXY + " " + this.zeroZ);
             this.isCalibrated = true;
             this.isBusy = false;
-        }, 10000);
+        }, 5000);
     }
 
     private unregisterEvents() {
@@ -122,6 +129,16 @@ export class GokartViewModel extends Observable {
         );
     }
 
+    public sendMaxSpeed() {
+        if (this.maxSpeed == this.highSpeed) {
+            this.pChair.sendChoice("high_speed");
+        } else if (this.maxSpeed == this.mediumSpeed) {
+            this.pChair.sendChoice("medium_speed");
+        } else if (this.maxSpeed == this.lowSpeed) {
+            this.pChair.sendChoice("low_speed");
+        }
+    }
+
     private onSensorData(result: any) {
         //console.log(result.data.x);
         const x = result.data.x;
@@ -168,7 +185,7 @@ export class GokartViewModel extends Observable {
         //console.log("Notify event: "+ command + " " + value);
 
         if (command == COMMAND.CMD_DRIVE_SPEED) {
-            this.currentSpeed = Math.min(Math.max(value, 0), 100);
+            this.currentSpeed = Math.min(Math.max(value, 0), 100) * 0.15;
         }
     }
 

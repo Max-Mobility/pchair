@@ -5,10 +5,10 @@ export function Prop() {
         let storedValue = obj[key];
 
         Object.defineProperty(obj, key, {
-            get: function() {
+            get: function () {
                 return storedValue;
             },
-            set: function(value) {
+            set: function (value) {
                 if (storedValue === value) {
                     return;
                 }

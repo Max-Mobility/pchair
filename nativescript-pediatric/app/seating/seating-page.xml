@@ -1,9 +1,7 @@
-<Page
-    navigatingTo="onNavigatingTo"
-    loaded="onPageLoaded"
-    xmlns:lv="nativescript-ui-listview"
-    xmlns:RL="nativescript-ripple"
-    xmlns="http://schemas.nativescript.org/tns.xsd">
+<Page navigatingTo="onNavigatingTo" loaded="onPageLoaded" 
+  xmlns:lv="nativescript-ui-listview" 
+  xmlns:RL="nativescript-ripple" 
+  xmlns="http://schemas.nativescript.org/tns.xsd">
 
   <ActionBar class="action-bar">
     <Label class="action-bar-title" text="Seating"></Label>
@@ -14,12 +12,7 @@
       <DockLayout dock="left">
 
         <StackLayout>
-          <lv:RadListView id="listview"
-                          class="control-container"
-                          selectionBehavior="Press" multipleSelection="false"
-                          items="{{ controlItems }}"
-                          itemSelected="{{ onControlSelected }}"
-                          height="680">
+          <lv:RadListView id="listview" class="control-container" selectionBehavior="Press" multipleSelection="false" items="{{ controlItems }}" itemSelected="{{ onControlSelected }}" height="680">
             <lv:RadListView.listViewLayout>
               <lv:ListViewStaggeredLayout scrollDirection="Vertical" spanCount="1"/>
             </lv:RadListView.listViewLayout>

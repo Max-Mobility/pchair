@@ -4,6 +4,8 @@ import { Toasty, ToastPosition } from 'nativescript-toasty'
 import { COMMAND } from "../enum";
 import { PChair, pChair } from '../pchair';
 
+
+
 export class DrivingViewModel extends Observable {
 
     //public static SERVICE_UUID: string = "000012ff-0000-1000-8000-00805f9b34fb";
@@ -28,9 +30,9 @@ export class DrivingViewModel extends Observable {
     private MEDIUM_SPEED_COLOR = "#c3f038";
     private HIGH_SPEED_COLOR = "#83ebf6";
 
-    @Prop() highSpeed: number = 100;
-    @Prop() mediumSpeed: number = 60;
-    @Prop() lowSpeed: number = 20;
+    @Prop() highSpeed: number = 15;
+    @Prop() mediumSpeed: number = 10.5;
+    @Prop() lowSpeed: number = 6;
     @Prop() maxSpeed: number = this.lowSpeed;
     @Prop() currentSpeed: number = 0;
     @Prop() speedColor: string = this.LOW_SPEED_COLOR;
@@ -40,7 +42,7 @@ export class DrivingViewModel extends Observable {
         this.pChair = pChair;
         this.registerEvents();
     }
-    private unregisterEvents(){
+    private unregisterEvents() {
         this.pChair.off(
             PChair.pchair_connect_event,
             this.onPChairConnect,
@@ -77,20 +79,30 @@ export class DrivingViewModel extends Observable {
         );
     }
 
-    private onPChairConnect(){
+    public sendMaxSpeed() {
+        if (this.maxSpeed == this.highSpeed) {
+            this.pChair.sendChoice("high_speed");
+        } else if (this.maxSpeed == this.mediumSpeed) {
+            this.pChair.sendChoice("medium_speed");
+        } else if (this.maxSpeed == this.lowSpeed) {
+            this.pChair.sendChoice("low_speed");
+        }
+    }
+
+    private onPChairConnect() {
         console.log("pchair_connect_event Event");
         this.isConnected = true;
         this.pChair.sendChoice("run");
 
-        if (this.maxSpeed == this.highSpeed){
+        if (this.maxSpeed == this.highSpeed) {
             this.highSpeedTap();
-        } else if (this.maxSpeed == this.mediumSpeed){
+        } else if (this.maxSpeed == this.mediumSpeed) {
             this.mediumSpeedTap();
         } else if (this.maxSpeed == this.lowSpeed) {
             this.lowSpeedTap();
         }
     }
-    private onPChairDisconnect(){
+    private onPChairDisconnect() {
         console.log("pchair_disconnect_event Event");
         this.isConnected = false;
 
@@ -100,13 +112,13 @@ export class DrivingViewModel extends Observable {
         }).show();
     }
 
-    private onPChairNotify(args: any){
+    private onPChairNotify(args: any) {
         const command = args.data.Command;
         const value = args.data.Value;
         //console.log("Notify event: "+ command + " " + value);
 
-        if(command == COMMAND.CMD_DRIVE_SPEED){
-            this.currentSpeed = Math.min(Math.max(value,0),100);
+        if (command == COMMAND.CMD_DRIVE_SPEED) {
+            this.currentSpeed = Math.min(Math.max(value, 0), 100) * 0.15;
         }
     }
 

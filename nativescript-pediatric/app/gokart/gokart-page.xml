@@ -1,6 +1,4 @@
-<Page class="page" navigatingTo="onNavigatingTo" 
-  loaded="onPageLoaded"
-  unloaded="onPageUnloaded"
+<Page class="page" navigatingTo="onNavigatingTo" loaded="onPageLoaded" unloaded="onPageUnloaded" 
   xmlns:gauge="nativescript-ui-gauge" 
   xmlns="http://www.nativescript.org/tns.xsd" 
   xmlns="http://schemas.nativescript.org/tns.xsd">
@@ -14,28 +12,28 @@
     <ScrollView width="100%" height="100%">
       <GridLayout rows="auto, auto, auto" columns="*" width="100%" height="100%" class="active-controls">
 
-        <gauge:RadRadialGauge row="0" height="50%" id="gaugeView" margin="10">
+        <gauge:RadRadialGauge row="0" height="50%" id="gaugeView" margin="10" title="Mph">
           <gauge:RadRadialGauge.scales>
 
-            <gauge:RadialScale startAngle="160" sweepAngle="220" minimum="0" maximum="100" radius="0.45">
+            <gauge:RadialScale startAngle="160" sweepAngle="220" minimum="0" maximum="15" radius="0.55">
               <gauge:RadialScale.scaleStyle>
-                <gauge:ScaleStyle ticksVisible="true" labelsVisible="true" lineThickness="0" />
+                <gauge:ScaleStyle ticksVisible="true" labelsVisible="true" lineThickness="0" labelsSize="45"/>
               </gauge:RadialScale.scaleStyle>
 
               <gauge:RadialScale.indicators>
-                <gauge:RadialBarIndicator minimum="0" maximum="100" location="0.5">
+                <gauge:RadialBarIndicator minimum="0" maximum="15" location="0.7">
                   <gauge:RadialBarIndicator.indicatorStyle>
                     <gauge:BarIndicatorStyle cap="Round" fillColor="rgba(121,7,242,0.5)" barWidth="0.2"/>
                   </gauge:RadialBarIndicator.indicatorStyle>
                 </gauge:RadialBarIndicator>
 
-                <gauge:RadialBarIndicator minimum="0" maximum="{{ currentSpeed }}" location="0.5" isAnimated="true">
+                <gauge:RadialBarIndicator minimum="0" maximum="{{ currentSpeed }}" location="0.7" isAnimated="true">
                   <gauge:RadialBarIndicator.indicatorStyle>
                     <gauge:BarIndicatorStyle cap="Round" fillColor="rgba(121,7,242,0.8)" barWidth="0.2"/>
                   </gauge:RadialBarIndicator.indicatorStyle>
                 </gauge:RadialBarIndicator>
 
-                <gauge:RadialBarIndicator minimum="0" maximum="100" location="1">
+                <gauge:RadialBarIndicator minimum="0" maximum="15" location="1">
                   <gauge:RadialBarIndicator.indicatorStyle>
                     <gauge:BarIndicatorStyle cap="Round" fillColor="rgba(132,235,247,0.5)" barWidth="0.2"/>
                   </gauge:RadialBarIndicator.indicatorStyle>
@@ -54,24 +52,21 @@
 
         <DockLayout row="1" class="driving-legend" dock="left">
           <StackLayout class="legend-item" orientation="vertical">
-            <Button backgroundColor="rgba(132,235,247,0.8)" borderRadius="50" tap="{{ goKartHigh }}" width="100"/>
-            <Label class="legend-label" text="High Speed"/>
+            <Button backgroundColor="rgba(224,151,36,0.8)" borderRadius="50" tap="{{ goKartLow }}" width="100"/>
+            <Label class="legend-label" text="Low Speed"/>
           </StackLayout>
           <StackLayout class="legend-item" orientation="vertical">
             <Button backgroundColor="rgba(196,241,57,0.8)" borderRadius="50" tap="{{ goKartMedium }}" width="100"/>
             <Label class="legend-label" text="Medium Speed"/>
           </StackLayout>
           <StackLayout class="legend-item" orientation="vertical">
-            <Button backgroundColor="rgba(224,151,36,0.8)" borderRadius="50" tap="{{ goKartLow }}" width="100"/>
-            <Label class="legend-label" text="Low Speed"/>
+            <Button backgroundColor="rgba(132,235,247,0.8)" borderRadius="50" tap="{{ goKartHigh }}" width="100"/>
+            <Label class="legend-label" text="High Speed"/>
           </StackLayout>
         </DockLayout>
 
 
-        <Image row="2" class="gokart-image" src="~/assets/images/go.png" width="200"
-        backgroundColor="{{ isCalibrated, isCalibrated ? 'rgba(123,239,178,1)' : 'rgba(240,52,52,1)'}}"
-        visibility="{{ isBusy, isBusy ? 'collapse':'visible' }}"
-        tap="{{ calibrate }}"></Image>
+        <Image row="2" class="gokart-image" src="~/assets/images/go.png" width="200" backgroundColor="{{ isCalibrated, isCalibrated ? 'rgba(123,239,178,1)' : 'rgba(240,52,52,1)'}}" visibility="{{ isBusy, isBusy ? 'collapse':'visible' }}" tap="{{ calibrate }}"></Image>
         <ActivityIndicator row="2" width="200" height="200" class="action-item" busy="{{ isBusy }}"/>
 
       </GridLayout>
