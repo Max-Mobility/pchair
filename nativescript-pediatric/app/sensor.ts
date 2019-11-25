@@ -43,7 +43,7 @@ export class Sensor extends DeviceBase {
     };
     public startAcc() {
         console.log("start Acc.");
-        this.accelerometerSensor = this._sensor.startSensor(android.hardware.Sensor.TYPE_GRAVITY, 200 * 1000);
+        this.accelerometerSensor = this._sensor.startSensor(android.hardware.Sensor.TYPE_GRAVITY, 40 * 1000);
     }
 
     public stopAcc() {
