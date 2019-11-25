@@ -24,19 +24,19 @@ void caculateSpeedLimit(void) {
   switch (BLE::speedSettings) {
   case BLE::Speed_setting::speed_low:
     speedSet = 0.4;
-    rotationSpeedLimit = 4;
+    rotationSpeedLimit = 3; // 3% X 15mph = 0.45mph
     rampUp = 0.75;
     rampDown = 1.3;
     break;
   case BLE::Speed_setting::speed_medium:
     speedSet = 0.7;
-    rotationSpeedLimit = 5;
+    rotationSpeedLimit = 4;
     rampUp = 1.0;
     rampDown = 2.3;
     break;
   case BLE::Speed_setting::speed_high:
     speedSet = 1.0;
-    rotationSpeedLimit = 6;
+    rotationSpeedLimit = 4;
     rampUp = 1.4;
     rampDown = 3.3;
     break;
