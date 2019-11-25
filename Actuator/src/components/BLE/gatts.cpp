@@ -584,6 +584,7 @@ static void gatts_profile_event_handler(esp_gatts_cb_event_t event,
     BLE_ready = false;
     Motor::phone_joystickX = 128;
     Motor::phone_joystickY = 128;
+    Actuator::systemMode = Actuator::system_modes::System_sleep;
 
     esp_ble_gap_start_advertising(&adv_params);
     break;
