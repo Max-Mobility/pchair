@@ -27,14 +27,12 @@
 #include "nvs_flash.h"
 #include <stdint.h>
 
-
 #include "actuator.hpp"
 #include "esp_bt_main.h"
 #include "esp_gap_ble_api.h"
 #include "esp_gatt_common_api.h"
 #include "esp_gatts_api.h"
 #include "motor.hpp"
-
 
 namespace BLE {
 enum Speed_setting speedSettings = speed_low;
@@ -325,23 +323,25 @@ static void gap_event_handler(esp_gap_ble_cb_event_t event,
 }
 
 //	void example_prepare_write_event_env(esp_gatt_if_t gatts_if,
-//prepare_type_env_t *prepare_write_env, esp_ble_gatts_cb_param_t *param)
+// prepare_type_env_t *prepare_write_env, esp_ble_gatts_cb_param_t *param)
 //	{
-//		ESP_LOGI(GATTS_TABLE_TAG, "prepare write, handle = %d, value len =
-//%d", param->write.handle, param->write.len); 		esp_gatt_status_t status =
-//ESP_GATT_OK; 		if (prepare_write_env->prepare_buf == NULL) {
+//		ESP_LOGI(GATTS_TABLE_TAG, "prepare write, handle = %d, value len
+//=
+//%d", param->write.handle, param->write.len); 		esp_gatt_status_t status
+//= ESP_GATT_OK; 		if (prepare_write_env->prepare_buf == NULL) {
 //			prepare_write_env->prepare_buf = (uint8_t
 //*)malloc(PREPARE_BUF_MAX_SIZE * sizeof(uint8_t));
 //			prepare_write_env->prepare_len = 0;
 //			if (prepare_write_env->prepare_buf == NULL) {
-//				ESP_LOGE(GATTS_TABLE_TAG, "%s, Gatt_server prep no
-//mem", __func__); 				status = ESP_GATT_NO_RESOURCES;
+//				ESP_LOGE(GATTS_TABLE_TAG, "%s, Gatt_server prep
+// no mem", __func__); 				status = ESP_GATT_NO_RESOURCES;
 //			}
 //		} else {
 //			if(param->write.offset > PREPARE_BUF_MAX_SIZE) {
 //				status = ESP_GATT_INVALID_OFFSET;
 //			} else if ((param->write.offset + param->write.len) >
-//PREPARE_BUF_MAX_SIZE) { 				status = ESP_GATT_INVALID_ATTR_LEN;
+// PREPARE_BUF_MAX_SIZE) { 				status =
+// ESP_GATT_INVALID_ATTR_LEN;
 //			}
 //		}
 //		/*send response when param->write.need_rsp is true */
@@ -350,14 +350,14 @@ static void gap_event_handler(esp_gap_ble_cb_event_t event,
 //*)malloc(sizeof(esp_gatt_rsp_t)); 			if (gatt_rsp != NULL){
 //				gatt_rsp->attr_value.len = param->write.len;
 //				gatt_rsp->attr_value.handle =
-//param->write.handle; 				gatt_rsp->attr_value.offset = param->write.offset;
-//				gatt_rsp->attr_value.auth_req =
-//ESP_GATT_AUTH_REQ_NONE; 				memcpy(gatt_rsp->attr_value.value, param->write.value,
-//param->write.len); 				esp_err_t response_err =
-//esp_ble_gatts_send_response(gatts_if, param->write.conn_id,
-//param->write.trans_id, status, gatt_rsp); 				if (response_err != ESP_OK){
-//				   ESP_LOGE(GATTS_TABLE_TAG, "Send response
-//error");
+// param->write.handle; gatt_rsp->attr_value.offset
+// =
+// param->write.offset; 				gatt_rsp->attr_value.auth_req
+// = ESP_GATT_AUTH_REQ_NONE; memcpy(gatt_rsp->attr_value.value,
+// param->write.value, param->write.len); esp_err_t response_err =
+// esp_ble_gatts_send_response(gatts_if, param->write.conn_id,
+// param->write.trans_id, status, gatt_rsp); if (response_err != ESP_OK){
+// ESP_LOGE(GATTS_TABLE_TAG, "Send response error");
 //				}
 //				free(gatt_rsp);
 //			}else{
@@ -376,11 +376,12 @@ static void gap_event_handler(esp_gap_ble_cb_event_t event,
 //	}
 
 //	void example_exec_write_event_env(prepare_type_env_t *prepare_write_env,
-//esp_ble_gatts_cb_param_t *param){ 		if (param->exec_write.exec_write_flag ==
-//ESP_GATT_PREP_WRITE_EXEC && prepare_write_env->prepare_buf){
-//			esp_log_buffer_hex(GATTS_TABLE_TAG,
-//prepare_write_env->prepare_buf, prepare_write_env->prepare_len); 		}else{
-//			ESP_LOGI(GATTS_TABLE_TAG,"ESP_GATT_PREP_WRITE_CANCEL");
+// esp_ble_gatts_cb_param_t *param){ 		if
+// (param->exec_write.exec_write_flag == ESP_GATT_PREP_WRITE_EXEC &&
+// prepare_write_env->prepare_buf){
+// esp_log_buffer_hex(GATTS_TABLE_TAG, prepare_write_env->prepare_buf,
+// prepare_write_env->prepare_len); }else{
+// ESP_LOGI(GATTS_TABLE_TAG,"ESP_GATT_PREP_WRITE_CANCEL");
 //		}
 //		if (prepare_write_env->prepare_buf) {
 //			free(prepare_write_env->prepare_buf);
@@ -452,8 +453,8 @@ static void gatts_profile_event_handler(esp_gatts_cb_event_t event,
           if (param->write.value[1] < Actuator::system_modes::system_mode_max) {
             Actuator::systemMode =
                 Actuator::system_modes(param->write.value[1]);
-            //								printf("changed mode to
-            //%d\n",(int)Actuator::systemMode);
+            //								printf("changed
+            // mode to %d\n",(int)Actuator::systemMode);
             if (param->write.value[1] ==
                 Actuator::system_modes::PhoneControlMode) {
               Motor::phone_joystickX = 128;
@@ -464,15 +465,15 @@ static void gatts_profile_event_handler(esp_gatts_cb_event_t event,
         if (param->write.value[0] == Command::CMD_SET_SPEED) {
           if (param->write.value[1] < 3) {
             speedSettings = Speed_setting(param->write.value[1]);
-            //								printf("speedSettings %d
-            //\n",(int)speedSettings);
+            //								printf("speedSettings
+            //%d \n",(int)speedSettings);
           }
         }
         if (param->write.value[0] == Command::CMD_MOVE_ACTUATOR) {
           if (param->write.value[1] < 3) {
             actMovDir = Actuator_moving_dir(param->write.value[1]);
-            //								printf("move direction is %d \n",
-            //(int)actMovDir);
+            //								printf("move direction
+            //is %d \n", (int)actMovDir);
           }
         }
         if (param->write.value[0] == Command::CMD_PHONE_JOYX) {
@@ -484,50 +485,64 @@ static void gatts_profile_event_handler(esp_gatts_cb_event_t event,
       }
     }
     //				if (!param->write.is_prep){
-    //					// the data length of gattc write  must be less than
-    //GATTS_DEMO_CHAR_VAL_LEN_MAX. 					ESP_LOGI(GATTS_TABLE_TAG, "GATT_WRITE_EVT,
-    //handle = %d, value len = %d, value :", param->write.handle,
-    //param->write.len); 					esp_log_buffer_hex(GATTS_TABLE_TAG, param->write.value,
-    //param->write.len); 					if (pChair_handle_table[IDX_CHAR_CFG_A] ==
-    //param->write.handle && param->write.len == 2){ 						uint16_t descr_value =
-    //param->write.value[1]<<8 | param->write.value[0]; 						if (descr_value ==
-    //0x0001){ 							ESP_LOGI(GATTS_TABLE_TAG, "notify enable"); 							uint8_t
-    //notify_data[15]; 							for (int i = 0; i < sizeof(notify_data); ++i)
+    //					// the data length of gattc write  must
+    //be less than GATTS_DEMO_CHAR_VAL_LEN_MAX.
+    // ESP_LOGI(GATTS_TABLE_TAG, "GATT_WRITE_EVT, handle = %d, value len = %d,
+    // value :", param->write.handle, param->write.len);
+    // esp_log_buffer_hex(GATTS_TABLE_TAG, param->write.value,
+    // param->write.len); if (pChair_handle_table[IDX_CHAR_CFG_A] ==
+    // param->write.handle &&
+    // param->write.len == 2){ 						uint16_t
+    // descr_value = param->write.value[1]<<8 | param->write.value[0]; if
+    // (descr_value == 0x0001){ ESP_LOGI(GATTS_TABLE_TAG, "notify enable");
+    // uint8_t
+    // notify_data[15]; 							for (int i = 0; i
+    // < sizeof(notify_data);
+    // ++i)
     //							{
-    //								notify_data[i] = i %
-    //0xff;
+    //								notify_data[i] =
+    // i % 0xff;
     //							}
-    //							//the size of notify_data[] need less than MTU
-    //size 							esp_ble_gatts_send_indicate(gatts_if, param->write.conn_id,
-    //pChair_handle_table[IDX_CHAR_VAL_A], 													sizeof(notify_data), notify_data,
-    //false); 						}else if (descr_value == 0x0002){ 							ESP_LOGI(GATTS_TABLE_TAG,
-    //"indicate enable"); 							uint8_t indicate_data[15]; 							for (int i = 0; i <
-    //sizeof(indicate_data); ++i)
+    //							//the size of notify_data[] need
+    //less than MTU size
+    // esp_ble_gatts_send_indicate(gatts_if, param->write.conn_id,
+    // pChair_handle_table[IDX_CHAR_VAL_A],
+    // sizeof(notify_data), notify_data, false);
+    // }else if (descr_value == 0x0002){ ESP_LOGI(GATTS_TABLE_TAG, "indicate
+    // enable");
+    // uint8_t indicate_data[15]; 							for (int i =
+    // 0; i < sizeof(indicate_data); ++i)
     //							{
-    //								indicate_data[i] = i %
-    //0xff;
+    //								indicate_data[i]
+    //= i % 0xff;
     //							}
-    //							//the size of indicate_data[] need less than MTU
-    //size 							esp_ble_gatts_send_indicate(gatts_if, param->write.conn_id,
-    //pChair_handle_table[IDX_CHAR_VAL_A], 												sizeof(indicate_data), indicate_data,
-    //true);
+    //							//the size of indicate_data[] need
+    //less than MTU size
+    // esp_ble_gatts_send_indicate(gatts_if, param->write.conn_id,
+    // pChair_handle_table[IDX_CHAR_VAL_A],
+    // sizeof(indicate_data), indicate_data, true);
     //						}
     //						else if (descr_value == 0x0000){
-    //							ESP_LOGI(GATTS_TABLE_TAG, "notify/indicate disable
-    //"); 						}else{ 							ESP_LOGE(GATTS_TABLE_TAG, "unknown descr value");
-    //							esp_log_buffer_hex(GATTS_TABLE_TAG, param->write.value,
-    //param->write.len);
+    //							ESP_LOGI(GATTS_TABLE_TAG,
+    //"notify/indicate disable
+    //"); 						}else{
+    //ESP_LOGE(GATTS_TABLE_TAG, "unknown
+    // descr value");
+    // esp_log_buffer_hex(GATTS_TABLE_TAG, param->write.value,
+    // param->write.len);
     //						}
     //
     //					}
-    //					/* send response when param->write.need_rsp is
-    //true*/ 					if (param->write.need_rsp){ 						esp_ble_gatts_send_response(gatts_if,
-    //param->write.conn_id, param->write.trans_id, ESP_GATT_OK, NULL);
+    //					/* send response when
+    // param->write.need_rsp is
+    // true*/ 					if (param->write.need_rsp){
+    // esp_ble_gatts_send_response(gatts_if, param->write.conn_id,
+    // param->write.trans_id, ESP_GATT_OK, NULL);
     //					}
     //				}else{
     //					/* handle prepare write */
-    //					example_prepare_write_event_env(gatts_if, &prepare_write_env,
-    //param);
+    //					example_prepare_write_event_env(gatts_if,
+    //&prepare_write_env, param);
     //				}
     break;
   case ESP_GATTS_EXEC_WRITE_EVT:
@@ -567,6 +582,8 @@ static void gatts_profile_event_handler(esp_gatts_cb_event_t event,
     ESP_LOGI(GATTS_TABLE_TAG, "ESP_GATTS_DISCONNECT_EVT, reason = 0x%x",
              param->disconnect.reason);
     BLE_ready = false;
+    Motor::phone_joystickX = 128;
+    Motor::phone_joystickY = 128;
 
     esp_ble_gap_start_advertising(&adv_params);
     break;
