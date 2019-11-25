@@ -56,6 +56,7 @@ export class GokartViewModel extends Observable {
         this.isBusy = true;
         this.isCalibrated = false;
         console.log("calibrate.");
+        this.pChair.sendGoKart(128, 128);
 
         this.mySensor.stopAcc();
 
@@ -148,15 +149,12 @@ export class GokartViewModel extends Observable {
         const angleZ = Math.acos(z / 10) / Math.PI * 180;
         const angleXY = Math.atan(x / y) / Math.PI * 180;
 
-        this.aPush(angleXY, angleZ);
 
-        //console.log("arrayXY: " + angleZ);
-        //console.log("arrayZ: "+this.arrayZ);
-
-        if (this.isCalibrated) {
+        if (!this.isCalibrated) {
+            this.aPush(angleXY, angleZ);
+        } else {
             const deltaZ = this.zeroZ - angleZ;
             const deltaXY = this.zeroXY - angleXY;
-
 
             const sendZ = Math.min(Math.max(deltaZ, -15.0), 15.0) / 15.0 * 127 + 128;
             const sendXY = Math.min(Math.max(deltaXY, -20.0), 20.0) / 20.0 * 127 + 128;
@@ -167,6 +165,24 @@ export class GokartViewModel extends Observable {
                 this.pChair.sendGoKart(sendXY, sendZ);
             }
         }
+
+        //console.log("arrayXY: " + angleZ);
+        //console.log("arrayZ: "+this.arrayZ);
+
+        // if (this.isCalibrated) {
+        //     const deltaZ = this.zeroZ - angleZ;
+        //     const deltaXY = this.zeroXY - angleXY;
+
+
+        //     const sendZ = Math.min(Math.max(deltaZ, -15.0), 15.0) / 15.0 * 127 + 128;
+        //     const sendXY = Math.min(Math.max(deltaXY, -20.0), 20.0) / 20.0 * 127 + 128;
+
+        //     //console.log("delta: "+ sendXY +" "+sendZ);
+
+        //     if (pChair.isConnected) {
+        //         this.pChair.sendGoKart(sendXY, sendZ);
+        //     }
+        // }
     }
 
     private aPush(angleXY: number, angleZ: number) {
