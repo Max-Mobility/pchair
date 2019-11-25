@@ -27,10 +27,13 @@ export class GokartViewModel extends Observable {
 
     @Prop() isCalibrated: boolean = false;
     @Prop() isBusy: boolean = false;
+    
     private mySensor = new Sensor();
+    private calibrateTimer: any;
 
     public clearCalibration() {
         this.isCalibrated = false;
+        clearTimeout(this.calibrateTimer);
     }
 
     public async stopSensor() {
@@ -43,6 +46,7 @@ export class GokartViewModel extends Observable {
                 this
             );
         }
+        this.isBusy = false;
     }
 
     constructor() {
@@ -74,7 +78,7 @@ export class GokartViewModel extends Observable {
 
         // Calibrate after 5 sec
         this.mySensor.startAcc();
-        setTimeout(() => {
+        this.calibrateTimer=setTimeout(() => {
             this.zeroXY = this.arrayXY.reduce((sum, current) => sum + current, 0) / this.arrayXY.length;
             this.zeroZ = this.arrayZ.reduce((sum, current) => sum + current, 0) / this.arrayZ.length;
             //console.log("zero: " + this.zeroXY + " " + this.zeroZ);
@@ -155,15 +159,19 @@ export class GokartViewModel extends Observable {
         } else {
             const deltaZ = this.zeroZ - angleZ;
             const deltaXY = this.zeroXY - angleXY;
-
-            const sendZ = Math.min(Math.max(deltaZ, -15.0), 15.0) / 15.0 * 127 + 128;
-            const sendXY = Math.min(Math.max(deltaXY, -20.0), 20.0) / 20.0 * 127 + 128;
-
-            //console.log("delta: "+ sendXY +" "+sendZ);
-
-            if (pChair.isConnected) {
-                this.pChair.sendGoKart(sendXY, sendZ);
-            }
+            
+            if(Math.abs(deltaZ)>20.0 || Math.abs(deltaXY)>25.0){
+                if (pChair.isConnected){
+                    this.pChair.sendGoKart(128,128);
+                }
+            } else{
+                const sendZ = Math.min(Math.max(deltaZ, -15.0), 15.0) / 15.0 * 127 + 128;
+                const sendXY = Math.min(Math.max(deltaXY, -20.0), 20.0) / 20.0 * 127 + 128;
+                //console.log("delta: "+ sendXY +" "+sendZ);
+                if (pChair.isConnected) {
+                    this.pChair.sendGoKart(sendXY, sendZ);
+                }
+            }    
         }
 
         //console.log("arrayXY: " + angleZ);
