@@ -80,12 +80,14 @@ export class DrivingViewModel extends Observable {
     }
 
     public sendMaxSpeed() {
-        if (this.maxSpeed == this.highSpeed) {
-            this.pChair.sendChoice("high_speed");
-        } else if (this.maxSpeed == this.mediumSpeed) {
-            this.pChair.sendChoice("medium_speed");
-        } else if (this.maxSpeed == this.lowSpeed) {
-            this.pChair.sendChoice("low_speed");
+        if (this.isConnected) {
+            if (this.maxSpeed == this.highSpeed) {
+                this.pChair.sendChoice("high_speed");
+            } else if (this.maxSpeed == this.mediumSpeed) {
+                this.pChair.sendChoice("medium_speed");
+            } else if (this.maxSpeed == this.lowSpeed) {
+                this.pChair.sendChoice("low_speed");
+            }
         }
     }
 

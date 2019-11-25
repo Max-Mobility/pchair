@@ -141,8 +141,11 @@ export class SeatingViewModel extends Observable {
         // const view=event.object;
         // view.selectItemAt(event.index);
         this.changeSelection(event.index);
-        pChair.sendChoice(SeatingViewModel.select);
-        //console.log('control:', this.selectedControl.name);
+        if (pChair.isConnected) {
+            pChair.sendChoice(SeatingViewModel.select);
+            //console.log('control:', this.selectedControl.name);
+        }
+
     }
 
     public async onIncreaseControl(args: TouchGestureEventData) {
