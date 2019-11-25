@@ -8,3 +8,15 @@ platforms/
 hooks/
 *.js
 *.css
+App/app/local.properties
+App/app/gradlew.bat
+App/app/gradlew
+App/app/gradle/wrapper/gradle-wrapper.properties
+App/app/gradle/wrapper/gradle-wrapper.jar
+App/app/.idea/workspace.xml
+App/app/.idea/vcs.xml
+App/app/.idea/runConfigurations.xml
+App/app/.idea/modules.xml
+App/app/.idea/misc.xml
+App/app/.idea/gradle.xml
+App/app/.idea/codeStyles/Project.xml
