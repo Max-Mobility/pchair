@@ -52,12 +52,13 @@ void caculateMotorSpeed(float x, float y, Actuator::system_modes mode) {
   if ((mode != Actuator::system_modes::DriveMode) &&
       (mode != Actuator::system_modes::PhoneControlMode)) {
     //			printf("joystick error!\n");
+    Lmotor_curr = caculateSpeedRamp(Lmotor_curr, 0);
+    Rmotor_curr = caculateSpeedRamp(Rmotor_curr, 0);
+
     SerialTask::leftSpeed[1] = char(0);
     SerialTask::rightSpeed[1] = char(0);
-    SerialTask::leftSpeed[0] = char(0);
-    SerialTask::rightSpeed[0] = char(0);
-    Lmotor_curr = 0;
-    Rmotor_curr = 0;
+    SerialTask::leftSpeed[0] = char(Lmotor_curr);
+    SerialTask::rightSpeed[0] = char(Rmotor_curr);
   } else {
     caculateSpeedLimit();
     if (y < 0) // driving backward
