@@ -329,4 +329,4 @@ extern const char _8x12_d255[12];
 extern const char *char5x8_matrix[127];
 
 extern const char *char8x12_matrix[256];
-#endif //FONTS_INCLUDE_GUARD_
+#endif // FONTS_INCLUDE_GUARD_

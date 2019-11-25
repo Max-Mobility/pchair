@@ -7,24 +7,23 @@
 #include "DisplayTask.hpp"
 
 extern "C" {
-  #include "UDPServer.h"
+#include "UDPServer.h"
 }
 
 // Generated state functions and members for the task
 namespace WirelessTask {
 
-  // Task Forward Declarations
+// Task Forward Declarations
 
+// Generated task function
+void taskFunction(void *pvParameter);
 
-  // Generated task function
-  void  taskFunction ( void *pvParameter );
+// Generated state functions
+void state_State_1_execute(void);
+void state_State_1_setState(void);
+void state_State_1_transition(void);
+void state_State_1_finalization(void);
 
-  // Generated state functions
-  void  state_State_1_execute      ( void );
-  void  state_State_1_setState     ( void );
-  void  state_State_1_transition   ( void );
-  void  state_State_1_finalization ( void );
-
-};
+}; // namespace WirelessTask
 
 #endif // __WirelessTask__INCLUDE_GUARD
