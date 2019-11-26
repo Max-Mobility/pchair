@@ -17,6 +17,10 @@ export class GokartViewModel extends Observable {
     private zeroXY: number;
     private zeroZ: number;
 
+    private averageXY: number = 0;
+    private averageZ: number = 0;
+    private count: number = 0;
+
 
     @Prop() highSpeed: number = 15;
     @Prop() mediumSpeed: number = 10.5;
@@ -27,10 +31,13 @@ export class GokartViewModel extends Observable {
 
     @Prop() isCalibrated: boolean = false;
     @Prop() isBusy: boolean = false;
+
     private mySensor = new Sensor();
+    private calibrateTimer: any;
 
     public clearCalibration() {
         this.isCalibrated = false;
+        clearTimeout(this.calibrateTimer);
     }
 
     public async stopSensor() {
@@ -43,6 +50,7 @@ export class GokartViewModel extends Observable {
                 this
             );
         }
+        this.isBusy = false;
     }
 
     constructor() {
@@ -55,6 +63,15 @@ export class GokartViewModel extends Observable {
     public async calibrate() {
         this.isBusy = true;
         this.isCalibrated = false;
+        if (!this.pChair.isConnected) {
+            new Toasty({
+                text: "Bluetooth is disconnected",
+                position: ToastPosition.CENTER
+            }).show();
+            this.isBusy = false;
+            return;
+        }
+
         console.log("calibrate.");
         this.pChair.sendGoKart(128, 128);
 
@@ -74,7 +91,7 @@ export class GokartViewModel extends Observable {
 
         // Calibrate after 5 sec
         this.mySensor.startAcc();
-        setTimeout(() => {
+        this.calibrateTimer = setTimeout(() => {
             this.zeroXY = this.arrayXY.reduce((sum, current) => sum + current, 0) / this.arrayXY.length;
             this.zeroZ = this.arrayZ.reduce((sum, current) => sum + current, 0) / this.arrayZ.length;
             //console.log("zero: " + this.zeroXY + " " + this.zeroZ);
@@ -131,14 +148,18 @@ export class GokartViewModel extends Observable {
     }
 
     public sendMaxSpeed() {
-        if (this.maxSpeed == this.highSpeed) {
-            this.pChair.sendChoice("high_speed");
-        } else if (this.maxSpeed == this.mediumSpeed) {
-            this.pChair.sendChoice("medium_speed");
-        } else if (this.maxSpeed == this.lowSpeed) {
-            this.pChair.sendChoice("low_speed");
+        if (pChair.isConnected) {
+            if (this.maxSpeed == this.highSpeed) {
+                this.pChair.sendChoice("high_speed");
+            } else if (this.maxSpeed == this.mediumSpeed) {
+                this.pChair.sendChoice("medium_speed");
+            } else if (this.maxSpeed == this.lowSpeed) {
+                this.pChair.sendChoice("low_speed");
+            }
         }
     }
+
+
 
     private onSensorData(result: any) {
         //console.log(result.data.x);
@@ -146,43 +167,43 @@ export class GokartViewModel extends Observable {
         const y = result.data.y;
         const z = result.data.z;
 
+
+
         const angleZ = Math.acos(z / 10) / Math.PI * 180;
         const angleXY = Math.atan(x / y) / Math.PI * 180;
 
+        this.averageXY += angleXY;
+        this.averageZ += angleZ;
+        this.count++;
 
-        if (!this.isCalibrated) {
-            this.aPush(angleXY, angleZ);
-        } else {
-            const deltaZ = this.zeroZ - angleZ;
-            const deltaXY = this.zeroXY - angleXY;
+        if (this.count == 5) {
+            const aXY = this.averageXY / this.count;
+            const aZ = this.averageZ / this.count;
+            this.averageXY = 0;
+            this.averageZ = 0;
+            this.count = 0;
 
-            const sendZ = Math.min(Math.max(deltaZ, -15.0), 15.0) / 15.0 * 127 + 128;
-            const sendXY = Math.min(Math.max(deltaXY, -20.0), 20.0) / 20.0 * 127 + 128;
+            if (!this.isCalibrated) {
+                this.aPush(aXY, aZ);
+            } else {
+                const deltaZ = this.zeroZ - aZ;
+                const deltaXY = this.zeroXY - aXY;
 
-            //console.log("delta: "+ sendXY +" "+sendZ);
-
-            if (pChair.isConnected) {
-                this.pChair.sendGoKart(sendXY, sendZ);
+                if (Math.abs(deltaZ) > 25.0 || Math.abs(deltaXY) > 30.0) {
+                    if (pChair.isConnected) {
+                        this.pChair.sendGoKart(128, 128);
+                        this.isCalibrated = false;
+                    }
+                } else {
+                    const sendZ = Math.min(Math.max(deltaZ, -15.0), 15.0) / 15.0 * 127 + 128;
+                    const sendXY = Math.min(Math.max(deltaXY, -15.0), 15.0) / 15.0 * 127 + 128;
+                    //console.log("delta: "+ sendXY +" "+sendZ);
+                    if (pChair.isConnected) {
+                        this.pChair.sendGoKart(sendXY, sendZ);
+                    }
+                }
             }
         }
-
-        //console.log("arrayXY: " + angleZ);
-        //console.log("arrayZ: "+this.arrayZ);
-
-        // if (this.isCalibrated) {
-        //     const deltaZ = this.zeroZ - angleZ;
-        //     const deltaXY = this.zeroXY - angleXY;
-
-
-        //     const sendZ = Math.min(Math.max(deltaZ, -15.0), 15.0) / 15.0 * 127 + 128;
-        //     const sendXY = Math.min(Math.max(deltaXY, -20.0), 20.0) / 20.0 * 127 + 128;
-
-        //     //console.log("delta: "+ sendXY +" "+sendZ);
-
-        //     if (pChair.isConnected) {
-        //         this.pChair.sendGoKart(sendXY, sendZ);
-        //     }
-        // }
     }
 
     private aPush(angleXY: number, angleZ: number) {
