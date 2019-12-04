@@ -2,6 +2,7 @@
 #include "I2C.hpp"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include <cmath>
 
 namespace Motor {
 
@@ -23,22 +24,22 @@ void caculateSpeedLimit(void) {
   float speedSet = 0.5;
   switch (BLE::speedSettings) {
   case BLE::Speed_setting::speed_low:
-    speedSet = 0.4;
+    speedSet = 0.4; // 40% of full speed(15 mph)
     rotationSpeedLimit = 3; // 3% X 15mph = 0.45mph
     rampUp = 0.75;
     rampDown = 1.3;
     break;
   case BLE::Speed_setting::speed_medium:
     speedSet = 0.7;
-    rotationSpeedLimit = 4;
+    rotationSpeedLimit = 4; // 2; // used to be 4. Reduced after Mehdi's request 2019.12.03
     rampUp = 1.0;
-    rampDown = 2.3;
+    rampDown = rampUp; // 1.8; // used to be 2.3
     break;
   case BLE::Speed_setting::speed_high:
     speedSet = 1.0;
-    rotationSpeedLimit = 4;
+    rotationSpeedLimit = 4; // 2; // used to be 4. Reduced after Mehdi's request 2019.12.03
     rampUp = 1.4;
-    rampDown = 3.3;
+    rampDown = rampUp; // 2.2; // used to be 3.3
     break;
   }
   forwardSpeedLimit = uint8_t(speedSet * Actuator::speedLimit * 100);
@@ -64,7 +65,7 @@ void caculateMotorSpeed(float x, float y, Actuator::system_modes mode) {
     if (y < 0) // driving backward
     {
       left = (y * forwardSpeedLimit * 0.4 / 100.0 +
-              x * rotationSpeedLimit / 100.0);
+              x * rotationSpeedLimit / 100.0);  // backward speed is 40% of farward speed
       right = (y * forwardSpeedLimit * 0.4 / 100.0 -
                x * rotationSpeedLimit / 100.0);
     } else // driving forward
@@ -147,46 +148,89 @@ float converterJoystickReadingPhone(uint8_t r) {
 }
 
 float caculateSpeedRamp(float currSpeed, float targetSpeed) {
+  auto result = currSpeed;
+  // Find signed diff between currSpeed and targetSpeed
+  auto diff = targetSpeed - currSpeed;
+  auto rampFactor = rampDown;
 
-  if (currSpeed * targetSpeed < 0) // different sign back to 0 first
-  {
-    if (currSpeed >= rampDown) {
-      currSpeed = currSpeed - rampDown;
-    } else {
-      if (currSpeed <= (-rampDown)) {
-        currSpeed = currSpeed + rampDown;
-      } else {
-        currSpeed = 0;
-      }
-    }
+  if (std::abs(diff) < rampFactor) {
+    // Set to target speed
+    result = targetSpeed;
   } else {
-    if (abs(currSpeed) > abs(targetSpeed)) // need ramp down to target speed
-    {
-      if (currSpeed >= rampDown) {
-        currSpeed = currSpeed - rampDown;
-      } else {
-        if (currSpeed <= (-rampDown)) {
-          currSpeed = currSpeed + rampDown;
-        } else {
-          currSpeed = targetSpeed;
-        }
-      }
-    } else // need ramp up to target
-    {
-      if (currSpeed >= (targetSpeed + rampUp)) {
-        currSpeed = currSpeed - rampUp;
-      } else {
-        if (currSpeed <= (targetSpeed - rampUp)) {
-          currSpeed = currSpeed + rampUp;
-        } else {
-          currSpeed = targetSpeed;
-        }
-      }
+    // We need to ramp
+    if (diff < 0.0f) {
+      result -= rampFactor;
+    } else {
+      result += rampFactor;
     }
   }
+  return result;
 
-  return currSpeed;
+  // Sanity checks
+  // Case 1: currSpeed = 2, targetSpeed = 5
+  //    diff = 3
+  //    rampDown = 2
+  //    result = currSpeed + rampFactor = 4
+  //
+  // Case 2: currSpeed = -2, targetSpeed = -5
+  //    diff = -3
+  //    rampDown = 2
+  //    result = currSpeed - rampFactor = -4
+  //
+  // Case 3: currSpeed = -5, targetSpeed = 5
+  //    diff = 5 -  (-5) = 10
+  //    rampDown = 2
+  //    result = currSpeed + rampFactor = -5 + 2 = -3
+  //
+  // Case 4: currSpeed = 5, targetSpeed = -5
+  //    diff = -5 - 5 = -10
+  //    rampDown = 2
+  //    result = currSpeed - rampFactor = 5 - 2 = 3
 }
+
+// float caculateSpeedRamp(float currSpeed, float targetSpeed) {
+
+//   if (currSpeed * targetSpeed < 0) // different sign back to 0 first
+//   {
+//     if (currSpeed >= rampDown) {
+//       currSpeed = currSpeed - rampDown;
+//     } else {
+//       if (currSpeed <= (-rampDown)) {
+//         currSpeed = currSpeed + rampDown;
+//       } else {
+//         currSpeed = 0;
+//       }
+//     }
+//   } else {
+//     if (abs(currSpeed) > abs(targetSpeed)) // need ramp down to target speed
+//     {
+//       if (currSpeed >= rampDown) {
+//         currSpeed = currSpeed - rampDown;
+//       } else {
+//         if (currSpeed <= (-rampDown)) {
+//           currSpeed = currSpeed + rampDown;
+//         } else {
+//           currSpeed = targetSpeed;
+//         }
+//       }
+//     } else // need ramp up to target
+//     {
+//       if (currSpeed >= (targetSpeed + rampUp)) {
+//         currSpeed = currSpeed - rampUp; 
+//       } else {
+//         if (currSpeed <= (targetSpeed - rampUp)) {
+//           currSpeed = currSpeed + rampUp;
+//         } else {
+//           currSpeed = targetSpeed;
+//         }
+//       }
+//     }
+//   }
+
+//   return currSpeed;
+// }
+
+
 void taskFunction(void *pvParameter) {
 
   while (1) {
