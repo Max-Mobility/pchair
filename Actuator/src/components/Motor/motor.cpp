@@ -22,8 +22,8 @@ float joyXReading = 0;
 float joyYReading = 0;
 
 void setRotationSpeedLimit(float currentJoyStickThrowY) {
-  uint8_t minRotationSpeedLimit = 1;
-  uint8_t maxRotationSpeedLimit = 10;
+  uint8_t minRotationSpeedLimit = 3;
+  uint8_t maxRotationSpeedLimit = 8;
   uint8_t rotationSpeedLimitRange = (maxRotationSpeedLimit - minRotationSpeedLimit);
 
   float factor = 1 - std::abs(currentJoyStickThrowY) / 100.0;
