@@ -111,6 +111,7 @@ void caculateMotorSpeed(float x, float y, Actuator::system_modes mode) {
 
     //			printf("joyx=%f,joyY=%f,left=%f,right=%f \n
     //",x,y,left,right);
+
     if (abs(left) > forwardSpeedLimit) {
       factor = forwardSpeedLimit / float(abs(left));
     }
@@ -244,9 +245,8 @@ float caculateSpeedRamp(float currSpeed, float targetSpeed) {
 // Takes joystick value and performs slerp
 // from our current/saved state value to new value of what was
 // read from the joystick
-// 
-// All values are in % range [-100, 100]
 Vector2f Slerp(Vector2f start, Vector2f end, float percent) {
+  // Assumptions: Start and end are points on or within a CIRCLE
 
   // Start already close to end, return end
   float distanceStartEnd = (end - start).Length();
@@ -254,27 +254,44 @@ Vector2f Slerp(Vector2f start, Vector2f end, float percent) {
     return end;
   }
 
+  // If start is outside the unit circle, clamp it to the unit circle
+  if (start.Length() > 100.0f) {
+    start = start.Normalized() * 100.0f;
+  }
+
+  // If end is outside the unit circle, clamp it to the unit circle
+  if (end.Length() > 100.0f) {
+    end = end.Normalized() * 100.0f;
+  }
+
   // Dot product - the cosine of the angle between 2 vectors.
+  // start.Normalized().Print();
+  // end.Normalized().Print();
+  // std::cout << "Normalized dot: " << (start.Normalized().Dot(end.Normalized())) << std::endl;
   float dot = (start / 100.0f).Dot(end / 100.0f);
+  // std::cout << "Dot " << dot << std::endl;
   // Clamp it to be in the range of Acos()
   // This may be unnecessary, but floating point
   // precision can be a fickle mistress.
   dot = std::max(std::min(dot, 1.0f), -1.0f);
+  // std::cout << "Clamped Dot " << dot << std::endl;
   // Acos(dot) returns the angle between start and end,
   // And multiplying that by percent returns the angle between
   // start and the final result.
   float theta = acos(dot) * percent;
+  // std::cout << "Theta: " << theta << std::endl;
   Vector2f RelativeVec = end - start * dot;
-
+  // std::cout << "RelativeVec: "; RelativeVec.Print();
+  // Orthonormal basis
   // The final result.
   auto result = ((start * cos(theta)) + (RelativeVec * sin(theta)));
+  // std::cout << "result: "; result.Print();
 
-  // Result is close enough to end, return end
   float distanceFromEnd = (end - result).Length();
   if (distanceFromEnd < 10) {
+    // std::cout << " - Distance less than 10 " << std::endl;
     return end;
   }
-
   return result;
 }
 

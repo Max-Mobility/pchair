@@ -55,6 +55,13 @@ namespace Motor {
             x /= length;
             y /= length;
         }
+
+        Vector2f Normalized() {
+            Vector2f result = *this;
+            result.Normalize();
+            return result;
+        }
+
     };
 
 #define joyStickXZeroMin 120
