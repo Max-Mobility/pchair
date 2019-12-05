@@ -134,8 +134,8 @@ void caculateMotorSpeed(float x, float y, Actuator::system_modes mode) {
     // the target speeds we send to calculateSpeedRamp 
     // are no greater than forward speed limit
 
-    Lmotor_curr = left; // caculateSpeedRamp(Lmotor_curr, left);
-    Rmotor_curr = right; // caculateSpeedRamp(Rmotor_curr, right);
+    Lmotor_curr = caculateSpeedRamp(Lmotor_curr, left);
+    Rmotor_curr = caculateSpeedRamp(Rmotor_curr, right);
 
     SerialTask::leftSpeed[1] = char(left);
     SerialTask::rightSpeed[1] = char(right);
@@ -275,7 +275,7 @@ Vector2f Slerp(Vector2f start, Vector2f end, float percent)
 
 void taskFunction(void *pvParameter) {
   float joyXReading = 0, joyYReading = 0;
-  Vector2f interp(0.0f, 0.0f);
+  // Vector2f interp(0.0f, 0.0f);
 
   while (true) {
     if (Actuator::systemMode == Actuator::system_modes::PhoneControlMode) {
@@ -287,9 +287,9 @@ void taskFunction(void *pvParameter) {
       joyYReading = converterJoystickReadingY(I2C::joystickY);
     }
 
-    interp = Slerp(interp, Vector2f{joyXReading, joyYReading}, 0.05);
+    // interp = Slerp(interp, Vector2f{joyXReading, joyYReading}, 0.05);
 
-    caculateMotorSpeed(interp.x, interp.y, Actuator::systemMode);
+    caculateMotorSpeed(joyXReading, joyYReading, Actuator::systemMode);
     vTaskDelay((50 * (1)) / portTICK_RATE_MS);
   }
 }
