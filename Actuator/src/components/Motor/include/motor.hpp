@@ -41,6 +41,10 @@ namespace Motor {
             return Vector2f(x / scalar, y / scalar);
         }
 
+        bool operator==(const Vector2f& rhs) {
+        return (x == rhs.x && y == rhs.y);
+        }
+
         float Length() {
             return sqrt(x * x + y * y);
         }
@@ -51,7 +55,6 @@ namespace Motor {
             x /= length;
             y /= length;
         }
-
     };
 
 #define joyStickXZeroMin 120

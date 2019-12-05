@@ -134,8 +134,8 @@ void caculateMotorSpeed(float x, float y, Actuator::system_modes mode) {
     // the target speeds we send to calculateSpeedRamp 
     // are no greater than forward speed limit
 
-    Lmotor_curr = caculateSpeedRamp(Lmotor_curr, left);
-    Rmotor_curr = caculateSpeedRamp(Rmotor_curr, right);
+    Lmotor_curr = left; // caculateSpeedRamp(Lmotor_curr, left);
+    Rmotor_curr = right; // caculateSpeedRamp(Rmotor_curr, right);
 
     SerialTask::leftSpeed[1] = char(left);
     SerialTask::rightSpeed[1] = char(right);
@@ -246,36 +246,41 @@ float caculateSpeedRamp(float currSpeed, float targetSpeed) {
 // read from the joystick
 // 
 // All values are in % range [-100, 100]
-Vector2f Slerp(Vector2f start, Vector2f end, float percent)
-{
-     // Dot product - the cosine of the angle between 2 vectors.
-     float dot = (start / 100.0f).Dot(end / 100.0f);
-     // Clamp it to be in the range of Acos()
-     // This may be unnecessary, but floating point
-     // precision can be a fickle mistress.
-     dot = std::max(std::min(dot, 1.0f), -1.0f); 
-     // Acos(dot) returns the angle between start and end,
-     // And multiplying that by percent returns the angle between
-     // start and the final result.
-     float theta = acos(dot) * percent;
-     Vector2f RelativeVec = end - start * dot;
-     // RelativeVec.Normalize();
-     // Orthonormal basis
-     // The final result.
-     return ((start * cos(theta)) + (RelativeVec * sin(theta))) * 100.0f;
+Vector2f Slerp(Vector2f start, Vector2f end, float percent) {
 
-    // Case 1: {0.5, 0.5} to {1.0, 0.0}
-    //   dot = 0.5
-    //   acos(dot) = 1.047
-    //   percent = 50%
-    //   theta = 0.523
-    //   RelativeVec = {1.0, 0.0} - {0.25, 0.25} = {0.75, -0.25}
-    //   Result = {0.433, 0.433} + {0.375, -0.125} = ~ { 0.8, 0.31 }
+  // Start already close to end, return end
+  float distanceStartEnd = (end - start).Length();
+  if (distanceStartEnd < 10) {
+    return end;
+  }
+
+  // Dot product - the cosine of the angle between 2 vectors.
+  float dot = (start / 100.0f).Dot(end / 100.0f);
+  // Clamp it to be in the range of Acos()
+  // This may be unnecessary, but floating point
+  // precision can be a fickle mistress.
+  dot = std::max(std::min(dot, 1.0f), -1.0f);
+  // Acos(dot) returns the angle between start and end,
+  // And multiplying that by percent returns the angle between
+  // start and the final result.
+  float theta = acos(dot) * percent;
+  Vector2f RelativeVec = end - start * dot;
+
+  // The final result.
+  auto result = ((start * cos(theta)) + (RelativeVec * sin(theta)));
+
+  // Result is close enough to end, return end
+  float distanceFromEnd = (end - result).Length();
+  if (distanceFromEnd < 10) {
+    return end;
+  }
+
+  return result;
 }
 
 void taskFunction(void *pvParameter) {
   float joyXReading = 0, joyYReading = 0;
-  // Vector2f interp(0.0f, 0.0f);
+  Vector2f interp(0.0f, 0.0f);
 
   while (true) {
     if (Actuator::systemMode == Actuator::system_modes::PhoneControlMode) {
@@ -287,9 +292,9 @@ void taskFunction(void *pvParameter) {
       joyYReading = converterJoystickReadingY(I2C::joystickY);
     }
 
-    // interp = Slerp(interp, Vector2f{joyXReading, joyYReading}, 0.05);
+    interp = Slerp(interp, Vector2f{joyXReading, joyYReading}, 0.1);
 
-    caculateMotorSpeed(joyXReading, joyYReading, Actuator::systemMode);
+    caculateMotorSpeed(interp.x, interp.y, Actuator::systemMode);
     vTaskDelay((50 * (1)) / portTICK_RATE_MS);
   }
 }
