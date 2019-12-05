@@ -42,9 +42,13 @@ void caculateSpeedLimit(void) {
     rampDown = rampUp; // 2.2; // used to be 3.3
     break;
   }
+
+  // Actuator::speedLimit is a factor b/w (0.0, 1.0] that reduces the 
+  // forwardSpeedLimit depending on actuator position, e.g., seating, standing etc.
   forwardSpeedLimit = uint8_t(speedSet * Actuator::speedLimit * 100);
   // rotationSpeedLimit = uint8_t(speedSet*Actuator::speedLimit*30);
 }
+
 void caculateMotorSpeed(float x, float y, Actuator::system_modes mode) {
 
   float left = 0;
@@ -53,8 +57,16 @@ void caculateMotorSpeed(float x, float y, Actuator::system_modes mode) {
   if ((mode != Actuator::system_modes::DriveMode) &&
       (mode != Actuator::system_modes::PhoneControlMode)) {
     //			printf("joystick error!\n");
-    Lmotor_curr = caculateSpeedRamp(Lmotor_curr, 0);
-    Rmotor_curr = caculateSpeedRamp(Rmotor_curr, 0);
+    // Lmotor_curr = caculateSpeedRamp(Lmotor_curr, 0);
+    // Rmotor_curr = caculateSpeedRamp(Rmotor_curr, 0);
+    // Will/Pranav: Commented out the above lines because:
+    // When the steering wheel goes out of range, we want
+    // the chair to come to a full stop quickly
+    // So, we're setting the left and right speeds to 0
+    // as seen below:
+
+    Lmotor_curr = 0.0f;
+    Rmotor_curr = 0.0f;
 
     SerialTask::leftSpeed[1] = char(0);
     SerialTask::rightSpeed[1] = char(0);
@@ -74,6 +86,9 @@ void caculateMotorSpeed(float x, float y, Actuator::system_modes mode) {
       right = (y * forwardSpeedLimit / 100.0 - x * rotationSpeedLimit / 100.0);
     }
 
+    // At this point, left and right represent actual motor speed
+    // in percentages that will be sent as motor control commands to the chair
+
     //			printf("joyx=%f,joyY=%f,left=%f,right=%f \n
     //",x,y,left,right);
     if (abs(left) > forwardSpeedLimit) {
@@ -82,8 +97,23 @@ void caculateMotorSpeed(float x, float y, Actuator::system_modes mode) {
     if (abs(right) > forwardSpeedLimit) {
       factor = forwardSpeedLimit / float(abs(right));
     }
+
+    // Let's say forwardSpeedLimit = 15%
+    // left = 17% = 0.17
+    // right = 13% = 0.13
+    // Then, after the following lines, 
+    // newLeft = 0.17 * 0.15 / 0.17 = 0.15
+    // newRight = -1 * 0.13 * 0.15 / 0.17 = -0.11
+
     left = left * factor;
     right = -1 * right * factor; // motor mount reversed.
+
+    // newLeft = 0.15 is the targetSpeed
+    // newRight = -0.11 is the targetSpeed
+    // By the time we get here, 
+    // the target speeds we send to calculateSpeedRamp 
+    // are no greater than forward speed limit
+
     Lmotor_curr = caculateSpeedRamp(Lmotor_curr, left);
     Rmotor_curr = caculateSpeedRamp(Rmotor_curr, right);
 
@@ -97,6 +127,8 @@ void caculateMotorSpeed(float x, float y, Actuator::system_modes mode) {
 }
 
 float converterJoystickReadingX(uint8_t r) {
+  // [27, 120 127 140, 225]
+  // Result is b/w -100 and 100
   float x = 0;
   if (r > joyStickXMax) {
     r = joyStickXMax;
@@ -116,7 +148,8 @@ float converterJoystickReadingX(uint8_t r) {
 }
 
 float converterJoystickReadingY(uint8_t r) {
-  float x = 0;
+  // Result is b/w -100 and 100
+  float y = 0;
   if (r > joyStickYMax) {
     r = joyStickYMax;
   }
@@ -124,14 +157,14 @@ float converterJoystickReadingY(uint8_t r) {
     r = joyStickYMin;
   }
   if (r > joyStickYZeroMax) {
-    x = ((r - joyStickYZeroMax) * 100.0 / (joyStickYMax - joyStickYZeroMax));
+    y = ((r - joyStickYZeroMax) * 100.0 / (joyStickYMax - joyStickYZeroMax));
   } else {
     if (r < joyStickYZeroMin) {
-      x = ((r - joyStickYZeroMin) * 100.0 / (joyStickYZeroMin - joyStickYMin));
+      y = ((r - joyStickYZeroMin) * 100.0 / (joyStickYZeroMin - joyStickYMin));
     } else
-      x = 0;
+      y = 0;
   }
-  return x;
+  return y;
 }
 
 float converterJoystickReadingPhone(uint8_t r) {
@@ -187,49 +220,6 @@ float caculateSpeedRamp(float currSpeed, float targetSpeed) {
   //    rampDown = 2
   //    result = currSpeed - rampFactor = 5 - 2 = 3
 }
-
-// float caculateSpeedRamp(float currSpeed, float targetSpeed) {
-
-//   if (currSpeed * targetSpeed < 0) // different sign back to 0 first
-//   {
-//     if (currSpeed >= rampDown) {
-//       currSpeed = currSpeed - rampDown;
-//     } else {
-//       if (currSpeed <= (-rampDown)) {
-//         currSpeed = currSpeed + rampDown;
-//       } else {
-//         currSpeed = 0;
-//       }
-//     }
-//   } else {
-//     if (abs(currSpeed) > abs(targetSpeed)) // need ramp down to target speed
-//     {
-//       if (currSpeed >= rampDown) {
-//         currSpeed = currSpeed - rampDown;
-//       } else {
-//         if (currSpeed <= (-rampDown)) {
-//           currSpeed = currSpeed + rampDown;
-//         } else {
-//           currSpeed = targetSpeed;
-//         }
-//       }
-//     } else // need ramp up to target
-//     {
-//       if (currSpeed >= (targetSpeed + rampUp)) {
-//         currSpeed = currSpeed - rampUp; 
-//       } else {
-//         if (currSpeed <= (targetSpeed - rampUp)) {
-//           currSpeed = currSpeed + rampUp;
-//         } else {
-//           currSpeed = targetSpeed;
-//         }
-//       }
-//     }
-//   }
-
-//   return currSpeed;
-// }
-
 
 void taskFunction(void *pvParameter) {
 
