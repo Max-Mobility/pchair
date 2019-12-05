@@ -20,24 +20,45 @@ uint8_t phone_joystickX = 128;
 uint8_t phone_joystickY = 128;
 float joyXReading = 0;
 float joyYReading = 0;
+
+void setRotationSpeedLimit(float currentJoyStickThrowY) {
+  uint8_t minRotationSpeedLimit = 1;
+  uint8_t maxRotationSpeedLimit = 10;
+  uint8_t rotationSpeedLimitRange = (maxRotationSpeedLimit - minRotationSpeedLimit);
+
+  float factor = 1 - std::abs(currentJoyStickThrowY) / 100.0;
+  rotationSpeedLimit = uint8_t(factor * rotationSpeedLimitRange + minRotationSpeedLimit);
+
+  // Case 1: 75% of Y-direction joystick throw
+  //   currentJoyStickThrowY = -75
+  //   rotationSpeedLimit = (1 - 75 / 100) * 9 + 1 = 3.25
+  // Case 2: 
+  //   currentJoyStickThrowY = 0
+  //   rotationSpeedLimit = (1 - 0) * 9 + 1 = 10 
+  // Case 3:
+  //   currentJoyStickThrow = 50
+  //   rotationSpeedLimit = (1 - 50 / 100) * 9 + 1 = 4.5 + 1 = 5.5
+}
+
 void caculateSpeedLimit(void) {
   float speedSet = 0.5;
+
   switch (BLE::speedSettings) {
   case BLE::Speed_setting::speed_low:
     speedSet = 0.4; // 40% of full speed(15 mph)
-    rotationSpeedLimit = 3; // 3% X 15mph = 0.45mph
+    // rotationSpeedLimit = 3; // 3% X 15mph = 0.45mph
     rampUp = 0.75;
     rampDown = 1.3;
     break;
   case BLE::Speed_setting::speed_medium:
     speedSet = 0.7;
-    rotationSpeedLimit = 4; // 2; // used to be 4. Reduced after Mehdi's request 2019.12.03
+    // rotationSpeedLimit = 4; // 2; // used to be 4. Reduced after Mehdi's request 2019.12.03
     rampUp = 1.0;
     rampDown = rampUp; // 1.8; // used to be 2.3
     break;
   case BLE::Speed_setting::speed_high:
     speedSet = 1.0;
-    rotationSpeedLimit = 4; // 2; // used to be 4. Reduced after Mehdi's request 2019.12.03
+    // rotationSpeedLimit = 4; // 2; // used to be 4. Reduced after Mehdi's request 2019.12.03
     rampUp = 1.4;
     rampDown = rampUp; // 2.2; // used to be 3.3
     break;
@@ -74,6 +95,7 @@ void caculateMotorSpeed(float x, float y, Actuator::system_modes mode) {
     SerialTask::rightSpeed[0] = char(Rmotor_curr);
   } else {
     caculateSpeedLimit();
+    setRotationSpeedLimit(y);
     if (y < 0) // driving backward
     {
       left = (y * forwardSpeedLimit * 0.4 / 100.0 +
