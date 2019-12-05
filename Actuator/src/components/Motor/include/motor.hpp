@@ -18,7 +18,7 @@ namespace Motor {
         float x{0.0};
         float y{0.0};
 
-        Vector2f(float x, float y) : x(x), y(y) { }
+        explicit Vector2f(float x, float y) : x(x), y(y) { }
         
         float Dot(const Vector2f& rhs) const {
             return x * rhs.x + y * rhs.y;

@@ -275,7 +275,7 @@ Vector2f Slerp(Vector2f start, Vector2f end, float percent)
 
 void taskFunction(void *pvParameter) {
   float joyXReading = 0, joyYReading = 0;
-  Vector2f interp;
+  Vector2f interp(0.0f, 0.0f);
 
   while (true) {
     if (Actuator::systemMode == Actuator::system_modes::PhoneControlMode) {
