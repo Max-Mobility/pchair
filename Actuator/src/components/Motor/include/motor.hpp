@@ -22,11 +22,11 @@ namespace Motor {
             return x * rhs.x + y * rhs.y;
         }
 
-        Vector2f operator-(const Vector2d& rhs) {
+        Vector2f operator-(const Vector2f& rhs) {
             return Vector2f{ x - rhs.x, y - rhs.y };
         }
 
-        Vector2f operator+(const Vector2d& rhs) { 
+        Vector2f operator+(const Vector2f& rhs) { 
             return Vector2f{ x + rhs.x, y + rhs.y };
         }
 
