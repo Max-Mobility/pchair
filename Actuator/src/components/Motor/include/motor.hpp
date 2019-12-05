@@ -48,7 +48,8 @@ namespace Motor {
         void Normalize() {
             auto length = Length();
             if (length == 0.0) return;
-            return Vector2f(x / length, y / length);
+            x /= length;
+            y /= length;
         }
 
     };
