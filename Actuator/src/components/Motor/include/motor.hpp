@@ -17,26 +17,28 @@ namespace Motor {
     struct Vector2f {
         float x{0.0};
         float y{0.0};
+
+        Vector2f(float x, float y) : x(x), y(y) { }
         
         float Dot(const Vector2f& rhs) const {
             return x * rhs.x + y * rhs.y;
         }
 
         Vector2f operator-(const Vector2f& rhs) {
-            return Vector2f{ x - rhs.x, y - rhs.y };
+            return Vector2f(x - rhs.x, y - rhs.y);
         }
 
         Vector2f operator+(const Vector2f& rhs) { 
-            return Vector2f{ x + rhs.x, y + rhs.y };
+            return Vector2f(x + rhs.x, y + rhs.y);
         }
 
         Vector2f operator*(float scalar) { 
-            return Vector2f { x * scalar, y * scalar };
+            return Vector2f(x * scalar, y * scalar);
         }
 
         Vector2f operator/(float scalar) { 
             if (scalar == 0.0) return *this;
-            return Vector2f {x / scalar, y / scalar};
+            return Vector2f(x / scalar, y / scalar);
         }
 
         float Length() {
@@ -45,8 +47,8 @@ namespace Motor {
 
         void Normalize() {
             auto length = Length();
-            if (length == 0.0) return *this;
-            return Vector2f { x / length, y / length };
+            if (length == 0.0) return;
+            return Vector2f(x / length, y / length);
         }
 
     };
