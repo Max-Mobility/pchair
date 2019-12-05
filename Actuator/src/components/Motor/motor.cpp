@@ -292,7 +292,7 @@ void taskFunction(void *pvParameter) {
       joyYReading = converterJoystickReadingY(I2C::joystickY);
     }
 
-    interp = Slerp(interp, Vector2f{joyXReading, joyYReading}, 0.1);
+    interp = Slerp(interp, Vector2f{joyXReading, joyYReading}, 0.4);
 
     caculateMotorSpeed(interp.x, interp.y, Actuator::systemMode);
     vTaskDelay((50 * (1)) / portTICK_RATE_MS);
