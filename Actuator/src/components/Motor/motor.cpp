@@ -18,8 +18,6 @@ uint8_t forwardSpeedLimit = 70;
 uint8_t rotationSpeedLimit = 17;
 uint8_t phone_joystickX = 128;
 uint8_t phone_joystickY = 128;
-float joyXReading = 0;
-float joyYReading = 0;
 
 void setRotationSpeedLimit(float currentJoyStickThrowY) {
   uint8_t minRotationSpeedLimit = 3;
@@ -136,8 +134,8 @@ void caculateMotorSpeed(float x, float y, Actuator::system_modes mode) {
     // the target speeds we send to calculateSpeedRamp 
     // are no greater than forward speed limit
 
-    Lmotor_curr = caculateSpeedRamp(Lmotor_curr, left);
-    Rmotor_curr = caculateSpeedRamp(Rmotor_curr, right);
+    Lmotor_curr = left; // caculateSpeedRamp(Lmotor_curr, left);
+    Rmotor_curr = right; // caculateSpeedRamp(Rmotor_curr, right);
 
     SerialTask::leftSpeed[1] = char(left);
     SerialTask::rightSpeed[1] = char(right);
@@ -243,9 +241,43 @@ float caculateSpeedRamp(float currSpeed, float targetSpeed) {
   //    result = currSpeed - rampFactor = 5 - 2 = 3
 }
 
-void taskFunction(void *pvParameter) {
+// Takes joystick value and performs slerp
+// from our current/saved state value to new value of what was
+// read from the joystick
+// 
+// All values are in % range [-100, 100]
+Vector2f Slerp(Vector2f start, Vector2f end, float percent)
+{
+     // Dot product - the cosine of the angle between 2 vectors.
+     float dot = (start / 100.0f).Dot(end / 100.0f);
+     // Clamp it to be in the range of Acos()
+     // This may be unnecessary, but floating point
+     // precision can be a fickle mistress.
+     dot = std::max(std::min(dot, 1.0f), -1.0f); 
+     // Acos(dot) returns the angle between start and end,
+     // And multiplying that by percent returns the angle between
+     // start and the final result.
+     float theta = acos(dot) * percent;
+     Vector2f RelativeVec = end - start * dot;
+     // RelativeVec.Normalize();
+     // Orthonormal basis
+     // The final result.
+     return ((start * cos(theta)) + (RelativeVec * sin(theta))) * 100.0f;
 
-  while (1) {
+    // Case 1: {0.5, 0.5} to {1.0, 0.0}
+    //   dot = 0.5
+    //   acos(dot) = 1.047
+    //   percent = 50%
+    //   theta = 0.523
+    //   RelativeVec = {1.0, 0.0} - {0.25, 0.25} = {0.75, -0.25}
+    //   Result = {0.433, 0.433} + {0.375, -0.125} = ~ { 0.8, 0.31 }
+}
+
+void taskFunction(void *pvParameter) {
+  float joyXReading = 0, joyYReading = 0;
+  Vector2f interp;
+
+  while (true) {
     if (Actuator::systemMode == Actuator::system_modes::PhoneControlMode) {
       joyXReading = converterJoystickReadingPhone(phone_joystickX);
       joyYReading = converterJoystickReadingPhone(phone_joystickY);
@@ -254,7 +286,10 @@ void taskFunction(void *pvParameter) {
       joyXReading = converterJoystickReadingX(I2C::joystickX);
       joyYReading = converterJoystickReadingY(I2C::joystickY);
     }
-    caculateMotorSpeed(joyXReading, joyYReading, Actuator::systemMode);
+
+    interp = Slerp(interp, Vector2f{joyXReading, joyYReading}, 0.05);
+
+    caculateMotorSpeed(interp.x, interp.y, Actuator::systemMode);
     vTaskDelay((50 * (1)) / portTICK_RATE_MS);
   }
 }

@@ -10,9 +10,47 @@
 #include "SerialTask.hpp"
 #include "driver/gpio.h" // needed for printf
 #include "gatts.hpp"
-
+#include <cmath>
 
 namespace Motor {
+
+    struct Vector2f {
+        float x{0.0};
+        float y{0.0};
+        
+        float Dot(const Vector2f& rhs) const {
+            return x * rhs.x + y * rhs.y;
+        }
+
+        Vector2f operator-(const Vector2d& rhs) {
+            return Vector2f{ x - rhs.x, y - rhs.y };
+        }
+
+        Vector2f operator+(const Vector2d& rhs) { 
+            return Vector2f{ x + rhs.x, y + rhs.y };
+        }
+
+        Vector2f operator*(float scalar) { 
+            return Vector2f { x * scalar, y * scalar };
+        }
+
+        Vector2f operator/(float scalar) { 
+            if (scalar == 0.0) return *this;
+            return Vector2f {x / scalar, y / scalar};
+        }
+
+        float Length() {
+            return sqrt(x * x + y * y);
+        }
+
+        void Normalize() {
+            auto length = Length();
+            if (length == 0.0) return *this;
+            return Vector2f { x / length, y / length };
+        }
+
+    };
+
 #define joyStickXZeroMin 120
 #define joyStickXZeroMax 140
 #define joyStickXMin 27
