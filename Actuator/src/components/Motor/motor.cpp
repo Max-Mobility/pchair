@@ -19,12 +19,12 @@ uint8_t rotationSpeedLimit = 17;
 uint8_t phone_joystickX = 128;
 uint8_t phone_joystickY = 128;
 
-bool Accelerating(const Vector2D<float>& start, const Vector2D<float>& end) {
-  return (end.Length() > start.Length());
+bool isAccelerating(const Vector2D<float>& start, const Vector2D<float>& end) {
+  return (end.getLength() > start.getLength());
 }
 
-bool Decelerating(const Vector2D<float>& start, const Vector2D<float>& end) {
-  return (end.Length() < start.Length());
+bool isDecelerating(const Vector2D<float>& start, const Vector2D<float>& end) {
+  return (end.getLength() < start.getLength());
 }
 
 void setRotationSpeedLimit(float currentJoyStickThrowY) {
@@ -203,18 +203,18 @@ Vector2D<float> Slerp(Vector2D<float> start, Vector2D<float> end, float percent)
   // Assumptions: Start and end are points on or within a CIRCLE
 
   // Start already close to end, return end
-  float distanceStartEnd = (end - start).Length();
+  float distanceStartEnd = (end - start).getLength();
   if (distanceStartEnd < 10) {
     return end;
   }
 
   // If start is outside the unit circle, clamp it to the unit circle
-  if (start.Length() > 100.0f) {
+  if (start.getLength() > 100.0f) {
     start = start.Normalized() * 100.0f;
   }
 
   // If end is outside the unit circle, clamp it to the unit circle
-  if (end.Length() > 100.0f) {
+  if (end.getLength() > 100.0f) {
     end = end.Normalized() * 100.0f;
   }
 
@@ -241,7 +241,7 @@ Vector2D<float> Slerp(Vector2D<float> start, Vector2D<float> end, float percent)
   auto result = ((start * cos(theta)) + (RelativeVec * sin(theta)));
   // std::cout << "result: "; result.Print();
 
-  float distanceFromEnd = (end - result).Length();
+  float distanceFromEnd = (end - result).getLength();
   if (distanceFromEnd < 10) {
     // std::cout << " - Distance less than 10 " << std::endl;
     return end;
@@ -257,16 +257,16 @@ Vector2D<float> Lerp(Vector2D<float> start, Vector2D<float> end,
   
   float magnitude;
 
-  if (Accelerating(start, end))
+  if (isAccelerating(start, end))
     magnitude = accelerationMagnitude;
-  else if (Decelerating(start, end))
+  else if (isDecelerating(start, end))
     magnitude = decelerationMagnitude;
   else
     magnitude = 0.0f;
 
   auto interp = diffNorm * magnitude;
   auto result = start + interp;
-  if (interp.Length() > diff.Length()) {
+  if (interp.getLength() > diff.getLength()) {
     result = end;
   }
   return result;
@@ -300,11 +300,11 @@ void taskFunction(void *pvParameter) {
   while (true) {
     if (Actuator::systemMode == Actuator::system_modes::PhoneControlMode) {
       // Using gokart wheel configuration
-      gokartWheel.ConvertRawInput(phone_joystickX, phone_joystickY);
+      gokartWheel.convertRawInput(phone_joystickX, phone_joystickY);
       interp = Lerp(interp, gokartWheel.Position(), 4, 10);
     } else {
       // Using custom or nunchuck joystick configuration
-      custom.ConvertRawInput(I2C::joystickX, I2C::joystickY);
+      custom.convertRawInput(I2C::joystickX, I2C::joystickY);
       interp = Lerp(interp, custom.Position(), 10, 15);
     }
 

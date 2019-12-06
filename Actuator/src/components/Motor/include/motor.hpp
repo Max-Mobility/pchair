@@ -53,7 +53,7 @@ namespace Motor {
         return (x == rhs.x && y == rhs.y);
         }
 
-        T Length() const {
+        T getLength() const {
             return sqrt(x * x + y * y);
         }
 
@@ -122,11 +122,11 @@ namespace Motor {
             max_position(max_position), 
             zero_deadband(zero_deadband) {}
 
-        void ConvertRawInput(uint8_t x, uint8_t y) {
+        void convertRawInput(uint8_t x, uint8_t y) {
             position = Vector2D<float>(convert<0>(x), convert<1>(y));
         }
 
-        Vector2D<float> Position() const {
+        Vector2D<float> getPosition() const {
             return position;
         }
 
