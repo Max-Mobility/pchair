@@ -301,11 +301,11 @@ void taskFunction(void *pvParameter) {
     if (Actuator::systemMode == Actuator::system_modes::PhoneControlMode) {
       // Using gokart wheel configuration
       gokartWheel.convertRawInput(phone_joystickX, phone_joystickY);
-      interp = Lerp(interp, gokartWheel.Position(), 4, 10);
+      interp = Lerp(interp, gokartWheel.getPosition(), 4, 10);
     } else {
       // Using custom or nunchuck joystick configuration
       custom.convertRawInput(I2C::joystickX, I2C::joystickY);
-      interp = Lerp(interp, custom.Position(), 10, 15);
+      interp = Lerp(interp, custom.getPosition(), 10, 15);
     }
 
     caculateMotorSpeed(interp.x, interp.y, Actuator::systemMode);
