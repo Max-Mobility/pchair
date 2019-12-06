@@ -79,6 +79,7 @@ class Joystick {
     Vector2D<uint8_t> zero_deadband; // deadband around zero
 
     template <size_t index>
+    typename std::enable_if<(index < 2), float>::type // compile-time checking to make sure index is in range [0 ,1]
     float convert(uint8_t raw_value) {
         float result = 0.0f;
         
