@@ -300,7 +300,7 @@ void taskFunction(void *pvParameter) {
   while (true) {
     if (Actuator::systemMode == Actuator::system_modes::PhoneControlMode) {
       // Using gokart wheel configuration
-      gokartWheel.convertRawInput(phone_joystickX, phone_joystickY);
+      gokartWheel.ConvertRawInput(phone_joystickX, phone_joystickY);
       interp = Lerp(interp, gokartWheel.Position(), 4, 10);
     } else {
       // Using custom or nunchuck joystick configuration
