@@ -126,10 +126,6 @@ namespace Motor {
             position = Vector2D<float>(convert<0>(x), convert<1>(y));
         }
 
-        void printPosition() {
-            std::cout << "(" << position.x << " " << position.y << ")" << std::endl;
-        }
-
         Vector2D<float> Position() const {
             return position;
         }
