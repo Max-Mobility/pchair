@@ -241,6 +241,17 @@ Vector2D<float> Slerp(Vector2D<float> start, Vector2D<float> end, float percent)
   return result;
 }
 
+Vector2D<float> Lerp(Vector2D<float> start, Vector2D<float> end, float magnitude) {
+  auto diff = (end - start);
+  auto diffNorm = diff.Normalized();
+  auto interp = diffNorm * magnitude;
+  auto result = start + interp;
+  if (interp.Length() > diff.Length()) {
+    result = end;
+  }
+  return result;
+}
+
 void taskFunction(void *pvParameter) {
 
   Joystick custom(
@@ -268,12 +279,15 @@ void taskFunction(void *pvParameter) {
 
   while (true) {
     if (Actuator::systemMode == Actuator::system_modes::PhoneControlMode) {
+      // Using gokart wheel configuration
       gokartWheel.convertRawInput(phone_joystickX, phone_joystickY);
-      interp = Slerp(interp, gokartWheel.Position(), 0.4);
+      // interp = Slerp(interp, gokartWheel.Position(), 0.4);
+      interp = Lerp(interp, gokartWheel.Position(), 4);
     } else {
-      // Change custom to nunchuck if joystick changes
+      // Using custom or nunchuck joystick configuration
       custom.ConvertRawInput(I2C::joystickX, I2C::joystickY);
-      interp = Slerp(interp, custom.Position(), 0.4);
+      // interp = Slerp(interp, custom.Position(), 0.4);
+      interp = Lerp(interp, custom.Position(), 10);
     }
 
     caculateMotorSpeed(interp.x, interp.y, Actuator::systemMode);
