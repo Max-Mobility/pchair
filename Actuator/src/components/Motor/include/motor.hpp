@@ -58,7 +58,7 @@ namespace Motor {
         }
 
         void Normalize() {
-            auto length = Length();
+            auto length = getLength();
             if (length == T()) return;
             x /= length;
             y /= length;
