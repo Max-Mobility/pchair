@@ -122,12 +122,8 @@ namespace Motor {
             max_position(max_position), 
             zero_deadband(zero_deadband) {}
 
-        void convertRawInput(uint8_t x, uint8_t y) {
+        void ConvertRawInput(uint8_t x, uint8_t y) {
             position = Vector2D<float>(convert<0>(x), convert<1>(y));
-        }
-
-        void printPosition() {
-            std::cout << "(" << position.x << " " << position.y << ")" << std::endl;
         }
 
         Vector2D<float> Position() const {

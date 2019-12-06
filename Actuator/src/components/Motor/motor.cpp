@@ -272,7 +272,7 @@ void taskFunction(void *pvParameter) {
       interp = Slerp(interp, gokartWheel.Position(), 0.4);
     } else {
       // Change custom to nunchuck if joystick changes
-      custom.convertRawInput(I2C::joystickX, I2C::joystickY);
+      custom.ConvertRawInput(I2C::joystickX, I2C::joystickY);
       interp = Slerp(interp, custom.Position(), 0.4);
     }
 
