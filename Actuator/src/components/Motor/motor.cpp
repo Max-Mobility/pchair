@@ -73,7 +73,6 @@ void caculateSpeedLimit(void) {
   // Actuator::speedLimit is a factor b/w (0.0, 1.0] that reduces the 
   // forwardSpeedLimit depending on actuator position, e.g., seating, standing etc.
   forwardSpeedLimit = uint8_t(speedSet * Actuator::speedLimit * 100);
-  // rotationSpeedLimit = uint8_t(speedSet*Actuator::speedLimit*30);
 }
 
 void caculateMotorSpeed(float x, float y, Actuator::system_modes mode) {
@@ -117,9 +116,6 @@ void caculateMotorSpeed(float x, float y, Actuator::system_modes mode) {
     // At this point, left and right represent actual motor speed
     // in percentages that will be sent as motor control commands to the chair
 
-    //			printf("joyx=%f,joyY=%f,left=%f,right=%f \n
-    //",x,y,left,right);
-
     if (abs(left) > forwardSpeedLimit) {
       factor = forwardSpeedLimit / float(abs(left));
     }
@@ -150,8 +146,6 @@ void caculateMotorSpeed(float x, float y, Actuator::system_modes mode) {
     SerialTask::rightSpeed[1] = char(right);
     SerialTask::leftSpeed[0] = char(Lmotor_curr);
     SerialTask::rightSpeed[0] = char(Rmotor_curr);
-    //			printf("left=%f,right=%f,joyx=%f,joyY=%f\n",Lmotor_curr,Rmotor_curr,x,y
-    //);
   }
 }
 
@@ -219,31 +213,22 @@ Vector2D<float> Slerp(Vector2D<float> start, Vector2D<float> end, float percent)
   }
 
   // Dot product - the cosine of the angle between 2 vectors.
-  // start.Normalized().Print();
-  // end.Normalized().Print();
-  // std::cout << "Normalized dot: " << (start.Normalized().Dot(end.Normalized())) << std::endl;
   float dot = (start / 100.0f).Dot(end / 100.0f);
-  // std::cout << "Dot " << dot << std::endl;
   // Clamp it to be in the range of Acos()
   // This may be unnecessary, but floating point
   // precision can be a fickle mistress.
   dot = std::max(std::min(dot, 1.0f), -1.0f);
-  // std::cout << "Clamped Dot " << dot << std::endl;
   // Acos(dot) returns the angle between start and end,
   // And multiplying that by percent returns the angle between
   // start and the final result.
   float theta = acos(dot) * percent;
-  // std::cout << "Theta: " << theta << std::endl;
   Vector2D<float> RelativeVec = end - start * dot;
-  // std::cout << "RelativeVec: "; RelativeVec.Print();
   // Orthonormal basis
   // The final result.
   auto result = ((start * cos(theta)) + (RelativeVec * sin(theta)));
-  // std::cout << "result: "; result.Print();
 
   float distanceFromEnd = (end - result).getLength();
   if (distanceFromEnd < 10) {
-    // std::cout << " - Distance less than 10 " << std::endl;
     return end;
   }
   return result;
@@ -285,7 +270,7 @@ void taskFunction(void *pvParameter) {
     /* zero_position = */ Vector2D<uint8_t>(127, 127),
     /* min_position = */  Vector2D<uint8_t>(0, 0),
     /* max_position = */  Vector2D<uint8_t>(255, 255),
-    /* zero_deadband = */ Vector2D<uint8_t>(10, 10)
+    /* zero_deadband = */ Vector2D<uint8_t>(2, 2)
   );
 
   Joystick gokartWheel(
@@ -301,11 +286,11 @@ void taskFunction(void *pvParameter) {
     if (Actuator::systemMode == Actuator::system_modes::PhoneControlMode) {
       // Using gokart wheel configuration
       gokartWheel.convertRawInput(phone_joystickX, phone_joystickY);
-      interp = Lerp(interp, gokartWheel.getPosition(), 4, 10);
+      interp = Lerp(interp, gokartWheel.getPosition(), 3, 7);
     } else {
       // Using custom or nunchuck joystick configuration
-      custom.convertRawInput(I2C::joystickX, I2C::joystickY);
-      interp = Lerp(interp, custom.getPosition(), 10, 15);
+      nunchuck.convertRawInput(I2C::joystickX, I2C::joystickY);
+      interp = Lerp(interp, nunchuck.getPosition(), 4, 15);
     }
 
     caculateMotorSpeed(interp.x, interp.y, Actuator::systemMode);

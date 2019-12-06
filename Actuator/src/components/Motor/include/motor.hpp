@@ -85,31 +85,32 @@ class Joystick {
         
         // clamp raw input between [min_position, max_position] for axis
         raw_value = std::max(std::min(raw_value, max_position.data[index]), min_position.data[index]);
+    
+        // Check sign to see if raw value is above or below zero
+        int sign = (raw_value > zero_position.data[index]) ? 1 : -1;
+
+        auto diff = float(raw_value - (zero_position.data[index] + int(sign * zero_deadband.data[index])));
+
+        result = diff * 100.0f / float(zero_position.data[index] - zero_deadband.data[index]);
+
+        // [0, 120 <== deadband ==> 140, 225]
+        // Case 1:
+        //   raw_value = 115
+        //   desired result = -5 / (120 - 0) (zero_position - deadband)
+        // Case 2:
+        //   raw_value = 145
+        //   desired_value = 5 / (225 - 140)
         
-        // If raw input within zero deadband, return 0;
-        if (raw_value < (zero_position.data[index] + zero_deadband.data[index]) &&
-            raw_value > (zero_position.data[index] - zero_deadband.data[index])) {
-            // Do nothing
-            // returning zero
-        } else {
-
-            // Check sign to see if raw value is above or below zero
-            int sign = (raw_value > zero_position.data[index]) ? 1 : -1;
-
-            auto diff = float(raw_value - (zero_position.data[index] + int(sign * zero_deadband.data[index])));
-
-            result = diff * 100.0f / float(zero_position.data[index] - zero_deadband.data[index]);
-
-            // [0, 120 <== deadband ==> 140, 225]
-            // Case 1:
-            //   raw_value = 115
-            //   desired result = -5 / (120 - 0) (zero_position - deadband)
-            // Case 2:
-            //   raw_value = 145
-            //   desired_value = 5 / (225 - 140)
-        }
-
         return result;
+    }
+
+    // This method will take the raw values and check if both raw values
+    // of jawstick are within the joystick deadband
+    bool isRawInputInDeadband(uint8_t x, uint8_t y) {
+        return (x < (zero_position.data[0] + zero_deadband.data[0]) &&
+                x > (zero_position.data[0] - zero_deadband.data[0]) &&
+                y < (zero_position.data[1] + zero_deadband.data[1]) &&
+                y > (zero_position.data[1] - zero_deadband.data[1]));
     }
 
 public:
@@ -124,7 +125,11 @@ public:
         zero_deadband(zero_deadband) {}
 
     void convertRawInput(uint8_t x, uint8_t y) {
-        position = Vector2D<float>(convert<0>(x), convert<1>(y));
+        if (isRawInputInDeadband(x, y)) {
+            position = Vector2D<float>(0.0f, 0.0f);
+        } else {
+            position = Vector2D<float>(convert<0>(x), convert<1>(y));
+        }
     }
 
     Vector2D<float> getPosition() const {
