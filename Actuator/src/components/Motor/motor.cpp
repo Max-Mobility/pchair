@@ -147,60 +147,6 @@ void caculateMotorSpeed(float x, float y, Actuator::system_modes mode) {
   }
 }
 
-float converterJoystickReadingX(uint8_t r) {
-  // [27, 120 127 140, 225]
-  // Result is b/w -100 and 100
-  float x = 0;
-  if (r > joyStickXMax) {
-    r = joyStickXMax;
-  }
-  if (r < joyStickXMin) {
-    r = joyStickXMin;
-  }
-  if (r > joyStickXZeroMax) {
-    x = ((r - joyStickXZeroMax) * 100.0 / (joyStickXMax - joyStickXZeroMax));
-  } else {
-    if (r < joyStickXZeroMin) {
-      x = ((r - joyStickXZeroMin) * 100.0 / (joyStickXZeroMin - joyStickXMin));
-    } else
-      x = 0;
-  }
-  return x;
-}
-
-float converterJoystickReadingY(uint8_t r) {
-  // Result is b/w -100 and 100
-  float y = 0;
-  if (r > joyStickYMax) {
-    r = joyStickYMax;
-  }
-  if (r < joyStickYMin) {
-    r = joyStickYMin;
-  }
-  if (r > joyStickYZeroMax) {
-    y = ((r - joyStickYZeroMax) * 100.0 / (joyStickYMax - joyStickYZeroMax));
-  } else {
-    if (r < joyStickYZeroMin) {
-      y = ((r - joyStickYZeroMin) * 100.0 / (joyStickYZeroMin - joyStickYMin));
-    } else
-      y = 0;
-  }
-  return y;
-}
-
-float converterJoystickReadingPhone(uint8_t r) {
-  float x = 0;
-  if (r > 148) {
-    x = ((r - 148) * 100.0 / (255 - 148));
-  } else {
-    if (r < 108) {
-      x = ((r - 108) * 100.0 / 108);
-    } else
-      x = 0;
-  }
-  return x;
-}
-
 float caculateSpeedRamp(float currSpeed, float targetSpeed) {
   auto result = currSpeed;
   // Find signed diff between currSpeed and targetSpeed
@@ -245,7 +191,7 @@ float caculateSpeedRamp(float currSpeed, float targetSpeed) {
 // Takes joystick value and performs slerp
 // from our current/saved state value to new value of what was
 // read from the joystick
-Vector2f Slerp(Vector2f start, Vector2f end, float percent) {
+Vector2D<float> Slerp(Vector2D<float> start, Vector2D<float> end, float percent) {
   // Assumptions: Start and end are points on or within a CIRCLE
 
   // Start already close to end, return end
@@ -280,7 +226,7 @@ Vector2f Slerp(Vector2f start, Vector2f end, float percent) {
   // start and the final result.
   float theta = acos(dot) * percent;
   // std::cout << "Theta: " << theta << std::endl;
-  Vector2f RelativeVec = end - start * dot;
+  Vector2D<float> RelativeVec = end - start * dot;
   // std::cout << "RelativeVec: "; RelativeVec.Print();
   // Orthonormal basis
   // The final result.
@@ -296,20 +242,39 @@ Vector2f Slerp(Vector2f start, Vector2f end, float percent) {
 }
 
 void taskFunction(void *pvParameter) {
-  float joyXReading = 0, joyYReading = 0;
-  Vector2f interp(0.0f, 0.0f);
+
+  Joystick custom(
+    /* zero_position = */ Vector2D<uint8_t>(130, 124),
+    /* min_position = */  Vector2D<uint8_t>(27, 36),
+    /* max_position = */  Vector2D<uint8_t>(225, 212),
+    /* zero_deadband = */ Vector2D<uint8_t>(10, 10)
+  );
+
+  Joystick nunchuck(
+    /* zero_position = */ Vector2D<uint8_t>(127, 127),
+    /* min_position = */  Vector2D<uint8_t>(0, 0),
+    /* max_position = */  Vector2D<uint8_t>(255, 255),
+    /* zero_deadband = */ Vector2D<uint8_t>(10, 10)
+  );
+
+  Joystick gokartWheel(
+    /* zero_position = */ Vector2D<uint8_t>(128, 128),
+    /* min_position = */  Vector2D<uint8_t>(0, 0),
+    /* max_position = */  Vector2D<uint8_t>(255, 255),
+    /* zero_deadband = */ Vector2D<uint8_t>(20, 20)
+  );
+
+  Vector2D<float> interp(0.0f, 0.0f);
 
   while (true) {
     if (Actuator::systemMode == Actuator::system_modes::PhoneControlMode) {
-      joyXReading = converterJoystickReadingPhone(phone_joystickX);
-      joyYReading = converterJoystickReadingPhone(phone_joystickY);
-
+      gokartWheel.convertRawInput(phone_joystickX, phone_joystickY);
+      interp = Slerp(interp, gokartWheel.Position(), 0.4);
     } else {
-      joyXReading = converterJoystickReadingX(I2C::joystickX);
-      joyYReading = converterJoystickReadingY(I2C::joystickY);
+      // Change custom to nunchuck if joystick changes
+      custom.convertRawInput(I2C::joystickX, I2C::joystickY);
+      interp = Slerp(interp, custom.Position(), 0.4);
     }
-
-    interp = Slerp(interp, Vector2f{joyXReading, joyYReading}, 0.4);
 
     caculateMotorSpeed(interp.x, interp.y, Actuator::systemMode);
     vTaskDelay((50 * (1)) / portTICK_RATE_MS);

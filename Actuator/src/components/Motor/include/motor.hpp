@@ -11,67 +11,130 @@
 #include "driver/gpio.h" // needed for printf
 #include "gatts.hpp"
 #include <cmath>
+#include <array>
 
 namespace Motor {
 
-    struct Vector2f {
-        float x{0.0};
-        float y{0.0};
+    template <typename T>
+    struct Vector2D {
 
-        explicit Vector2f(float x, float y) : x(x), y(y) { }
+        union {
+            struct {
+                T x;
+                T y;
+            };
+            std::array<T, 2> data;
+        };
+
+        explicit Vector2D(T x, T y) : x(x), y(y) { }
         
-        float Dot(const Vector2f& rhs) const {
+        T Dot(const Vector2D& rhs) const {
             return x * rhs.x + y * rhs.y;
         }
 
-        Vector2f operator-(const Vector2f& rhs) {
-            return Vector2f(x - rhs.x, y - rhs.y);
+        Vector2D operator-(const Vector2D& rhs) {
+            return Vector2D(x - rhs.x, y - rhs.y);
         }
 
-        Vector2f operator+(const Vector2f& rhs) { 
-            return Vector2f(x + rhs.x, y + rhs.y);
+        Vector2D operator+(const Vector2D& rhs) { 
+            return Vector2D(x + rhs.x, y + rhs.y);
         }
 
-        Vector2f operator*(float scalar) { 
-            return Vector2f(x * scalar, y * scalar);
+        Vector2D operator*(T scalar) { 
+            return Vector2D(x * scalar, y * scalar);
         }
 
-        Vector2f operator/(float scalar) { 
+        Vector2D operator/(T scalar) { 
             if (scalar == 0.0) return *this;
-            return Vector2f(x / scalar, y / scalar);
+            return Vector2D(x / scalar, y / scalar);
         }
 
-        bool operator==(const Vector2f& rhs) {
+        bool operator==(const Vector2D& rhs) {
         return (x == rhs.x && y == rhs.y);
         }
 
-        float Length() {
+        T Length() {
             return sqrt(x * x + y * y);
         }
 
         void Normalize() {
             auto length = Length();
-            if (length == 0.0) return;
+            if (length == T()) return;
             x /= length;
             y /= length;
         }
 
-        Vector2f Normalized() {
-            Vector2f result = *this;
+        Vector2D Normalized() {
+            Vector2D result = *this;
             result.Normalize();
             return result;
         }
-
     };
 
-#define joyStickXZeroMin 120
-#define joyStickXZeroMax 140
-#define joyStickXMin 27
-#define joyStickXMax 225
-#define joyStickYZeroMin 114
-#define joyStickYZeroMax 134
-#define joyStickYMin 36
-#define joyStickYMax 212
+    class Joystick {
+        Vector2D<float> position = Vector2D<float>(0.0f, 0.0f);
+        Vector2D<uint8_t> zero_position;
+        Vector2D<uint8_t> min_position;
+        Vector2D<uint8_t> max_position;
+        Vector2D<uint8_t> zero_deadband; // deadband around zero
+
+        template <size_t index>
+        float convert(uint8_t raw_value) {
+            float result = 0.0f;
+            
+            // clamp raw input between [min_position, max_position] for axis
+            raw_value = std::max(std::min(raw_value, max_position.data[index]), min_position.data[index]);
+            
+            // If raw input within zero deadband, return 0;
+            if (raw_value < (zero_position.data[index] + zero_deadband.data[index]) &&
+                raw_value > (zero_position.data[index] - zero_deadband.data[index])) {
+                // Do nothing
+                // returning zero
+            } else {
+
+                // Check sign to see if raw value is above or below zero
+                int sign = (raw_value > zero_position.data[index]) ? 1 : -1;
+
+                auto diff = float(raw_value - (zero_position.data[index] + int(sign * zero_deadband.data[index])));
+
+                result = diff * 100.0f / float(zero_position.data[index] - zero_deadband.data[index]);
+
+                // [0, 120 <== deadband ==> 140, 225]
+                // Case 1:
+                //   raw_value = 115
+                //   desired result = -5 / (120 - 0) (zero_position - deadband)
+                // Case 2:
+                //   raw_value = 145
+                //   desired_value = 5 / (225 - 140)
+            }
+
+            return result;
+        }
+
+    public:
+        explicit Joystick(
+            const Vector2D<uint8_t>& zero_position = Vector2D<uint8_t>(127, 127),
+            const Vector2D<uint8_t>& min_position = Vector2D<uint8_t>(0, 0),
+            const Vector2D<uint8_t>& max_position = Vector2D<uint8_t>(255, 255),
+            const Vector2D<uint8_t>& zero_deadband = Vector2D<uint8_t>(10, 10)) : 
+            zero_position(zero_position),
+            min_position(min_position), 
+            max_position(max_position), 
+            zero_deadband(zero_deadband) {}
+
+        void convertRawInput(uint8_t x, uint8_t y) {
+            position = Vector2D<float>(convert<0>(x), convert<1>(y));
+        }
+
+        void printPosition() {
+            std::cout << "(" << position.x << " " << position.y << ")" << std::endl;
+        }
+
+        Vector2D<float> Position() const {
+            return position;
+        }
+
+    };
 
 extern uint8_t forwardSpeedLimit;
 extern uint8_t rotationSpeedLimit;
