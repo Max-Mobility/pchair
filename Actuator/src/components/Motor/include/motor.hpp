@@ -80,7 +80,7 @@ class Joystick {
 
     template <size_t index>
     typename std::enable_if<(index < 2), float>::type // compile-time checking to make sure index is in range [0 ,1]
-    float convert(uint8_t raw_value) {
+    convert(uint8_t raw_value) {
         float result = 0.0f;
         
         // clamp raw input between [min_position, max_position] for axis
