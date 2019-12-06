@@ -53,7 +53,7 @@ namespace Motor {
         return (x == rhs.x && y == rhs.y);
         }
 
-        T Length() {
+        T Length() const {
             return sqrt(x * x + y * y);
         }
 

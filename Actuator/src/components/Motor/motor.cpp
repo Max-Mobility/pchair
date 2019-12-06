@@ -19,11 +19,11 @@ uint8_t rotationSpeedLimit = 17;
 uint8_t phone_joystickX = 128;
 uint8_t phone_joystickY = 128;
 
-bool Accelerating(const Vector2D<float>& start, const Vector2D<float>& end) {
+bool Accelerating(const Vector2D<float>& start, const Vector2D<float>& end) const {
   return (end.Length() > start.Length());
 }
 
-bool Decelerating(const Vector2D<float>& start, const Vector2D<float>& end) {
+bool Decelerating(const Vector2D<float>& start, const Vector2D<float>& end) const {
   return (end.Length() < start.Length());
 }
 
