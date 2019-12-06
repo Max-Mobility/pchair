@@ -19,6 +19,14 @@ uint8_t rotationSpeedLimit = 17;
 uint8_t phone_joystickX = 128;
 uint8_t phone_joystickY = 128;
 
+bool Accelerating(const Vector2D<float>& start, const Vector2D<float>& end) {
+  return (end.Length() > start.Length());
+}
+
+bool Decelerating(const Vector2D<float>& start, const Vector2D<float>& end) {
+  return (end.Length() < start.Length());
+}
+
 void setRotationSpeedLimit(float currentJoyStickThrowY) {
   uint8_t minRotationSpeedLimit = 3;
   uint8_t maxRotationSpeedLimit = 8;
@@ -241,9 +249,21 @@ Vector2D<float> Slerp(Vector2D<float> start, Vector2D<float> end, float percent)
   return result;
 }
 
-Vector2D<float> Lerp(Vector2D<float> start, Vector2D<float> end, float magnitude) {
+Vector2D<float> Lerp(Vector2D<float> start, Vector2D<float> end, 
+  float accelerationMagnitude, float decelerationMagnitude) {
+  
   auto diff = (end - start);
   auto diffNorm = diff.Normalized();
+  
+  float magnitude;
+
+  if (Accelerating(start, end))
+    magnitude = accelerationMagnitude;
+  else if (Decelerating(start, end))
+    magnitude = decelerationMagnitude;
+  else
+    magnitude = 0.0f;
+
   auto interp = diffNorm * magnitude;
   auto result = start + interp;
   if (interp.Length() > diff.Length()) {
@@ -281,13 +301,11 @@ void taskFunction(void *pvParameter) {
     if (Actuator::systemMode == Actuator::system_modes::PhoneControlMode) {
       // Using gokart wheel configuration
       gokartWheel.convertRawInput(phone_joystickX, phone_joystickY);
-      // interp = Slerp(interp, gokartWheel.Position(), 0.4);
-      interp = Lerp(interp, gokartWheel.Position(), 4);
+      interp = Lerp(interp, gokartWheel.Position(), 4, 10);
     } else {
       // Using custom or nunchuck joystick configuration
       custom.ConvertRawInput(I2C::joystickX, I2C::joystickY);
-      // interp = Slerp(interp, custom.Position(), 0.4);
-      interp = Lerp(interp, custom.Position(), 10);
+      interp = Lerp(interp, custom.Position(), 10, 15);
     }
 
     caculateMotorSpeed(interp.x, interp.y, Actuator::systemMode);
