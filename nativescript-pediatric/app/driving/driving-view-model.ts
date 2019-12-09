@@ -16,7 +16,7 @@ export class DrivingViewModel extends Observable {
     // @Prop() public peripheral: Device = null;
     // @Prop() public characteristic: Characteristic = null;
     // @Prop() public service: Service = null;
-    // @Prop() isBusy: boolean = false;
+    @Prop() isBusy: boolean = false;
     @Prop() isConnected: boolean = false;
     // @Prop() writeTimeoutId: any = null;
 
@@ -125,13 +125,17 @@ export class DrivingViewModel extends Observable {
     }
 
     public async onBluetoothTap() {
-        console.log('onBluetoothTap.');
+        //console.log('onBluetoothTap.');
+        this.isBusy=true;
         await this.pChair.scanAndConnect();
+        this.isBusy=pChair.isBusy;
     }
 
     public async onDisconnectTap() {
-        console.log('onDisconnectTap.');
+        //onsole.log('onDisconnectTap.');
+        this.isBusy=true;
         await this.pChair.disconnect();
+        this.isBusy=pChair.isBusy;
     }
 
     private highSpeedTap() {
