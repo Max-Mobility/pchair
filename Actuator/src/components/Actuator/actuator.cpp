@@ -74,7 +74,7 @@ void taskFunction(void *pvParameter) {
   buttonCounter_up = 0;
   buttonCounter_low = 0;
   actionInput = nonMoving;
-  actRecline.position_in_limit = 6;
+  actRecline.position_in_limit = 8;
 
   std::string str;
   str = "   Driving";
@@ -107,23 +107,20 @@ void taskFunction(void *pvParameter) {
       updateAngle();
       checkButton();
       logCounter++;
-      //				if(logCounter%10==0) //1 log per second
-      //				{
-      //					printf("reclinePos:%d;
-      //LegPos:%d; TiltPos:%d; ElevPos:%d;
-      //",actRecline.position,actLegrest.position,actTilt.position,actElevation.position);
-      //				}
-      //				else
-      //				{
-      //					if(logCounter%5==0) //1 log per
-      //second
-      //					{
-      //						printf("Seat:%f;
-      //Back:%f; " 								"Leg:%f; Chassis:%f; SavedSTC:%f; " 								"LegH:%f mm;\n ",
-      //SeatAngleToGround,BackAngleToGround,LegRestAngleToGround,
-      //								ChassisAngleToGround,SavedSeatAngleToGround,LegRestHeightToGround);
-      //					}
-      //				}
+      // if(logCounter%10==0) //1 log per second
+      // {
+      // 	printf("reclinePos:%d; LegPos:%d; TiltPos:%d; ElevPos:%d;",
+      //   actRecline.position,actLegrest.position,actTilt.position,actElevation.position);
+      // 	}
+      // 	else
+      // 	{
+      // 		if(logCounter%5==0) //1 log per   second
+      // 					{
+      // 						printf("Seat:%f;  Back:%f; Leg:%f; Chassis:%f; SavedSTC:%f; LegH:%f mm;\n ",
+      // SeatAngleToGround,BackAngleToGround,LegRestAngleToGround,
+      // 								ChassisAngleToGround,SavedSeatAngleToGround,LegRestHeightToGround);
+      // 					}
+      // 				}
       if (last_system_modes != systemMode) {
         system_mode_changed = true;
         stateChanged = true;
@@ -361,6 +358,7 @@ void taskFunction(void *pvParameter) {
                  actRecline.position_memory, actLegrest.position_memory,
                  actTilt.position_memory, actElevation.position_memory);
         }
+        updateActPositionLimit();
         switch (actionInput) {
         case nonMoving:
           actuatorStop();
@@ -845,7 +843,7 @@ bool LegRestInRange() {
 }
 void updateActPositionLimit() {
   if (actTilt.position > 8) {
-    actRecline.position_out_limit = 100;
+    actRecline.position_out_limit = ActReclineOutLimit;
   } else {
     if (actTilt.position > 4)
       actRecline.position_out_limit = 20;

@@ -21,7 +21,7 @@ namespace Actuator {
 #define act3ControlB GPIO_NUM_26
 #define act4ControlA GPIO_NUM_12
 #define act4ControlB GPIO_NUM_25
-#define ActReclineOutLimit 100
+#define ActReclineOutLimit 86
 #define ActLegrestOutLimit 92 // 86
 #define ActTiltOutLimit 92
 #define ActElevationOutLimit 100
