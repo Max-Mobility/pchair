@@ -7,6 +7,7 @@ import {
     COMMAND, COMMAND_STR, ACTUATOR_MOVING_DIR, ACTUATOR_MOVING_DIR_STR,
     SPEED_SETTING, SPEED_SETTING_STR, SYSTEM_MODES, SYSTEM_MODES_STR
 } from "./enum";
+import * as permissions from "nativescript-permissions";
 
 
 export class PChair extends DeviceBase {
@@ -62,7 +63,9 @@ export class PChair extends DeviceBase {
             this.isBusy = true;
             console.log('scanAndConnect()');
 
+            permissions.requestPermission(android.Manifest.permission.ACCESS_FINE_LOCATION,"Need permission to access Bluetooth.")
             const gotPermissions = await this._bluetooth.requestCoarseLocationPermission();
+            
             console.log('gotPermissions: ', gotPermissions);
 
             const peripheral = await new Promise(async (resolve, reject) => {
